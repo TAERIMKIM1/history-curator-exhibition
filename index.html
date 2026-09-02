@@ -51,6 +51,10 @@
     .guide-divider { border: none; border-top: 1px dashed #d8c88a; margin: 0.7rem 0; }
     .example-btn { display: inline-block; margin-top: 0.8rem; padding: 0.4rem 0.9rem; background: var(--header-bg); color: var(--accent-light); border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-decoration: none; }
     .example-btn:hover { background: #2a3c4a; }
+    .example-notice { background: #1C5C3A; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+    .example-notice span { font-size: 0.8rem; color: #aee8c4; }
+    .example-notice a { display: inline-flex; align-items: center; gap: 0.4rem; background: #fff; color: #1C5C3A; font-weight: bold; font-size: 0.9rem; padding: 0.45rem 1rem; border-radius: 4px; text-decoration: none; white-space: nowrap; }
+    .example-notice a:hover { background: #e8f5ee; }
 
     .img-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
     .img-upload-box { border: 1px dashed var(--stone); padding: 0.8rem; border-radius: 4px; background: #faf8f5; }
@@ -97,6 +101,12 @@
     <div class="header">
       <h1>역사 큐레이터 : 문화유산 기획전</h1>
       <p>1일 학예연구사 문화유산 탐구 보고서 발행 시스템</p>
+    </div>
+
+    <!-- 예시 패널 바로가기 배너 -->
+    <div class="example-notice">
+      <span>작성 전에 예시를 확인하세요 👉</span>
+      <a href="example.html" target="_blank">👁️ 완성된 패널 예시 보기</a>
     </div>
 
     <form id="curator-form" style="margin-top: 1.5rem;">
