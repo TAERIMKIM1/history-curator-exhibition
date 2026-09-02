@@ -56,6 +56,42 @@
     }
     .timer-controls button:hover { background: var(--accent-light); }
 
+    /* 관리자 모드 */
+    .admin-bar {
+      display: none;
+      background: #8B0000;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.88rem;
+      font-weight: bold;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .admin-bar.active { display: flex; }
+    .btn-admin-exit {
+      background: #fff; color: #8B0000; border: none;
+      padding: 0.35rem 0.8rem; border-radius: 4px;
+      font-weight: bold; font-size: 0.8rem; cursor: pointer;
+    }
+    .card-del-btn {
+      display: none;
+      position: absolute; bottom: 8px; right: 8px;
+      background: #8B0000; color: #fff; border: none;
+      padding: 0.25rem 0.5rem; border-radius: 4px;
+      font-size: 0.75rem; font-weight: bold; cursor: pointer;
+      z-index: 10;
+    }
+    .admin-mode-on .card-del-btn { display: block; }
+    .btn-admin-login {
+      background: #4a2020; color: #ffcccc; border: 1px solid #8B0000;
+      padding: 0.45rem 0.7rem; border-radius: 4px;
+      font-size: 0.78rem; font-weight: bold; cursor: pointer;
+    }
+    .btn-admin-login:hover { background: #8B0000; color: #fff; }
+
     .expo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     .expo-hall { background: rgba(255,255,255,0.65); padding: 1.2rem; border-radius: 8px; border: 1px solid #D8CABA; }
     .hall-title { font-size: 1.25rem; font-weight: bold; padding-bottom: 0.6rem; border-bottom: 2px solid var(--header-bg); margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
@@ -90,8 +126,15 @@
         <button id="btn-timer" onclick="toggleTimer()">▶ 시작</button>
         <button onclick="resetTimer()">↺ 초기화</button>
         <button onclick="loadGallery()">🔄 갱신</button>
+        <button class="btn-admin-login" onclick="enterAdminMode()">🔐 관리</button>
       </div>
     </div>
+  </div>
+
+  <!-- 관리자 모드 배너 -->
+  <div class="admin-bar" id="admin-bar">
+    <span>🔐 교사 관리자 모드 활성화 중 — 카드 우하단 [삭제] 버튼으로 패널을 삭제할 수 있습니다</span>
+    <button class="btn-admin-exit" onclick="exitAdminMode()">✕ 모드 종료</button>
   </div>
 
   <!-- 반 선택 필터 -->
@@ -235,13 +278,15 @@
       const card = document.createElement('div');
       card.className = 'card';
       card.onclick = () => openModal(item);
+      const itemId = item.id;
       card.innerHTML = `
         <span class="vote-tag">🏷️ ${item.votes}표</span>
         <img src="${item.imageUrl1 || ''}" alt="대표 사료">
         <div class="card-body">
           <div class="card-title">${item.relicName}</div>
           <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
-        </div>`;
+        </div>
+        <button class="card-del-btn" onclick="event.stopPropagation(); deletePanel('${itemId}', '${item.relicName}')">🗑️ 삭제</button>`;
       if (item.hall.includes("고려")) { goryeoGrid.appendChild(card); gCount++; }
       else { joseonGrid.appendChild(card); jCount++; }
     });
@@ -275,6 +320,49 @@
 
   function closeModal(e) {
     if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
+  }
+
+  /* ── 관리자 모드 ── */
+  let adminPassword = '';
+  let isAdminMode = false;
+
+  function enterAdminMode() {
+    const pw = prompt('교사 관리자 비밀번호를 입력하세요:');
+    if (!pw) return;
+    adminPassword = pw;
+    isAdminMode = true;
+    document.getElementById('admin-bar').classList.add('active');
+    document.querySelector('.expo-container').classList.add('admin-mode-on');
+  }
+
+  function exitAdminMode() {
+    isAdminMode = false;
+    adminPassword = '';
+    document.getElementById('admin-bar').classList.remove('active');
+    document.querySelector('.expo-container').classList.remove('admin-mode-on');
+  }
+
+  function deletePanel(id, name) {
+    if (!confirm(`"${name}" 패널을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+
+    fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id: id, password: adminPassword })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.result === 'deleted') {
+        alert(`"${name}" 패널이 삭제되었습니다.`);
+        loadGallery();
+      } else if (data.result === 'unauthorized') {
+        alert('비밀번호가 틀렸습니다. 관리자 모드를 종료하고 다시 시도하세요.');
+        exitAdminMode();
+      } else {
+        alert('삭제 중 오류가 발생했습니다: ' + JSON.stringify(data));
+      }
+    })
+    .catch(() => alert('서버 연결 오류. Apps Script 배포 설정을 확인하세요.'));
   }
 
   updateClockDisplay();
