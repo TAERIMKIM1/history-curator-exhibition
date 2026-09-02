@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>1일 역사 큐레이터 기획전</title>
+  <style>
+    :root {
+      --paper: #F6F1E7;
+      --ink: #1C2830;
+      --ink-mid: #3A4855;
+      --accent: #A07828;
+      --accent-light: #C89A40;
+      --accent-faint: #F0E4C0;
+      --stone: #8A7A68;
+      --rule: #D8CABA;
+      --bg: #E8E0D0;
+      --header-bg: #1C2830;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; padding: 1.5rem 1rem; min-height: 100vh; }
+    .container { max-width: 800px; margin: 0 auto; background: var(--paper); border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden; }
+    .header { background: var(--header-bg); color: #fff; padding: 1.8rem 2rem; text-align: center; }
+    .header h1 { font-size: 1.6rem; margin-bottom: 0.4rem; }
+    .header p { font-size: 0.85rem; color: var(--accent-light); }
+    #form-section { padding: 2rem; }
+    .form-group { margin-bottom: 1.3rem; }
+    .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+    label { display: block; font-size: 0.82rem; font-weight: bold; color: var(--ink-mid); margin-bottom: 0.35rem; }
+    input[type="text"], select, textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--rule); border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.9rem; font-family: inherit; }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .img-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .img-upload-box { border: 1px dashed var(--stone); padding: 0.8rem; border-radius: 4px; background: #faf8f5; }
+    .img-preview { width: 100%; height: 120px; object-fit: contain; background: #eee; border-radius: 4px; margin-top: 0.5rem; display: none; }
+    .tip-box { background: #e8f4e8; border-left: 3px solid #4a8; padding: 0.7rem; font-size: 0.78rem; line-height: 1.6; border-radius: 0 4px 4px 0; margin-top: 0.5rem; color: #2a5a2a; }
+    .tip-box strong { display: block; margin-bottom: 0.2rem; }
+    .btn-submit { width: 100%; background: var(--header-bg); color: var(--accent-light); border: 1px solid var(--accent); padding: 1rem; font-size: 1.05rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
+    .btn-submit:hover { background: #2a3c4a; }
+
+    /* 전시 패널 */
+    #panel-section { display: none; }
+    .panel-head { background: var(--header-bg); color: var(--paper); padding: 1.8rem 2rem; display: flex; justify-content: space-between; align-items: flex-start; }
+    .panel-badge { display: inline-block; background: var(--accent); color: var(--header-bg); font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 3px; margin-bottom: 0.6rem; }
+    .panel-title { font-size: 1.8rem; letter-spacing: -0.02em; }
+    .panel-curator { margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-light); }
+    .sticker-btn-wrap { text-align: center; background: rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px dashed var(--accent-light); min-width: 90px; }
+    .btn-sticker { background: var(--accent); color: var(--header-bg); border: none; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+    .panel-content { padding: 2rem; }
+    .panel-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .panel-img-wrap { background: #eae3d2; border-radius: 4px; overflow: hidden; border: 1px solid var(--rule); }
+    .panel-img-wrap img { width: 100%; height: 210px; display: block; object-fit: contain; background: #faf8f5; }
+    .panel-img-caption { font-size: 0.7rem; color: var(--stone); text-align: center; padding: 0.3rem 0; background: #eee; }
+    .card-block { background: var(--accent-faint); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.6rem; }
+    .sec-box { margin-bottom: 1.6rem; }
+    .sec-tag { font-size: 0.95rem; font-weight: bold; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 0.3rem; margin-bottom: 0.6rem; }
+    .sec-body { font-size: 0.9rem; line-height: 1.8; color: var(--ink-mid); white-space: pre-wrap; }
+    .quote-box { background: #fff; border: 1px solid var(--rule); border-left: 4px solid var(--header-bg); padding: 1rem; font-size: 0.95rem; font-weight: 500; line-height: 1.6; }
+    .source-box { border-top: 1px solid var(--rule); padding-top: 0.8rem; font-size: 0.75rem; color: var(--stone); }
+    .sticker-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+    .sticker-item { background: #C89A40; color: #1C2830; font-size: 0.7rem; font-weight: bold; padding: 0.15rem 0.45rem; border-radius: 12px; }
+    .success-msg { background: #d4edda; border: 1px solid #c3e6cb; padding: 0.8rem; border-radius: 4px; font-size: 0.85rem; color: #155724; margin-bottom: 1rem; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .img-upload-grid { grid-template-columns: 1fr; }
+      .panel-gallery { grid-template-columns: 1fr; }
+      .panel-img-wrap img { height: 180px; }
+      .panel-head { flex-direction: column; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ① 입력 폼 -->
+  <div id="form-section">
+    <div class="header">
+      <h1>역사 큐레이터 : 문화유산 기획전</h1>
+      <p>1일 학예연구사 문화유산 탐구 보고서 발행 시스템</p>
+    </div>
+
+    <form id="curator-form" style="margin-top: 1.5rem; padding: 0 2rem 2rem;">
+      <div class="form-group">
+        <label>전시관 선택</label>
+        <select id="hall" required>
+          <option value="고려관">🏛️ [고려관] 고려의 사회와 문화</option>
+          <option value="조선관">🏛️ [조선관] 조선 전기의 유교 문화와 과학</option>
+        </select>
+      </div>
+
+      <div class="form-group form-row">
+        <div><label>학년 / 반</label><input type="text" id="gradeClass" placeholder="예: 3-2" required></div>
+        <div><label>번호</label><input type="text" id="stdNum" placeholder="예: 14" required></div>
+        <div><label>큐레이터 이름</label><input type="text" id="stdName" placeholder="예: 김지우" required></div>
+      </div>
+
+      <div class="form-group">
+        <label>① 유물 정보 — 유물 명칭 및 사료 사진 URL 2개</label>
+        <input type="text" id="relicName" placeholder="문화유산 명칭 (예: 불국사 3층석탑)" required style="margin-bottom:0.8rem;">
+
+        <div class="tip-box">
+          <strong>📌 사진 URL 가져오는 방법</strong>
+          구글 드라이브: 파일 공유 → '링크 있는 모든 사용자' → 링크에서 ID 복사<br>
+          예) <code>https://drive.google.com/uc?id=여기에_파일ID_붙여넣기</code><br>
+          또는 웹에서 이미지 주소 복사(우클릭 → 이미지 주소 복사)
+        </div>
+
+        <div class="img-upload-grid" style="margin-top:0.6rem;">
+          <div class="img-upload-box">
+            <label style="font-size:0.75rem; color:var(--accent);">📷 사료 사진 1 (대표/전경)</label>
+            <input type="file" id="imgFile1" accept="image/*" onchange="previewImage(event,1)">
+            <img class="img-preview" id="preview1" alt="미리보기">
+            <input type="text" id="imgUrl1" placeholder="이미지 URL 붙여넣기 (제출용)" style="margin-top:0.4rem;">
+          </div>
+          <div class="img-upload-box">
+            <label style="font-size:0.75rem; color:var(--accent);">📷 사료 사진 2 (세부/출토유물)</label>
+            <input type="file" id="imgFile2" accept="image/*" onchange="previewImage(event,2)">
+            <img class="img-preview" id="preview2" alt="미리보기">
+            <input type="text" id="imgUrl2" placeholder="이미지 URL 붙여넣기 (제출용)" style="margin-top:0.4rem;">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>기본 제원</label>
+        <input type="text" id="relicSpec" placeholder="예: 751년, 화강암, 국보 제21호, 경북 경주시 불국사" required>
+      </div>
+
+      <div class="form-group">
+        <label>② 학예사의 시선 (시대적 배경 분석)</label>
+        <textarea id="historyContext" placeholder="당시 사회 모습, 정치적 상황, 정책적 노력을 구체적 사실에 근거하여 작성하세요." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>③ 큐레이터 한 줄 (역사적 의의 분석)</label>
+        <textarea id="curatorVoice" placeholder="타당한 근거를 들어 이 유물이 갖는 독보적 역사적 가치나 오늘날 주는 의미를 작성하세요." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>④ 공식 사료 출처</label>
+        <input type="text" id="source" placeholder="예: 국립중앙박물관 e뮤지엄, 우리역사넷" required>
+      </div>
+
+      <button type="submit" class="btn-submit">전시 패널 발행 및 제출하기</button>
+    </form>
+  </div>
+
+  <!-- ② 전시 패널 뷰 -->
+  <div id="panel-section">
+    <div id="submit-success" class="success-msg" style="margin: 1rem 2rem 0; display:none;">
+      ✅ 제출 완료! 전시 갤러리에 등록되었습니다.
+    </div>
+
+    <div class="panel-head">
+      <div>
+        <span class="panel-badge" id="view-hall"></span>
+        <h2 class="panel-title" id="view-title"></h2>
+        <div class="panel-curator">전시 기획 : <span id="view-curator"></span> 큐레이터</div>
+      </div>
+      <div class="sticker-btn-wrap">
+        <button type="button" class="btn-sticker" onclick="giveSticker()">🏷️ 관람객 추천</button>
+        <div style="margin-top: 0.3rem; font-size: 0.75rem; color: var(--accent-light);">
+          스티커 <strong id="sticker-count" style="font-size: 1rem; color: #fff;">0</strong>개
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-content">
+      <div id="sticker-tags" class="sticker-tags"></div>
+
+      <div class="panel-gallery" style="margin-top: 1rem;">
+        <div class="panel-img-wrap">
+          <img id="view-img1" src="" alt="사료 사진 1" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22210%22%3E%3Crect width=%22300%22 height=%22210%22 fill=%22%23EDE4D0%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%238A7A68%22 font-size=%2214%22%3E사료 사진 1%3C/text%3E%3C/svg%3E'">
+          <div class="panel-img-caption">▲ 사료 사진 1 (전경/대표)</div>
+        </div>
+        <div class="panel-img-wrap">
+          <img id="view-img2" src="" alt="사료 사진 2" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22210%22%3E%3Crect width=%22300%22 height=%22210%22 fill=%22%23EDE4D0%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%228A7A68%22 font-size=%2214%22%3E사료 사진 2%3C/text%3E%3C/svg%3E'">
+          <div class="panel-img-caption">▲ 사료 사진 2 (세부/관련 유물)</div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <strong>[유물 기본 제원]</strong><br>
+        <span id="view-spec"></span>
+      </div>
+
+      <div class="sec-box">
+        <div class="sec-tag">학예사의 시선 : 시대적 배경</div>
+        <div class="sec-body" id="view-context"></div>
+      </div>
+
+      <div class="sec-box">
+        <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+        <div class="quote-box" id="view-voice"></div>
+      </div>
+
+      <div class="source-box">
+        사료 출처 : <span id="view-source"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ★ 여기에 Apps Script 웹앱 URL을 입력하세요
+  const GAS_URL = "GAS_URL_PLACEHOLDER";
+
+  let localBase64_1 = "";
+  let localBase64_2 = "";
+  let panelId = null;
+  let localVote = 0;
+
+  // 파일 선택 시 로컬 미리보기만 (base64는 시트에 저장 안 함)
+  function previewImage(e, index) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const preview = document.getElementById('preview' + index);
+      preview.src = evt.target.result;
+      preview.style.display = 'block';
+      if (index === 1) localBase64_1 = evt.target.result;
+      if (index === 2) localBase64_2 = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='210'%3E%3Crect width='300' height='210' fill='%23EDE4D0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%238A7A68' font-size='14'%3E사료 사진%3C/text%3E%3C/svg%3E";
+
+  document.getElementById('curator-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    panelId = new Date().getTime();
+    const url1 = document.getElementById('imgUrl1').value.trim();
+    const url2 = document.getElementById('imgUrl2').value.trim();
+
+    // 패널 뷰용: 로컬 파일 있으면 base64, 없으면 URL, 없으면 플레이스홀더
+    const displayImg1 = localBase64_1 || url1 || PLACEHOLDER_IMG;
+    const displayImg2 = localBase64_2 || url2 || PLACEHOLDER_IMG;
+
+    // 시트 저장용: URL만 (base64는 시트에 저장하지 않음)
+    const saveImg1 = url1 || "";
+    const saveImg2 = url2 || "";
+
+    const payload = {
+      id: panelId,
+      hall: document.getElementById('hall').value,
+      gradeClass: document.getElementById('gradeClass').value,
+      stdNum: document.getElementById('stdNum').value,
+      stdName: document.getElementById('stdName').value,
+      relicName: document.getElementById('relicName').value,
+      relicSpec: document.getElementById('relicSpec').value,
+      historyContext: document.getElementById('historyContext').value,
+      curatorVoice: document.getElementById('curatorVoice').value,
+      source: document.getElementById('source').value,
+      imageUrl1: saveImg1,
+      imageUrl2: saveImg2
+    };
+
+    // Google Sheets로 전송
+    if (GAS_URL && GAS_URL !== "GAS_URL_PLACEHOLDER") {
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('submit-success').style.display = 'block';
+      }).catch(() => {});
+      document.getElementById('submit-success').style.display = 'block';
+    }
+
+    // 패널 뷰 렌더링
+    document.getElementById('view-hall').innerText = payload.hall;
+    document.getElementById('view-title').innerText = payload.relicName;
+    document.getElementById('view-curator').innerText = `${payload.gradeClass} ${payload.stdNum}번 ${payload.stdName}`;
+    document.getElementById('view-spec').innerText = payload.relicSpec;
+    document.getElementById('view-context').innerText = payload.historyContext;
+    document.getElementById('view-voice').innerText = payload.curatorVoice;
+    document.getElementById('view-source').innerText = payload.source;
+    document.getElementById('view-img1').src = displayImg1;
+    document.getElementById('view-img2').src = displayImg2;
+
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('panel-section').style.display = 'block';
+    window.scrollTo(0, 0);
+  });
+
+  function giveSticker() {
+    localVote++;
+    document.getElementById('sticker-count').innerText = localVote;
+    const tags = document.getElementById('sticker-tags');
+    const badge = document.createElement('span');
+    badge.className = 'sticker-item';
+    badge.innerText = '★ 추천';
+    tags.appendChild(badge);
+
+    if (GAS_URL && GAS_URL !== "GAS_URL_PLACEHOLDER" && panelId) {
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: "vote", id: panelId })
+      });
+    }
+  }
+</script>
+</body>
+</html>
