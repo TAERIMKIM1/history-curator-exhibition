@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>완성 예시 패널 — 역사 큐레이터 기획전</title>
+  <style>
+    :root {
+      --paper: #F6F1E7;
+      --ink: #1C2830;
+      --ink-mid: #3A4855;
+      --accent: #A07828;
+      --accent-light: #C89A40;
+      --accent-faint: #F0E4C0;
+      --stone: #8A7A68;
+      --rule: #D8CABA;
+      --bg: #E8E0D0;
+      --header-bg: #1C2830;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; padding: 1.5rem 1rem; min-height: 100vh; }
+
+    /* 예시 안내 배너 */
+    .example-banner {
+      max-width: 800px; margin: 0 auto 1.2rem;
+      background: #1C5C3A; color: #fff;
+      padding: 0.8rem 1.2rem; border-radius: 6px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem;
+    }
+    .example-banner p { font-size: 0.85rem; line-height: 1.5; }
+    .example-banner strong { font-size: 0.9rem; display: block; margin-bottom: 0.2rem; }
+    .back-btn {
+      background: #fff; color: #1C5C3A; border: none;
+      padding: 0.5rem 0.9rem; border-radius: 4px; font-weight: bold;
+      font-size: 0.82rem; cursor: pointer; white-space: nowrap; text-decoration: none;
+    }
+
+    .container { max-width: 800px; margin: 0 auto; background: var(--paper); border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden; }
+
+    /* 패널 헤더 */
+    .panel-head { background: var(--header-bg); color: var(--paper); padding: 1.8rem 2rem; display: flex; justify-content: space-between; align-items: flex-start; }
+    .panel-badge { display: inline-block; background: var(--accent); color: var(--header-bg); font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 3px; margin-bottom: 0.6rem; }
+    .panel-title { font-size: 1.8rem; letter-spacing: -0.02em; }
+    .panel-curator { margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-light); }
+    .sticker-wrap { text-align: center; background: rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px dashed var(--accent-light); }
+    .sticker-count { font-size: 0.75rem; color: var(--accent-light); margin-top: 0.3rem; }
+    .sticker-count strong { font-size: 1rem; color: #fff; }
+    .sticker-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.6rem; }
+    .sticker-item { background: #C89A40; color: #1C2830; font-size: 0.7rem; font-weight: bold; padding: 0.15rem 0.45rem; border-radius: 12px; }
+
+    /* 패널 본문 */
+    .panel-content { padding: 2rem; }
+    .panel-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; margin-top: 1rem; }
+    .panel-img-wrap { background: #eae3d2; border-radius: 4px; overflow: hidden; border: 1px solid var(--rule); }
+    .panel-img-wrap img { width: 100%; height: 210px; display: block; object-fit: contain; background: #faf8f5; }
+    .panel-img-caption { font-size: 0.7rem; color: var(--stone); text-align: center; padding: 0.3rem 0; background: #eee; }
+
+    .card-block { background: var(--accent-faint); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.6rem; }
+    .sec-box { margin-bottom: 1.6rem; }
+    .sec-tag { font-size: 0.95rem; font-weight: bold; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 0.3rem; margin-bottom: 0.6rem; }
+    .sec-body { font-size: 0.9rem; line-height: 1.8; color: var(--ink-mid); white-space: pre-wrap; }
+    .quote-box { background: #fff; border: 1px solid var(--rule); border-left: 4px solid var(--header-bg); padding: 1rem; font-size: 0.95rem; font-weight: 500; line-height: 1.6; }
+    .source-box { border-top: 1px solid var(--rule); padding-top: 0.8rem; font-size: 0.75rem; color: var(--stone); }
+
+    /* 채점 기준표 */
+    .rubric-section { max-width: 800px; margin: 1.5rem auto 0; background: var(--paper); border-radius: 6px; padding: 1.4rem 1.8rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .rubric-title { font-size: 1rem; font-weight: bold; color: var(--header-bg); margin-bottom: 1rem; border-bottom: 2px solid var(--header-bg); padding-bottom: 0.4rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { background: var(--header-bg); color: var(--accent-light); padding: 0.5rem 0.7rem; text-align: left; }
+    td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; }
+    tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+    .tag-good { background: #d4edda; color: #155724; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; }
+    .tag-check { background: #fff3cd; color: #856404; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; }
+
+    @media (max-width: 600px) {
+      .panel-gallery { grid-template-columns: 1fr; }
+      .panel-img-wrap img { height: 180px; }
+      .panel-head { flex-direction: column; gap: 1rem; }
+      .example-banner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 안내 배너 -->
+  <div class="example-banner">
+    <div>
+      <strong>📌 이것은 완성 예시 패널입니다</strong>
+      <p>내용 구성, 사진 배치, 글쓰기 분량을 참고하여 자신의 패널을 작성하세요.<br>
+      이 수준의 분석과 근거가 갖춰져야 우수한 평가를 받을 수 있습니다.</p>
+    </div>
+    <a class="back-btn" href="index.html">← 내 패널 작성하기</a>
+  </div>
+
+  <!-- 예시 패널 -->
+  <div class="container">
+
+    <div class="panel-head">
+      <div>
+        <span class="panel-badge">고려관</span>
+        <h2 class="panel-title">청자 상감운학문 매병</h2>
+        <div class="panel-curator">전시 기획 : 2-3반 8번 김고려 큐레이터</div>
+      </div>
+      <div class="sticker-wrap">
+        <div style="font-size: 0.8rem; color: var(--accent-light);">🏷️ 관람객 추천</div>
+        <div class="sticker-count">스티커 <strong>12</strong>개</div>
+      </div>
+    </div>
+
+    <div class="panel-content">
+
+      <div class="sticker-tags">
+        <span class="sticker-item">★ 추천</span>
+        <span class="sticker-item">★ 추천</span>
+        <span class="sticker-item">★ 추천</span>
+        <span class="sticker-item">★ 추천</span>
+        <span class="sticker-item">★ 추천</span>
+        <span class="sticker-item">★ 추천</span>
+      </div>
+
+      <!-- 사료 사진 2장 -->
+      <div class="panel-gallery">
+        <div class="panel-img-wrap">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Korea-Goryeo_period-Celadon_vase_with_Inlaid_Crane_and_Cloud_Design-01.jpg/640px-Korea-Goryeo_period-Celadon_vase_with_Inlaid_Crane_and_Cloud_Design-01.jpg"
+               alt="청자 상감운학문 매병 전경"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22210%22%3E%3Crect width=%22300%22 height=%22210%22 fill=%22%23EDE4D0%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%238A7A68%22%3E사료 사진 1%3C/text%3E%3C/svg%3E'">
+          <div class="panel-img-caption">▲ 사료 사진 1 — 청자 상감운학문 매병 전경 (국립중앙박물관)</div>
+        </div>
+        <div class="panel-img-wrap">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Korea-Goryeo_celadon_cup-01.jpg/640px-Korea-Goryeo_celadon_cup-01.jpg"
+               alt="고려청자 세부"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22210%22%3E%3Crect width=%22300%22 height=%22210%22 fill=%22%23EDE4D0%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%238A7A68%22%3E사료 사진 2%3C/text%3E%3C/svg%3E'">
+          <div class="panel-img-caption">▲ 사료 사진 2 — 고려청자 세부 문양 (국립중앙박물관)</div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <strong>[유물 기본 정보]</strong><br>
+        12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장
+      </div>
+
+      <div class="sec-box">
+        <div class="sec-tag">학예사의 시선 : 시대적 배경</div>
+        <div class="sec-body">고려 중기(12세기)는 문벌 귀족 사회가 절정에 달하던 시기였습니다. 귀족들은 불교 문화를 깊이 신봉하며 정교한 공예품을 즐겼고, 송나라와의 활발한 무역을 통해 도자기 기술을 빠르게 수용·발전시켰습니다.
+
+특히 고려 청자는 송나라 사신 서긍이 "천하제일"이라 극찬했을 만큼 독창적인 비색(翡色)을 완성했습니다. 상감기법은 바탕 흙에 무늬를 새기고 백토나 자토를 채워 넣는 고려인 특유의 창안으로, 중국에서도 볼 수 없는 독보적 기법이었습니다. 이 매병 위에 새겨진 학과 구름 문양은 신선 사상과 불로장생을 표현하며, 고려 귀족 문화의 정서적 이상을 담고 있습니다.</div>
+      </div>
+
+      <div class="sec-box">
+        <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+        <div class="quote-box">
+          청자 상감운학문 매병은 단순한 그릇이 아니라, 고려인이 외래 기술을 완전히 소화하여 독자적 예술로 승화시킨 문화적 자신감의 결정체입니다. 중국 기술을 넘어 '상감'이라는 새로운 문법을 창안했다는 점에서, 오늘날 K-컬처가 외부 영향을 흡수해 고유의 스타일을 만드는 방식과 닮아 있습니다. 이 매병은 고려가 단순한 '문화 수용국'이 아닌 '문화 창조국'이었음을 증명합니다.
+        </div>
+      </div>
+
+      <div class="source-box">
+        사료 출처 : 국립중앙박물관 e뮤지엄 (www.emuseum.go.kr), 서긍 『고려도경』, 우리역사넷
+      </div>
+    </div>
+  </div>
+
+  <!-- 채점 기준 참고표 -->
+  <div class="rubric-section">
+    <div class="rubric-title">📊 채점 기준 참고표 (이 예시 패널 기준)</div>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>잘된 점</th>
+        <th>주의할 점</th>
+      </tr>
+      <tr>
+        <td><strong>사료 사진</strong></td>
+        <td><span class="tag-good">우수</span> 전경·세부 각 1장, 공식 출처 명시</td>
+        <td>개인 SNS·포털 캡처 사용 금지</td>
+      </tr>
+      <tr>
+        <td><strong>유물 기본 정보</strong></td>
+        <td><span class="tag-good">우수</span> 시기·재료·크기·지정번호·소장처 포함</td>
+        <td>명칭만 쓰면 감점</td>
+      </tr>
+      <tr>
+        <td><strong>시대적 배경</strong></td>
+        <td><span class="tag-good">우수</span> 정치·사회·대외관계 연결, 구체적 사실 근거</td>
+        <td><span class="tag-check">주의</span> 느낌·추측 금지 — 반드시 사료 근거</td>
+      </tr>
+      <tr>
+        <td><strong>역사적 의의</strong></td>
+        <td><span class="tag-good">우수</span> 타당한 근거 + 현재와의 연결 + 자신의 관점</td>
+        <td><span class="tag-check">주의</span> "중요하다", "가치 있다"만 쓰면 부족</td>
+      </tr>
+      <tr>
+        <td><strong>사료 출처</strong></td>
+        <td><span class="tag-good">우수</span> 국가 공인 기관 자료 명시</td>
+        <td>위키백과 단독 출처는 인정 안 됨</td>
+      </tr>
+    </table>
+    <p style="font-size:0.78rem; color:var(--stone); margin-top:0.8rem;">
+      ※ 이 예시는 참고용입니다. 자신이 선택한 유물로 독창적인 분석을 작성하세요.
+    </p>
+  </div>
+
+</body>
+</html>

@@ -89,9 +89,19 @@
       <div class="timer-controls">
         <button id="btn-timer" onclick="toggleTimer()">▶ 시작</button>
         <button onclick="resetTimer()">↺ 초기화</button>
-        <button onclick="loadGallery()">🔄 갤러리 갱신</button>
+        <button onclick="loadGallery()">🔄 갱신</button>
       </div>
     </div>
+  </div>
+
+  <!-- 반 선택 필터 -->
+  <div style="margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+    <label for="class-filter" style="font-weight: bold; font-size: 0.88rem; color: #1C2830;">🏫 전시 반 선택 :</label>
+    <select id="class-filter" onchange="applyClassFilter()"
+      style="padding: 0.45rem 0.8rem; border-radius: 4px; border: 2px solid #A07828; font-size: 0.88rem; font-weight: bold; color: #1C2830; background: #F6F1E7; cursor: pointer;">
+      <option value="">📋 전체 보기</option>
+    </select>
+    <span id="filter-label" style="font-size: 0.82rem; color: #666;"></span>
   </div>
 
   <div class="expo-container">
@@ -168,14 +178,39 @@
     document.getElementById('timer-status').innerText = '1일 학예연구사 패널 기획 마감까지 남은 시간';
   }
 
+  // URL 파라미터에서 반 정보 읽기 (예: gallery.html?class=3-2)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlClass = urlParams.get('class') || '';
+
   let items = [];
+  let currentFilter = urlClass;
 
   function loadGallery() {
     if (!GAS_URL || GAS_URL === "GAS_URL_PLACEHOLDER") return;
     fetch(GAS_URL)
       .then(res => res.json())
-      .then(data => { items = data; renderGallery(); })
+      .then(data => { items = data; buildClassDropdown(); renderGallery(); })
       .catch(err => console.error(err));
+  }
+
+  // 데이터에서 반 목록 자동 추출해 드롭다운 생성
+  function buildClassDropdown() {
+    const sel = document.getElementById('class-filter');
+    const classes = [...new Set(items.map(i => String(i.gradeClass).trim()))].sort();
+    // 기존 옵션(전체 보기) 유지하고 반 목록 추가
+    sel.innerHTML = '<option value="">📋 전체 보기</option>';
+    classes.forEach(cls => {
+      const opt = document.createElement('option');
+      opt.value = cls;
+      opt.textContent = `${cls}반`;
+      if (cls === currentFilter) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function applyClassFilter() {
+    currentFilter = document.getElementById('class-filter').value;
+    renderGallery();
   }
 
   function renderGallery() {
@@ -186,7 +221,17 @@
     let gCount = 0, jCount = 0;
     items.sort((a, b) => b.votes - a.votes);
 
-    items.forEach(item => {
+    // 반 필터 적용
+    const norm = s => String(s).replace(/\s/g,'');
+    const visible = currentFilter
+      ? items.filter(item => norm(item.gradeClass) === norm(currentFilter))
+      : items;
+
+    // 필터 안내 텍스트
+    const lbl = document.getElementById('filter-label');
+    lbl.textContent = currentFilter ? `→ ${currentFilter}반 작품만 표시 중` : '';
+
+    visible.forEach(item => {
       const card = document.createElement('div');
       card.className = 'card';
       card.onclick = () => openModal(item);
