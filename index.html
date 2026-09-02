@@ -165,7 +165,14 @@
       </div>
 
       <div class="form-group form-row">
-        <div><label>학년 / 반</label><input type="text" id="gradeClass" placeholder="예: 3-2" required></div>
+        <div>
+          <label>반</label>
+          <div style="display:flex; align-items:center; gap:0.3rem;">
+            <span style="background:#e8e0d0; border:1px solid #d8caba; border-radius:4px 0 0 4px; padding:0.7rem 0.6rem; font-size:0.9rem; white-space:nowrap; color:#3A4855;">3학년</span>
+            <input type="text" id="banOnly" placeholder="반 번호 (예: 2)" required style="border-radius:0 4px 4px 0; border-left:none;">
+            <input type="hidden" id="gradeClass">
+          </div>
+        </div>
         <div><label>번호</label><input type="text" id="stdNum" placeholder="예: 14" required></div>
         <div><label>큐레이터 이름</label><input type="text" id="stdName" placeholder="예: 김지우" required></div>
       </div>
@@ -288,10 +295,22 @@
   (function() {
     const p = new URLSearchParams(window.location.search).get('class');
     if (p) {
-      const el = document.getElementById('gradeClass');
-      if (el) { el.value = p; el.readOnly = true; el.style.background = '#f0f0f0'; }
+      // class=3-2 → banOnly에 "2" 표시, gradeClass hidden에 "3-2" 저장
+      const banEl = document.getElementById('banOnly');
+      if (banEl) {
+        const banNum = p.includes('-') ? p.split('-')[1] : p;
+        banEl.value = banNum;
+        banEl.readOnly = true;
+        banEl.style.background = '#f0f0f0';
+      }
+      document.getElementById('gradeClass').value = p;
     }
   })();
+
+  // banOnly 입력 시 gradeClass hidden 자동 갱신
+  document.getElementById('banOnly').addEventListener('input', function() {
+    document.getElementById('gradeClass').value = '3-' + this.value.trim();
+  });
 
   // 이전 제출 확인 — 같은 기기에서 제출한 내용이 있으면 수정 배너 표시
   (function checkExistingSubmission() {

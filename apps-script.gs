@@ -3,7 +3,7 @@
 // Google Apps Script 에디터에 붙여넣고 웹앱으로 재배포하세요
 // ============================================================
 
-var TEACHER_PASSWORD = "history2025"; // 교사 비밀번호 (원하는 대로 변경)
+var TEACHER_PASSWORD = "0070"; // 교사 비밀번호 (원하는 대로 변경)
 
 function doPost(e) {
   try {
