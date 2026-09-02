@@ -302,8 +302,14 @@
       <h2 style="margin: 0.4rem 0 0.2rem;">${item.relicName}</h2>
       <div style="font-size:0.85rem; color:#666; margin-bottom:1rem;">전시 기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터 (관람객 추천 ${item.votes}표)</div>
       <div class="modal-gallery">
-        <img src="${item.imageUrl1}" alt="사료 사진 1">
-        <img src="${item.imageUrl2}" alt="사료 사진 2">
+        <div>
+          <img src="${item.imageUrl1}" alt="사료 사진 1" style="width:100%;border-radius:4px;">
+          <div style="font-size:0.7rem;color:#888;text-align:center;margin-top:0.2rem;">▲ ${item.imgCaption1 || '사료 사진 1'}</div>
+        </div>
+        <div>
+          <img src="${item.imageUrl2}" alt="사료 사진 2" style="width:100%;border-radius:4px;">
+          <div style="font-size:0.7rem;color:#888;text-align:center;margin-top:0.2rem;">▲ ${item.imgCaption2 || '사료 사진 2'}</div>
+        </div>
       </div>
       <div style="background:#F0E4C0; padding:0.6rem; font-size:0.85rem; margin-bottom:1rem; border-radius:4px;"><strong>[유물 기본 제원]</strong><br>${item.relicSpec}</div>
       <div style="margin-bottom:1rem;">

@@ -178,12 +178,20 @@
           <div class="img-upload-box">
             <label style="font-size:0.75rem; color:var(--accent);">📷 사료 사진 1 (전경 / 필수)</label>
             <input type="file" id="imgFile1" accept="image/*" onchange="handleImage(event, 1)">
-            <input type="text" id="imgUrl1" placeholder="또는 웹 이미지 URL 붙여넣기" style="margin-top:0.3rem;">
+            <input type="text" id="imgUrl1" placeholder="웹 이미지 URL 붙여넣기" style="margin-top:0.3rem;" onblur="previewUrl(1)">
+            <div id="imgPreview1" style="display:none; margin-top:0.4rem; text-align:center; background:#fff; border:1px solid #d8caba; border-radius:3px; padding:0.2rem;">
+              <img id="previewImg1" style="max-width:100%; max-height:90px; object-fit:contain;">
+            </div>
+            <input type="text" id="imgCaption1" placeholder="사진 설명 직접 입력 (예: 청자 상감운학문 매병 전경)" style="margin-top:0.5rem; font-size:0.82rem;">
           </div>
           <div class="img-upload-box">
-            <label style="font-size:0.75rem; color:var(--accent);">📷 사료 사진 2 (세부·출토유물 / 선택)</label>
+            <label style="font-size:0.75rem; color:var(--accent);">📷 사료 사진 2 (세부·관련유물 / 선택)</label>
             <input type="file" id="imgFile2" accept="image/*" onchange="handleImage(event, 2)">
-            <input type="text" id="imgUrl2" placeholder="또는 웹 이미지 URL 붙여넣기" style="margin-top:0.3rem;">
+            <input type="text" id="imgUrl2" placeholder="웹 이미지 URL 붙여넣기" style="margin-top:0.3rem;" onblur="previewUrl(2)">
+            <div id="imgPreview2" style="display:none; margin-top:0.4rem; text-align:center; background:#fff; border:1px solid #d8caba; border-radius:3px; padding:0.2rem;">
+              <img id="previewImg2" style="max-width:100%; max-height:90px; object-fit:contain;">
+            </div>
+            <input type="text" id="imgCaption2" placeholder="사진 설명 직접 입력 (예: 상감 기법 세부 문양)" style="margin-top:0.5rem; font-size:0.82rem;">
           </div>
         </div>
       </div>
@@ -234,11 +242,11 @@
       <div class="panel-gallery" style="margin-top: 1rem;">
         <div class="panel-img-wrap">
           <img id="view-img1" src="" alt="사료 사진 1">
-          <div class="panel-img-caption">▲ 사료 사진 1 (대표/전경)</div>
+          <div class="panel-img-caption">▲ <span id="view-cap1">사료 사진 1</span></div>
         </div>
         <div class="panel-img-wrap">
           <img id="view-img2" src="" alt="사료 사진 2">
-          <div class="panel-img-caption">▲ 사료 사진 2 (세부/관련 유물)</div>
+          <div class="panel-img-caption">▲ <span id="view-cap2">사료 사진 2</span></div>
         </div>
       </div>
 
@@ -314,6 +322,10 @@
       document.getElementById('source').value = saved.source || '';
       document.getElementById('imgUrl1').value = saved.imageUrl1 || '';
       document.getElementById('imgUrl2').value = saved.imageUrl2 || '';
+      document.getElementById('imgCaption1').value = saved.imgCaption1 || '';
+      document.getElementById('imgCaption2').value = saved.imgCaption2 || '';
+      if (saved.imageUrl1) previewUrl(1);
+      if (saved.imageUrl2) previewUrl(2);
       isEditMode = true;
       editId = saved.id;
       document.getElementById('submit-btn').innerText = '✏️ 수정 내용 저장하기';
@@ -324,6 +336,19 @@
 
   function dismissEdit() {
     document.getElementById('edit-banner').style.display = 'none';
+  }
+
+  function previewUrl(index) {
+    const url = document.getElementById('imgUrl' + index).value.trim();
+    const div = document.getElementById('imgPreview' + index);
+    const img = document.getElementById('previewImg' + index);
+    if (url) {
+      img.src = url;
+      img.onerror = () => { div.style.display = 'none'; };
+      img.onload  = () => { div.style.display = 'block'; };
+    } else {
+      div.style.display = 'none';
+    }
   }
 
   function handleImage(e, index) {
@@ -361,7 +386,9 @@
       curatorVoice:   document.getElementById('curatorVoice').value,
       source:         document.getElementById('source').value,
       imageUrl1:      saveImg1,
-      imageUrl2:      saveImg2
+      imageUrl2:      saveImg2,
+      imgCaption1:    document.getElementById('imgCaption1').value.trim() || '사료 사진 1',
+      imgCaption2:    document.getElementById('imgCaption2').value.trim() || '사료 사진 2'
     };
 
     if (isEditMode && editId) {
@@ -398,6 +425,8 @@
     document.getElementById('view-source').innerText = formData.source;
     document.getElementById('view-img1').src = resolvedImg1;
     document.getElementById('view-img2').src = resolvedImg2;
+    document.getElementById('view-cap1').innerText = formData.imgCaption1;
+    document.getElementById('view-cap2').innerText = formData.imgCaption2;
 
     document.getElementById('form-section').style.display = 'none';
     document.getElementById('panel-section').style.display = 'block';
