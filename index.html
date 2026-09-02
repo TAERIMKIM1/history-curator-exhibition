@@ -55,6 +55,14 @@
     .example-notice span { font-size: 0.8rem; color: #aee8c4; }
     .example-notice a { display: inline-flex; align-items: center; gap: 0.4rem; background: #fff; color: #1C5C3A; font-weight: bold; font-size: 0.9rem; padding: 0.45rem 1rem; border-radius: 4px; text-decoration: none; white-space: nowrap; }
     .example-notice a:hover { background: #e8f5ee; }
+    .edit-banner { background: #fff8e8; border-top: 3px solid #e8a000; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+    .edit-banner .edit-info { font-size: 0.82rem; color: #6a4e03; line-height: 1.5; }
+    .edit-banner .edit-info strong { display: block; color: #3a2c00; font-size: 0.88rem; }
+    .edit-banner-btns { display: flex; gap: 0.5rem; }
+    .btn-edit-load { background: #856404; color: #fff; border: none; padding: 0.45rem 1rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+    .btn-edit-load:hover { background: #6a4e03; }
+    .btn-edit-new { background: transparent; color: #856404; border: 1px solid #e8a000; padding: 0.45rem 0.8rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
+    .btn-edit-new:hover { background: #fff3cd; }
 
     .img-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
     .img-upload-box { border: 1px dashed var(--stone); padding: 0.8rem; border-radius: 4px; background: #faf8f5; }
@@ -107,6 +115,18 @@
     <div class="example-notice">
       <span>작성 전에 예시를 확인하세요 👉</span>
       <a href="example.html" target="_blank">👁️ 완성된 패널 예시 보기</a>
+    </div>
+
+    <!-- 이전 제출 수정 배너 (localStorage에 저장된 경우에만 표시) -->
+    <div class="edit-banner" id="edit-banner" style="display:none">
+      <div class="edit-info">
+        <strong id="saved-info">이전 제출 내용</strong>
+        ✏️ 같은 기기에서 제출한 패널이 있습니다. 내용을 수정할 수 있어요.
+      </div>
+      <div class="edit-banner-btns">
+        <button type="button" class="btn-edit-load" onclick="loadExistingSubmission()">✏️ 내 패널 수정하기</button>
+        <button type="button" class="btn-edit-new" onclick="dismissEdit()">새로 제출</button>
+      </div>
     </div>
 
     <form id="curator-form" style="margin-top: 1.5rem;">
@@ -188,7 +208,7 @@
         <input type="text" id="source" placeholder="예: 국립중앙박물관 e뮤지엄, 우리역사넷" required>
       </div>
 
-      <button type="submit" class="btn-submit">전시 패널 발행 및 제출하기</button>
+      <button type="submit" class="btn-submit" id="submit-btn">전시 패널 발행 및 제출하기</button>
     </form>
   </div>
 
@@ -247,6 +267,14 @@
 
 <script>
   const GAS_URL = "https://script.google.com/macros/s/AKfycbweLp9sgFPlQ5rbDBMmKHvuJxp8LjIFOwsKhDySYDZRvBcEEeZtx-LUVStO_WBaVBmOHA/exec";
+  const STORAGE_KEY = 'curator_submission';
+
+  let base64_1 = "";
+  let base64_2 = "";
+  let panelId = null;
+  let localVote = 0;
+  let isEditMode = false;
+  let editId = null;
 
   // URL 파라미터로 반 자동 입력 (예: index.html?class=3-2)
   (function() {
@@ -257,10 +285,46 @@
     }
   })();
 
-  let base64_1 = "";
-  let base64_2 = "";
-  let panelId = null;
-  let localVote = 0;
+  // 이전 제출 확인 — 같은 기기에서 제출한 내용이 있으면 수정 배너 표시
+  (function checkExistingSubmission() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved || !saved.id) return;
+      const urlClass = new URLSearchParams(window.location.search).get('class');
+      if (urlClass && saved.gradeClass !== urlClass) return;
+      const infoEl = document.getElementById('saved-info');
+      if (infoEl) infoEl.innerText = `${saved.gradeClass} ${saved.stdNum}번 ${saved.stdName} — "${saved.relicName}"`;
+      document.getElementById('edit-banner').style.display = 'flex';
+    } catch(e) {}
+  })();
+
+  function loadExistingSubmission() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved) return;
+      document.getElementById('hall').value = saved.hall || '';
+      const clEl = document.getElementById('gradeClass');
+      if (!clEl.readOnly) clEl.value = saved.gradeClass || '';
+      document.getElementById('stdNum').value = saved.stdNum || '';
+      document.getElementById('stdName').value = saved.stdName || '';
+      document.getElementById('relicName').value = saved.relicName || '';
+      document.getElementById('relicSpec').value = saved.relicSpec || '';
+      document.getElementById('historyContext').value = saved.historyContext || '';
+      document.getElementById('curatorVoice').value = saved.curatorVoice || '';
+      document.getElementById('source').value = saved.source || '';
+      document.getElementById('imgUrl1').value = saved.imageUrl1 || '';
+      document.getElementById('imgUrl2').value = saved.imageUrl2 || '';
+      isEditMode = true;
+      editId = saved.id;
+      document.getElementById('submit-btn').innerText = '✏️ 수정 내용 저장하기';
+      document.getElementById('edit-banner').style.display = 'none';
+      document.getElementById('curator-form').scrollIntoView({ behavior: 'smooth' });
+    } catch(e) {}
+  }
+
+  function dismissEdit() {
+    document.getElementById('edit-banner').style.display = 'none';
+  }
 
   function handleImage(e, index) {
     const file = e.target.files[0];
@@ -277,49 +341,61 @@
   document.getElementById('curator-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    panelId = new Date().getTime();
-
     const url1 = document.getElementById('imgUrl1').value.trim();
     const url2 = document.getElementById('imgUrl2').value.trim();
     const defaultSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23EDE4D0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%238A7A68'%3E사료 사진%3C/text%3E%3C/svg%3E";
 
     const resolvedImg1 = base64_1 || url1 || defaultSvg;
     const resolvedImg2 = base64_2 || url2 || defaultSvg;
-
-    // 시트 저장: URL 방식은 URL 그대로, 파일 업로드는 빈 문자열(base64는 시트 용량 초과)
     const saveImg1 = url1 || "";
     const saveImg2 = url2 || "";
 
-    const payload = {
-      id: panelId,
-      hall: document.getElementById('hall').value,
-      gradeClass: document.getElementById('gradeClass').value,
-      stdNum: document.getElementById('stdNum').value,
-      stdName: document.getElementById('stdName').value,
-      relicName: document.getElementById('relicName').value,
-      relicSpec: document.getElementById('relicSpec').value,
+    const formData = {
+      hall:           document.getElementById('hall').value,
+      gradeClass:     document.getElementById('gradeClass').value,
+      stdNum:         document.getElementById('stdNum').value,
+      stdName:        document.getElementById('stdName').value,
+      relicName:      document.getElementById('relicName').value,
+      relicSpec:      document.getElementById('relicSpec').value,
       historyContext: document.getElementById('historyContext').value,
-      curatorVoice: document.getElementById('curatorVoice').value,
-      source: document.getElementById('source').value,
-      imageUrl1: saveImg1,
-      imageUrl2: saveImg2
+      curatorVoice:   document.getElementById('curatorVoice').value,
+      source:         document.getElementById('source').value,
+      imageUrl1:      saveImg1,
+      imageUrl2:      saveImg2
     };
 
-    fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    if (isEditMode && editId) {
+      // ── 수정 모드: 기존 행 업데이트 ──
+      panelId = editId;
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update', id: editId, ...formData })
+      }).catch(() => {});
+    } else {
+      // ── 신규 제출 ──
+      panelId = new Date().getTime();
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: panelId, ...formData })
+      });
+    }
 
-    // 패널 뷰: 로컬 미리보기용 (base64 또는 URL)
-    document.getElementById('view-hall').innerText = payload.hall;
-    document.getElementById('view-title').innerText = payload.relicName;
-    document.getElementById('view-curator').innerText = `${payload.gradeClass} ${payload.stdNum}번 ${payload.stdName}`;
-    document.getElementById('view-spec').innerText = payload.relicSpec;
-    document.getElementById('view-context').innerText = payload.historyContext;
-    document.getElementById('view-voice').innerText = payload.curatorVoice;
-    document.getElementById('view-source').innerText = payload.source;
+    // localStorage에 저장 (다음에 수정 가능하도록)
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: panelId, ...formData }));
+    } catch(err) {}
+
+    // 패널 뷰 표시
+    document.getElementById('view-hall').innerText = formData.hall;
+    document.getElementById('view-title').innerText = formData.relicName;
+    document.getElementById('view-curator').innerText = `${formData.gradeClass} ${formData.stdNum}번 ${formData.stdName}`;
+    document.getElementById('view-spec').innerText = formData.relicSpec;
+    document.getElementById('view-context').innerText = formData.historyContext;
+    document.getElementById('view-voice').innerText = formData.curatorVoice;
+    document.getElementById('view-source').innerText = formData.source;
     document.getElementById('view-img1').src = resolvedImg1;
     document.getElementById('view-img2').src = resolvedImg2;
 
