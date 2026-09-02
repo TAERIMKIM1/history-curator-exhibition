@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>고려·조선 문화유산 특별전 — 실시간 갤러리</title>
+  <title>고려·조선 문화유산 특별전 실시간 갤러리</title>
   <style>
     :root {
       --header-bg: #1C2830;
@@ -12,124 +12,109 @@
       --accent-light: #C89A40;
       --bg: #EAE3D2;
       --card-bg: #F6F1E7;
-      --stone: #8A7A68;
+      --timer-bg: #141D23;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); font-family: 'Malgun Gothic', sans-serif; color: #1C2830; padding: 1.5rem; }
 
-    .gallery-header { display: flex; justify-content: space-between; align-items: center; background: var(--header-bg); color: #fff; padding: 1.2rem 2rem; border-radius: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
-    .gallery-header h1 { font-size: 1.4rem; }
-    .header-right { display: flex; gap: 0.6rem; align-items: center; }
-    .btn-refresh { background: var(--accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    .status-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; animation: blink 2s infinite; display: inline-block; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .timer-banner {
+      background: var(--timer-bg);
+      color: #fff;
+      padding: 1rem 1.8rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      border-left: 6px solid var(--accent-light);
+    }
+    .timer-info h1 { font-size: 1.4rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    .timer-info p { font-size: 0.85rem; color: var(--accent-light); margin-top: 0.2rem; }
+    .timer-box { display: flex; align-items: center; gap: 1.2rem; }
+    .countdown-display {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #F8D675;
+      letter-spacing: 2px;
+      background: #0B1013;
+      padding: 0.2rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+    }
+    .timer-controls button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 0.8rem;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .timer-controls button:hover { background: var(--accent-light); }
 
     .expo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .expo-hall { background: rgba(255,255,255,0.5); padding: 1.2rem; border-radius: 6px; }
-    .hall-title { font-size: 1.1rem; font-weight: bold; padding-bottom: 0.6rem; border-bottom: 2px solid var(--header-bg); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-    .hall-count { font-size: 0.85rem; color: var(--stone); font-weight: normal; }
+    .expo-hall { background: rgba(255,255,255,0.65); padding: 1.2rem; border-radius: 8px; border: 1px solid #D8CABA; }
+    .hall-title { font-size: 1.25rem; font-weight: bold; padding-bottom: 0.6rem; border-bottom: 2px solid var(--header-bg); margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
+    .hall-badge { font-size: 0.8rem; background: var(--header-bg); color: var(--accent-light); padding: 0.2rem 0.6rem; border-radius: 12px; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; }
-    .card { background: var(--card-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
-    .card-img { width: 100%; height: 130px; object-fit: cover; background: #ddd; display: block; }
-    .card-body { padding: 0.7rem; }
-    .card-title { font-weight: bold; font-size: 0.9rem; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-curator { font-size: 0.72rem; color: #666; }
-    .vote-tag { position: absolute; top: 8px; right: 8px; background: rgba(28,40,48,0.85); color: #C89A40; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.72rem; font-weight: bold; }
-    .rank-badge { position: absolute; top: 8px; left: 8px; background: var(--accent); color: #fff; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: bold; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
+    .card { background: var(--card-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; position: relative; border: 1px solid #D8CABA; }
+    .card:hover { transform: translateY(-4px); }
+    .card img { width: 100%; height: 135px; object-fit: cover; background: #eee; }
+    .card-body { padding: 0.75rem; }
+    .card-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-curator { font-size: 0.75rem; color: #555; }
+    .vote-tag { position: absolute; top: 8px; right: 8px; background: rgba(28,40,48,0.88); color: var(--accent-light); padding: 0.2rem 0.55rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid var(--accent); }
 
-    .empty-msg { color: var(--stone); font-size: 0.85rem; padding: 1.5rem; text-align: center; border: 1px dashed #ccc; border-radius: 4px; }
-
-    /* 모달 */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); align-items: center; justify-content: center; padding: 1rem; z-index: 1000; }
-    .modal.open { display: flex; }
-    .modal-content { background: var(--card-bg); width: 100%; max-width: 720px; max-height: 90vh; border-radius: 6px; overflow-y: auto; position: relative; }
-    .modal-head { background: var(--header-bg); color: #fff; padding: 1.5rem 2rem; position: relative; }
-    .modal-hall { font-size: 0.78rem; color: var(--accent-light); font-weight: bold; margin-bottom: 0.3rem; }
-    .modal-title { font-size: 1.6rem; }
-    .modal-curator { font-size: 0.82rem; color: #aaa; margin-top: 0.3rem; }
-    .close-btn { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.6rem; font-weight: bold; cursor: pointer; border: none; background: none; color: #fff; line-height: 1; }
-    .modal-body { padding: 1.8rem; }
-    .modal-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem; }
-    .modal-img-wrap { border-radius: 4px; overflow: hidden; border: 1px solid #ddd; background: #faf8f5; }
-    .modal-img-wrap img { width: 100%; height: 200px; object-fit: contain; display: block; background: #faf8f5; }
-    .modal-img-cap { font-size: 0.7rem; color: var(--stone); text-align: center; padding: 0.25rem; background: #eee; }
-    .spec-box { background: #F0E4C0; padding: 0.6rem 0.8rem; font-size: 0.85rem; margin-bottom: 1rem; border-radius: 3px; }
-    .sec-label { font-weight: bold; color: var(--accent); margin-bottom: 0.3rem; font-size: 0.9rem; }
-    .sec-text { font-size: 0.88rem; line-height: 1.7; color: #333; white-space: pre-wrap; }
-    .voice-box { background: #fff; border-left: 4px solid var(--header-bg); padding: 0.8rem 1rem; margin-top: 0.3rem; font-size: 0.88rem; line-height: 1.7; }
-    .source-line { font-size: 0.74rem; color: var(--stone); margin-top: 1rem; border-top: 1px solid #ddd; padding-top: 0.6rem; }
-    .vote-btn-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
-    .btn-vote { background: var(--header-bg); color: var(--accent-light); border: 1px solid var(--accent); padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.88rem; }
-    .vote-count-big { font-size: 0.9rem; color: var(--stone); }
-
-    @media (max-width: 700px) {
-      .expo-container { grid-template-columns: 1fr; }
-      .modal-gallery { grid-template-columns: 1fr; }
-    }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; padding: 1rem; z-index: 1000; }
+    .modal-content { background: var(--card-bg); width: 100%; max-width: 720px; max-height: 90vh; border-radius: 6px; overflow-y: auto; padding: 1.8rem; position: relative; }
+    .close-btn { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; border: none; background: none; }
+    .modal-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+    .modal-gallery img { width: 100%; height: 200px; object-fit: contain; background: #faf8f5; border-radius: 4px; border: 1px solid #ddd; }
   </style>
 </head>
 <body>
 
-  <div class="gallery-header">
-    <div>
-      <h1>🏛️ 고려관 &amp; 조선관 기획전시 실시간 갤러리</h1>
-      <p style="font-size:0.82rem; color:#C89A40; margin-top:0.3rem;">전체 학생 전시 패널 · 실시간 관람객 스티커 투표</p>
+  <div class="timer-banner">
+    <div class="timer-info">
+      <h1>🏛️ 고려·조선 특별 기획전</h1>
+      <p id="timer-status">1일 학예연구사 패널 기획 마감까지 남은 시간</p>
     </div>
-    <div class="header-right">
-      <span class="status-dot" title="자동 새로고침 중"></span>
-      <span style="font-size:0.8rem; color:#aaa;">10초 자동갱신</span>
-      <button class="btn-refresh" onclick="loadGallery()">🔄 새로고침</button>
+    <div class="timer-box">
+      <div class="countdown-display" id="clock">24:00</div>
+      <div class="timer-controls">
+        <button id="btn-timer" onclick="toggleTimer()">▶ 시작</button>
+        <button onclick="resetTimer()">↺ 초기화</button>
+        <button onclick="loadGallery()">🔄 갤러리 갱신</button>
+      </div>
     </div>
   </div>
 
   <div class="expo-container">
     <div class="expo-hall">
       <div class="hall-title">
-        고려 특별전시관
-        <span class="hall-count" id="goryeo-count">0점 전시 중</span>
+        <span>고려 특별전시관</span>
+        <span class="hall-badge" id="goryeo-count">0점 전시 준비 중</span>
       </div>
-      <div class="grid" id="goryeo-grid"><div class="empty-msg">불러오는 중...</div></div>
+      <div class="grid" id="goryeo-grid"></div>
     </div>
     <div class="expo-hall">
       <div class="hall-title">
-        조선 특별전시관
-        <span class="hall-count" id="joseon-count">0점 전시 중</span>
+        <span>조선 특별전시관</span>
+        <span class="hall-badge" id="joseon-count">0점 전시 준비 중</span>
       </div>
-      <div class="grid" id="joseon-grid"><div class="empty-msg">불러오는 중...</div></div>
+      <div class="grid" id="joseon-grid"></div>
     </div>
   </div>
 
-  <!-- 상세 모달 -->
-  <div id="modal" class="modal" onclick="closeModalBg(event)">
-    <div class="modal-content" id="modal-content">
-      <div class="modal-head">
-        <button class="close-btn" onclick="closeModal()">&times;</button>
-        <div class="modal-hall" id="m-hall"></div>
-        <div class="modal-title" id="m-title"></div>
-        <div class="modal-curator" id="m-curator"></div>
-      </div>
-      <div class="modal-body">
-        <div class="vote-btn-row">
-          <button class="btn-vote" onclick="voteModal()">🏷️ 관람객 추천 스티커 붙이기</button>
-          <span class="vote-count-big">현재 <strong id="m-vote">0</strong>표</span>
-        </div>
-        <div class="modal-gallery">
-          <div class="modal-img-wrap"><img id="m-img1" src="" alt="사료1"><div class="modal-img-cap">▲ 사료 사진 1 (전경/대표)</div></div>
-          <div class="modal-img-wrap"><img id="m-img2" src="" alt="사료2"><div class="modal-img-cap">▲ 사료 사진 2 (세부/관련)</div></div>
-        </div>
-        <div class="spec-box"><strong>제원 :</strong> <span id="m-spec"></span></div>
-        <div style="margin-bottom:1rem;">
-          <div class="sec-label">학예사의 시선 : 시대적 배경</div>
-          <div class="sec-text" id="m-context"></div>
-        </div>
-        <div style="margin-bottom:0.5rem;">
-          <div class="sec-label">큐레이터 한 줄 : 역사적 의의</div>
-          <div class="voice-box" id="m-voice"></div>
-        </div>
-        <div class="source-line">출처 : <span id="m-source"></span></div>
-      </div>
+  <div id="modal" class="modal" onclick="closeModal(event)">
+    <div class="modal-content" id="modal-body">
+      <button class="close-btn" onclick="document.getElementById('modal').style.display='none'">&times;</button>
+      <div id="modal-inner"></div>
     </div>
   </div>
 
@@ -137,106 +122,117 @@
   // ★ 여기에 Apps Script 웹앱 URL을 입력하세요
   const GAS_URL = "GAS_URL_PLACEHOLDER";
 
-  const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect width='300' height='200' fill='%23EDE4D0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%238A7A68' font-size='14'%3E사료 사진%3C/text%3E%3C/svg%3E";
+  const DEFAULT_SECONDS = 24 * 60;
+  let remainingSeconds = DEFAULT_SECONDS;
+  let timerInterval = null;
+  let isRunning = false;
+
+  function updateClockDisplay() {
+    const min = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+    const sec = String(remainingSeconds % 60).padStart(2, '0');
+    document.getElementById('clock').innerText = `${min}:${sec}`;
+  }
+
+  function toggleTimer() {
+    const btn = document.getElementById('btn-timer');
+    if (isRunning) {
+      clearInterval(timerInterval);
+      isRunning = false;
+      btn.innerText = '▶ 재개';
+    } else {
+      isRunning = true;
+      btn.innerText = '⏸ 일시정지';
+      timerInterval = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateClockDisplay();
+        } else {
+          clearInterval(timerInterval);
+          isRunning = false;
+          btn.innerText = '종료됨';
+          document.getElementById('timer-status').innerText = '🎉 특별전 정식 개막! 관람객 추천 투표를 시작하세요.';
+          document.getElementById('clock').style.color = '#FF6B6B';
+          alert('⏰ 전시 준비 시간(24분)이 종료되었습니다!\n모든 패널을 발행하고 갤러리 투어 및 투표를 시작하세요.');
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    remainingSeconds = DEFAULT_SECONDS;
+    updateClockDisplay();
+    document.getElementById('btn-timer').innerText = '▶ 시작';
+    document.getElementById('clock').style.color = '#F8D675';
+    document.getElementById('timer-status').innerText = '1일 학예연구사 패널 기획 마감까지 남은 시간';
+  }
 
   let items = [];
-  let currentItem = null;
 
   function loadGallery() {
-    if (!GAS_URL || GAS_URL === "GAS_URL_PLACEHOLDER") {
-      document.getElementById('goryeo-grid').innerHTML = '<div class="empty-msg">GAS_URL을 설정해주세요 (gallery.html 수정)</div>';
-      document.getElementById('joseon-grid').innerHTML = '';
-      return;
-    }
+    if (!GAS_URL || GAS_URL === "GAS_URL_PLACEHOLDER") return;
     fetch(GAS_URL)
       .then(res => res.json())
       .then(data => { items = data; renderGallery(); })
-      .catch(() => {});
+      .catch(err => console.error(err));
   }
 
   function renderGallery() {
-    const gGrid = document.getElementById('goryeo-grid');
-    const jGrid = document.getElementById('joseon-grid');
-    gGrid.innerHTML = '';
-    jGrid.innerHTML = '';
+    const goryeoGrid = document.getElementById('goryeo-grid');
+    const joseonGrid = document.getElementById('joseon-grid');
+    goryeoGrid.innerHTML = '';
+    joseonGrid.innerHTML = '';
     let gCount = 0, jCount = 0;
+    items.sort((a, b) => b.votes - a.votes);
 
-    const sorted = [...items].sort((a, b) => b.votes - a.votes);
-
-    sorted.forEach((item, idx) => {
-      const isGoryeo = item.hall && item.hall.includes("고려");
-      const rank = idx + 1;
+    items.forEach(item => {
       const card = document.createElement('div');
       card.className = 'card';
       card.onclick = () => openModal(item);
       card.innerHTML = `
-        ${rank <= 3 ? `<span class="rank-badge">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}</span>` : ''}
         <span class="vote-tag">🏷️ ${item.votes}표</span>
-        <img class="card-img" src="${item.imageUrl1 || PLACEHOLDER_IMG}" alt="${item.relicName}"
-             onerror="this.src='${PLACEHOLDER_IMG}'">
+        <img src="${item.imageUrl1 || ''}" alt="대표 사료">
         <div class="card-body">
-          <div class="card-title">${escHtml(item.relicName)}</div>
-          <div class="card-curator">${escHtml(item.gradeClass)} ${escHtml(item.stdNum)}번 ${escHtml(item.stdName)} 큐레이터</div>
+          <div class="card-title">${item.relicName}</div>
+          <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
         </div>`;
-      if (isGoryeo) { gGrid.appendChild(card); gCount++; }
-      else { jGrid.appendChild(card); jCount++; }
+      if (item.hall.includes("고려")) { goryeoGrid.appendChild(card); gCount++; }
+      else { joseonGrid.appendChild(card); jCount++; }
     });
 
-    if (gCount === 0) gGrid.innerHTML = '<div class="empty-msg">아직 전시 작품이 없습니다</div>';
-    if (jCount === 0) jGrid.innerHTML = '<div class="empty-msg">아직 전시 작품이 없습니다</div>';
     document.getElementById('goryeo-count').innerText = `${gCount}점 전시 중`;
     document.getElementById('joseon-count').innerText = `${jCount}점 전시 중`;
   }
 
   function openModal(item) {
-    currentItem = item;
-    document.getElementById('m-hall').innerText = item.hall;
-    document.getElementById('m-title').innerText = item.relicName;
-    document.getElementById('m-curator').innerText = `기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터`;
-    document.getElementById('m-vote').innerText = item.votes;
-    document.getElementById('m-img1').src = item.imageUrl1 || PLACEHOLDER_IMG;
-    document.getElementById('m-img2').src = item.imageUrl2 || PLACEHOLDER_IMG;
-    document.getElementById('m-spec').innerText = item.relicSpec;
-    document.getElementById('m-context').innerText = item.historyContext;
-    document.getElementById('m-voice').innerText = item.curatorVoice;
-    document.getElementById('m-source').innerText = item.source;
-    document.getElementById('modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    const inner = document.getElementById('modal-inner');
+    inner.innerHTML = `
+      <div style="font-size:0.8rem; color:#A07828; font-weight:bold;">${item.hall}</div>
+      <h2 style="margin: 0.4rem 0 0.2rem;">${item.relicName}</h2>
+      <div style="font-size:0.85rem; color:#666; margin-bottom:1rem;">전시 기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터 (관람객 추천 ${item.votes}표)</div>
+      <div class="modal-gallery">
+        <img src="${item.imageUrl1}" alt="사료 사진 1">
+        <img src="${item.imageUrl2}" alt="사료 사진 2">
+      </div>
+      <div style="background:#F0E4C0; padding:0.6rem; font-size:0.85rem; margin-bottom:1rem; border-radius:4px;"><strong>[유물 기본 제원]</strong><br>${item.relicSpec}</div>
+      <div style="margin-bottom:1rem;">
+        <strong style="color:#A07828;">학예사의 시선 (시대적 배경):</strong>
+        <p style="margin-top:0.3rem; font-size:0.9rem; line-height:1.6; color:#3A4855;">${item.historyContext}</p>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <strong style="color:#A07828;">큐레이터 한 줄 (역사적 의의):</strong>
+        <p style="margin-top:0.3rem; font-size:0.92rem; line-height:1.6; background:#fff; padding:0.8rem; border-left:4px solid #1C2830; border-radius:2px;">${item.curatorVoice}</p>
+      </div>
+      <div style="font-size:0.75rem; color:#888; border-top:1px solid #D8CABA; padding-top:0.6rem;">사료 출처: ${item.source}</div>`;
+    document.getElementById('modal').style.display = 'flex';
   }
 
-  function closeModal() {
-    document.getElementById('modal').classList.remove('open');
-    document.body.style.overflow = '';
+  function closeModal(e) {
+    if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
   }
 
-  function closeModalBg(e) {
-    if (e.target.id === 'modal') closeModal();
-  }
-
-  function voteModal() {
-    if (!currentItem) return;
-    const newVote = (Number(currentItem.votes) || 0) + 1;
-    currentItem.votes = newVote;
-    document.getElementById('m-vote').innerText = newVote;
-
-    // 카드 투표수도 갱신
-    const idx = items.findIndex(x => x.id == currentItem.id);
-    if (idx > -1) items[idx].votes = newVote;
-
-    if (GAS_URL && GAS_URL !== "GAS_URL_PLACEHOLDER") {
-      fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: "vote", id: currentItem.id })
-      });
-    }
-  }
-
-  function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
+  updateClockDisplay();
   loadGallery();
   setInterval(loadGallery, 10000);
 </script>
