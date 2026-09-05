@@ -313,6 +313,7 @@
 
   function voteForItem(id) {
     if (hasVoted(id)) return;
+    saveVoted(id); // 즉시 저장 — fetch 전에 막아야 중복 방지됨
     const btn = document.getElementById('vote-btn-' + id);
     if (btn) { btn.disabled = true; btn.innerText = '⏳ 투표 중...'; }
     fetch(GAS_URL, {
@@ -322,7 +323,6 @@
     })
     .then(res => res.json())
     .then(data => {
-      saveVoted(id);
       if (btn) { btn.innerText = `✅ 추천 완료 (${data.count || ''}표)`; btn.style.opacity='0.7'; }
       loadGallery();
     })
@@ -330,7 +330,6 @@
       fetch(GAS_URL, { method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'vote', id: id }) });
-      saveVoted(id);
       if (btn) { btn.innerText = '✅ 추천 완료!'; btn.style.opacity='0.7'; }
       setTimeout(loadGallery, 2000);
     });
