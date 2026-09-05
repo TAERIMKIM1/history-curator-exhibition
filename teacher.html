@@ -364,7 +364,29 @@
         alert('오류: ' + JSON.stringify(data));
       }
     })
-    .catch(() => alert('서버 오류. 잠시 후 다시 시도하세요.'));
+    .catch(() => {
+      // CORS 프리플라이트 실패 시 no-cors 폴백 (투표와 동일한 방식)
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id: id, password: TEACHER_PW })
+      });
+      // 2.5초 후 목록 재로드해서 삭제 여부 확인
+      setTimeout(() => {
+        fetch(GAS_URL)
+          .then(r => r.json())
+          .then(panels => {
+            if (!panels.some(p => String(p.id) === String(id))) {
+              alert(`"${name}" 패널이 삭제되었습니다.`);
+              loadPanels();
+            } else {
+              alert('삭제 실패. 잠시 후 다시 시도해 주세요.');
+            }
+          })
+          .catch(() => loadPanels());
+      }, 2500);
+    });
   }
 
   // 자동 새로고침 (30초)
