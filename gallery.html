@@ -295,12 +295,40 @@
     document.getElementById('joseon-count').innerText = `${jCount}점 전시 중`;
   }
 
+  function voteForItem(id) {
+    const btn = document.getElementById('vote-btn-' + id);
+    if (btn) { btn.disabled = true; btn.innerText = '⏳ 투표 중...'; }
+    fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'vote', id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (btn) { btn.innerText = `⭐ 추천 완료! (${data.count || ''}표)`; }
+      loadGallery();
+    })
+    .catch(() => {
+      fetch(GAS_URL, { method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'vote', id: id }) });
+      if (btn) { btn.innerText = '⭐ 추천 완료!'; }
+      setTimeout(loadGallery, 2000);
+    });
+  }
+
   function openModal(item) {
     const inner = document.getElementById('modal-inner');
     inner.innerHTML = `
       <div style="font-size:0.8rem; color:#A07828; font-weight:bold;">${item.hall}</div>
       <h2 style="margin: 0.4rem 0 0.2rem;">${item.relicName}</h2>
-      <div style="font-size:0.85rem; color:#666; margin-bottom:1rem;">전시 기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터 (관람객 추천 ${item.votes}표)</div>
+      <div style="font-size:0.85rem; color:#666; margin-bottom:0.8rem;">전시 기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터 (관람객 추천 ${item.votes}표)</div>
+      <button id="vote-btn-${item.id}" onclick="voteForItem('${item.id}')"
+        style="width:100%; padding:0.9rem; background:#1C2830; color:#F8D675; border:2px solid #A07828;
+               border-radius:8px; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:1.2rem;
+               letter-spacing:0.05em;">
+        ⭐ 이 패널 추천하기 (현재 ${item.votes}표)
+      </button>
       <div class="modal-gallery">
         <div>
           <img src="${item.imageUrl1}" alt="사료 사진 1" style="width:100%;border-radius:4px;">
