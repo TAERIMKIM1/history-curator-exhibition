@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>교사 관리 대시보드 — 역사 큐레이터</title>
+  <style>
+    :root {
+      --bg: #1C2830; --card: #243040; --card2: #2a3848;
+      --accent: #C89A40; --accent2: #A07828;
+      --text: #e8e0d0; --muted: #8a9aaa;
+      --danger: #c0392b; --success: #27ae60;
+      --rule: rgba(200,154,64,0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; min-height: 100vh; }
+
+    /* ── 잠금화면 ── */
+    #lock-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem;
+    }
+    .lock-box {
+      background: var(--card); border: 1px solid var(--rule);
+      border-radius: 10px; padding: 2.5rem 2rem; width: 100%; max-width: 360px; text-align: center;
+    }
+    .lock-icon { font-size: 2.8rem; margin-bottom: 0.8rem; }
+    .lock-box h2 { font-size: 1.2rem; color: var(--accent); margin-bottom: 0.4rem; }
+    .lock-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .lock-input {
+      width: 100%; padding: 0.75rem; border: 1px solid var(--rule);
+      border-radius: 6px; background: var(--bg); color: var(--text);
+      font-size: 1.1rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 0.8rem;
+    }
+    .lock-btn {
+      width: 100%; padding: 0.75rem; background: var(--accent2);
+      color: #fff; border: none; border-radius: 6px; font-size: 1rem;
+      font-weight: bold; cursor: pointer;
+    }
+    .lock-btn:hover { background: var(--accent); }
+    .lock-error { color: #e74c3c; font-size: 0.82rem; margin-top: 0.5rem; min-height: 1.2rem; }
+
+    /* ── 대시보드 ── */
+    #dashboard { display: none; }
+
+    .top-bar {
+      background: var(--card); border-bottom: 1px solid var(--rule);
+      padding: 0.9rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .top-bar h1 { font-size: 1.1rem; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+    .top-bar-right { display: flex; align-items: center; gap: 0.7rem; }
+    .btn-sm {
+      padding: 0.4rem 0.8rem; border-radius: 5px; border: none;
+      font-size: 0.8rem; font-weight: bold; cursor: pointer;
+    }
+    .btn-refresh { background: var(--accent2); color: #fff; }
+    .btn-refresh:hover { background: var(--accent); }
+    .btn-logout { background: transparent; color: var(--muted); border: 1px solid var(--rule); }
+    .btn-logout:hover { color: var(--text); }
+
+    /* ── 빠른 링크 ── */
+    .quick-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; padding: 1.2rem 1.5rem; }
+    .quick-card {
+      background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
+      padding: 1rem 0.8rem; text-align: center; text-decoration: none; color: var(--text);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .quick-card:hover { background: var(--card2); border-color: var(--accent2); }
+    .quick-card .qc-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .quick-card .qc-label { font-size: 0.8rem; font-weight: bold; color: var(--accent); }
+    .quick-card .qc-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+
+    /* ── 통계 ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; padding: 0 1.5rem 1.2rem; }
+    .stat-box { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.9rem 1rem; }
+    .stat-val { font-size: 1.6rem; font-weight: bold; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── 패널 목록 ── */
+    .section { padding: 0 1.5rem 2rem; }
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; margin-bottom: 1rem;
+    }
+    .section-title { font-size: 0.95rem; font-weight: bold; color: var(--accent); }
+
+    .filter-bar { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+    .filter-bar select {
+      padding: 0.35rem 0.6rem; border: 1px solid var(--rule); border-radius: 4px;
+      background: var(--card2); color: var(--text); font-size: 0.82rem; cursor: pointer;
+    }
+    .filter-bar input {
+      padding: 0.35rem 0.6rem; border: 1px solid var(--rule); border-radius: 4px;
+      background: var(--card2); color: var(--text); font-size: 0.82rem; width: 160px;
+    }
+
+    .panel-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .panel-table th {
+      background: var(--card2); color: var(--accent); padding: 0.6rem 0.8rem;
+      text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap;
+    }
+    .panel-table td {
+      padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: middle;
+    }
+    .panel-table tr:hover td { background: rgba(200,154,64,0.05); }
+    .panel-img { width: 52px; height: 40px; object-fit: cover; border-radius: 3px; background: #333; }
+    .badge-hall {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 10px;
+      font-size: 0.72rem; font-weight: bold;
+    }
+    .badge-goryeo { background: #1a3a5c; color: #7bb8e8; }
+    .badge-joseon { background: #3a1a1a; color: #e87b7b; }
+    .votes-badge { background: var(--accent2); color: #fff; padding: 0.1rem 0.45rem; border-radius: 10px; font-size: 0.75rem; }
+    .btn-del {
+      background: var(--danger); color: #fff; border: none;
+      padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.75rem;
+      font-weight: bold; cursor: pointer; white-space: nowrap;
+    }
+    .btn-del:hover { background: #e74c3c; }
+    .empty-msg { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.88rem; }
+
+    @media (max-width: 700px) {
+      .quick-nav { grid-template-columns: repeat(2, 1fr); }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .panel-table th:nth-child(1), .panel-table td:nth-child(1) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 잠금 화면 ── -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-icon">🔐</div>
+    <h2>교사 관리 대시보드</h2>
+    <p>역사 큐레이터 기획전 — 교사 전용 페이지</p>
+    <input type="password" id="pw-input" class="lock-input" placeholder="비밀번호" maxlength="20"
+      onkeydown="if(event.key==='Enter') checkPw()">
+    <button class="lock-btn" onclick="checkPw()">🔓 입장</button>
+    <div class="lock-error" id="pw-error"></div>
+  </div>
+</div>
+
+<!-- ── 대시보드 ── -->
+<div id="dashboard">
+
+  <div class="top-bar">
+    <h1>🏛️ 역사 큐레이터 — 교사 대시보드</h1>
+    <div class="top-bar-right">
+      <button class="btn-sm btn-refresh" onclick="loadPanels()">🔄 새로고침</button>
+      <button class="btn-sm btn-logout" onclick="logout()">🔒 잠금</button>
+    </div>
+  </div>
+
+  <!-- 빠른 링크 -->
+  <div class="quick-nav">
+    <a class="quick-card" href="index.html" target="_blank">
+      <div class="qc-icon">✍️</div>
+      <div class="qc-label">학생 제출 페이지</div>
+      <div class="qc-sub">index.html</div>
+    </a>
+    <a class="quick-card" href="gallery.html" target="_blank">
+      <div class="qc-icon">🏛️</div>
+      <div class="qc-label">전시관 갤러리</div>
+      <div class="qc-sub">gallery.html</div>
+    </a>
+    <a class="quick-card" href="example.html" target="_blank">
+      <div class="qc-icon">📋</div>
+      <div class="qc-label">완성 예시 패널</div>
+      <div class="qc-sub">example.html</div>
+    </a>
+    <a class="quick-card" href="https://imgbb.com" target="_blank">
+      <div class="qc-icon">🖼️</div>
+      <div class="qc-label">imgbb 이미지 관리</div>
+      <div class="qc-sub">imgbb.com</div>
+    </a>
+  </div>
+
+  <!-- 통계 -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-val" id="stat-total">—</div>
+      <div class="stat-label">총 제출 패널</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="stat-votes">—</div>
+      <div class="stat-label">총 추천 투표 수</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="stat-goryeo">—</div>
+      <div class="stat-label">고려관 패널</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="stat-joseon">—</div>
+      <div class="stat-label">조선관 패널</div>
+    </div>
+  </div>
+
+  <!-- 패널 관리 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">📂 제출 패널 관리</div>
+      <div class="filter-bar">
+        <select id="filter-class" onchange="renderTable()">
+          <option value="">전체 반</option>
+        </select>
+        <select id="filter-hall" onchange="renderTable()">
+          <option value="">전체 전시관</option>
+          <option value="고려">고려관</option>
+          <option value="조선">조선관</option>
+        </select>
+        <input type="text" id="filter-search" placeholder="이름·유물 검색" oninput="renderTable()">
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="panel-table">
+        <thead>
+          <tr>
+            <th>사진</th>
+            <th>전시관</th>
+            <th>반·번호·이름</th>
+            <th>유물명</th>
+            <th>추천</th>
+            <th>삭제</th>
+          </tr>
+        </thead>
+        <tbody id="panel-tbody">
+          <tr><td colspan="6" class="empty-msg">로딩 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<script>
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbweLp9sgFPlQ5rbDBMmKHvuJxp8LjIFOwsKhDySYDZRvBcEEeZtx-LUVStO_WBaVBmOHA/exec";
+  const TEACHER_PW = "0070";
+  let allPanels = [];
+  let authenticated = false;
+
+  function checkPw() {
+    const val = document.getElementById('pw-input').value;
+    if (val === TEACHER_PW) {
+      authenticated = true;
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadPanels();
+    } else {
+      document.getElementById('pw-error').innerText = '비밀번호가 틀렸습니다.';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+
+  function logout() {
+    authenticated = false;
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('lock-screen').style.display = 'flex';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-error').innerText = '';
+  }
+
+  function loadPanels() {
+    fetch(GAS_URL)
+      .then(r => r.json())
+      .then(data => {
+        allPanels = data;
+        updateStats();
+        buildClassFilter();
+        renderTable();
+      })
+      .catch(() => {
+        document.getElementById('panel-tbody').innerHTML =
+          '<tr><td colspan="6" class="empty-msg">⚠️ 서버 연결 오류. Apps Script 배포 상태를 확인하세요.</td></tr>';
+      });
+  }
+
+  function updateStats() {
+    const total = allPanels.length;
+    const votes = allPanels.reduce((s, p) => s + (Number(p.votes) || 0), 0);
+    const goryeo = allPanels.filter(p => p.hall && p.hall.includes('고려')).length;
+    const joseon = allPanels.filter(p => p.hall && p.hall.includes('조선')).length;
+    document.getElementById('stat-total').innerText = total + '개';
+    document.getElementById('stat-votes').innerText = votes + '표';
+    document.getElementById('stat-goryeo').innerText = goryeo + '개';
+    document.getElementById('stat-joseon').innerText = joseon + '개';
+  }
+
+  function buildClassFilter() {
+    const sel = document.getElementById('filter-class');
+    const current = sel.value;
+    const classes = [...new Set(allPanels.map(p => String(p.gradeClass).trim()))].sort();
+    sel.innerHTML = '<option value="">전체 반</option>';
+    classes.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c + '반';
+      if (c === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderTable() {
+    const filterClass = document.getElementById('filter-class').value;
+    const filterHall = document.getElementById('filter-hall').value;
+    const search = document.getElementById('filter-search').value.trim().toLowerCase();
+
+    const norm = s => String(s).replace(/\s/g, '');
+    let list = allPanels;
+    if (filterClass) list = list.filter(p => norm(p.gradeClass) === norm(filterClass));
+    if (filterHall) list = list.filter(p => p.hall && p.hall.includes(filterHall));
+    if (search) list = list.filter(p =>
+      (p.stdName || '').includes(search) ||
+      (p.relicName || '').toLowerCase().includes(search)
+    );
+    list = list.slice().sort((a, b) => b.votes - a.votes);
+
+    const tbody = document.getElementById('panel-tbody');
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">해당하는 패널이 없습니다.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = list.map(p => {
+      const isGoryeo = p.hall && p.hall.includes('고려');
+      const hallBadge = isGoryeo
+        ? `<span class="badge-hall badge-goryeo">고려관</span>`
+        : `<span class="badge-hall badge-joseon">조선관</span>`;
+      const imgSrc = p.imageUrl1 || '';
+      const imgTag = imgSrc
+        ? `<img src="${imgSrc}" class="panel-img" alt="사료" onerror="this.style.display='none'">`
+        : `<div class="panel-img" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#666;">없음</div>`;
+      return `<tr>
+        <td>${imgTag}</td>
+        <td>${hallBadge}</td>
+        <td>${p.gradeClass} ${p.stdNum}번 ${p.stdName}</td>
+        <td>${p.relicName}</td>
+        <td><span class="votes-badge">⭐ ${p.votes}</span></td>
+        <td><button class="btn-del" onclick="deletePanel('${p.id}', '${p.relicName.replace(/'/g,"\\'")}')">🗑️ 삭제</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function deletePanel(id, name) {
+    if (!confirm(`"${name}" 패널을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+    fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id: id, password: TEACHER_PW })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.result === 'deleted') {
+        alert(`"${name}" 패널이 삭제되었습니다.`);
+        loadPanels();
+      } else if (data.result === 'unauthorized') {
+        alert('비밀번호 오류입니다.');
+      } else {
+        alert('오류: ' + JSON.stringify(data));
+      }
+    })
+    .catch(() => alert('서버 오류. 잠시 후 다시 시도하세요.'));
+  }
+
+  // 자동 새로고침 (30초)
+  setInterval(() => { if (authenticated) loadPanels(); }, 30000);
+</script>
+
+</body>
+</html>
