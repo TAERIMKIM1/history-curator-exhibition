@@ -325,7 +325,7 @@
     }
 
     tbody.innerHTML = list.map(p => {
-      const isGoryeo = p.hall && p.hall.includes('고려');
+      const isGoryeo = String(p.hall || '').includes('고려');
       const hallBadge = isGoryeo
         ? `<span class="badge-hall badge-goryeo">고려관</span>`
         : `<span class="badge-hall badge-joseon">조선관</span>`;
@@ -333,13 +333,15 @@
       const imgTag = imgSrc
         ? `<img src="${imgSrc}" class="panel-img" alt="사료" onerror="this.style.display='none'">`
         : `<div class="panel-img" style="display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#666;">없음</div>`;
+      const relicName = String(p.relicName || '');
+      const safeRelic = relicName.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
       return `<tr>
         <td>${imgTag}</td>
         <td>${hallBadge}</td>
-        <td>${p.gradeClass} ${p.stdNum}번 ${p.stdName}</td>
-        <td>${p.relicName}</td>
-        <td><span class="votes-badge">⭐ ${p.votes}</span></td>
-        <td><button class="btn-del" onclick="deletePanel('${p.id}', '${p.relicName.replace(/'/g,"\\'")}')">🗑️ 삭제</button></td>
+        <td>${p.gradeClass || ''} ${p.stdNum || ''}번 ${p.stdName || ''}</td>
+        <td>${relicName}</td>
+        <td><span class="votes-badge">⭐ ${Number(p.votes) || 0}</span></td>
+        <td><button class="btn-del" onclick="deletePanel('${p.id}', '${safeRelic}')">🗑️ 삭제</button></td>
       </tr>`;
     }).join('');
   }
