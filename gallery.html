@@ -295,7 +295,24 @@
     document.getElementById('joseon-count').innerText = `${jCount}점 전시 중`;
   }
 
+  const VOTED_KEY = 'curator_voted_panels';
+
+  function getVotedSet() {
+    try { return new Set(JSON.parse(localStorage.getItem(VOTED_KEY) || '[]')); }
+    catch(e) { return new Set(); }
+  }
+
+  function saveVoted(id) {
+    try {
+      const s = getVotedSet(); s.add(String(id));
+      localStorage.setItem(VOTED_KEY, JSON.stringify([...s]));
+    } catch(e) {}
+  }
+
+  function hasVoted(id) { return getVotedSet().has(String(id)); }
+
   function voteForItem(id) {
+    if (hasVoted(id)) return;
     const btn = document.getElementById('vote-btn-' + id);
     if (btn) { btn.disabled = true; btn.innerText = '⏳ 투표 중...'; }
     fetch(GAS_URL, {
@@ -305,14 +322,16 @@
     })
     .then(res => res.json())
     .then(data => {
-      if (btn) { btn.innerText = `⭐ 추천 완료! (${data.count || ''}표)`; }
+      saveVoted(id);
+      if (btn) { btn.innerText = `✅ 추천 완료 (${data.count || ''}표)`; btn.style.opacity='0.7'; }
       loadGallery();
     })
     .catch(() => {
       fetch(GAS_URL, { method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'vote', id: id }) });
-      if (btn) { btn.innerText = '⭐ 추천 완료!'; }
+      saveVoted(id);
+      if (btn) { btn.innerText = '✅ 추천 완료!'; btn.style.opacity='0.7'; }
       setTimeout(loadGallery, 2000);
     });
   }
@@ -323,12 +342,20 @@
       <div style="font-size:0.8rem; color:#A07828; font-weight:bold;">${item.hall}</div>
       <h2 style="margin: 0.4rem 0 0.2rem;">${item.relicName}</h2>
       <div style="font-size:0.85rem; color:#666; margin-bottom:0.8rem;">전시 기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터 (관람객 추천 ${item.votes}표)</div>
-      <button id="vote-btn-${item.id}" onclick="voteForItem('${item.id}')"
-        style="width:100%; padding:0.9rem; background:#1C2830; color:#F8D675; border:2px solid #A07828;
-               border-radius:8px; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:1.2rem;
-               letter-spacing:0.05em;">
-        ⭐ 이 패널 추천하기 (현재 ${item.votes}표)
-      </button>
+      ${hasVoted(item.id)
+        ? `<button id="vote-btn-${item.id}" disabled
+             style="width:100%; padding:0.9rem; background:#444; color:#aaa; border:2px solid #666;
+                    border-radius:8px; font-size:1rem; font-weight:bold; cursor:not-allowed; margin-bottom:1.2rem;
+                    opacity:0.7;">
+             ✅ 이미 추천했습니다 (${item.votes}표)
+           </button>`
+        : `<button id="vote-btn-${item.id}" onclick="voteForItem('${item.id}')"
+             style="width:100%; padding:0.9rem; background:#1C2830; color:#F8D675; border:2px solid #A07828;
+                    border-radius:8px; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:1.2rem;
+                    letter-spacing:0.05em;">
+             ⭐ 이 패널 추천하기 (현재 ${item.votes}표)
+           </button>`
+      }
       <div class="modal-gallery">
         <div>
           <img src="${item.imageUrl1}" alt="사료 사진 1" style="width:100%;border-radius:4px;">
