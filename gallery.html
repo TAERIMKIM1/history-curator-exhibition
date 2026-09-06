@@ -100,7 +100,9 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
     .card { background: var(--card-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; position: relative; border: 1px solid #D8CABA; }
     .card:hover { transform: translateY(-4px); }
-    .card img { width: 100%; height: 135px; object-fit: cover; background: #eee; }
+    .card img { width: 100%; height: 135px; object-fit: cover; background: #eee; display: block; }
+    .card-thumb { width: 100%; height: 135px; overflow: hidden; background: #D8CABA; display: flex; align-items: center; justify-content: center; }
+    .card-thumb-ph { font-size: 2.8rem; line-height: 1; }
     .card-body { padding: 0.75rem; }
     .card-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-curator { font-size: 0.75rem; color: #555; }
@@ -281,7 +283,11 @@
       const itemId = item.id;
       card.innerHTML = `
         <span class="vote-tag">🏷️ ${item.votes}표</span>
-        <img src="${item.imageUrl1 || ''}" alt="대표 사료">
+        <div class="card-thumb">
+          ${item.imageUrl1
+            ? `<img src="${item.imageUrl1}" alt="대표 사료" style="width:100%;height:135px;object-fit:cover;" onerror="this.parentElement.innerHTML='<span class=card-thumb-ph>📜</span>'">`
+            : `<span class="card-thumb-ph">📜</span>`}
+        </div>
         <div class="card-body">
           <div class="card-title">${item.relicName}</div>
           <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
@@ -356,14 +362,14 @@
            </button>`
       }
       <div class="modal-gallery">
-        <div>
-          <img src="${item.imageUrl1}" alt="사료 사진 1" style="width:100%;border-radius:4px;">
+        ${item.imageUrl1 ? `<div>
+          <img src="${item.imageUrl1}" alt="사료 사진 1" style="width:100%;border-radius:4px;" onerror="this.parentElement.style.display='none'">
           <div style="font-size:0.7rem;color:#888;text-align:center;margin-top:0.2rem;">▲ ${item.imgCaption1 || '사료 사진 1'}</div>
-        </div>
-        <div>
-          <img src="${item.imageUrl2}" alt="사료 사진 2" style="width:100%;border-radius:4px;">
+        </div>` : ''}
+        ${item.imageUrl2 ? `<div>
+          <img src="${item.imageUrl2}" alt="사료 사진 2" style="width:100%;border-radius:4px;" onerror="this.parentElement.style.display='none'">
           <div style="font-size:0.7rem;color:#888;text-align:center;margin-top:0.2rem;">▲ ${item.imgCaption2 || '사료 사진 2'}</div>
-        </div>
+        </div>` : ''}
       </div>
       <div style="background:#F0E4C0; padding:0.6rem; font-size:0.85rem; margin-bottom:1rem; border-radius:4px;"><strong>[유물 기본 제원]</strong><br>${item.relicSpec}</div>
       <div style="margin-bottom:1rem;">
