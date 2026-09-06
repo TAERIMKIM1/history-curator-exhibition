@@ -413,7 +413,7 @@
 
     fetch(GAS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'delete', id: id, password: adminPassword })
     })
     .then(res => res.json())
