@@ -206,8 +206,9 @@
       </div>
 
       <div class="form-group">
-        <label>[유물 기본 정보] <span>(만든 시기, 재료, 소장처)</span></label>
+        <label>[유물 기본 정보] <span style="color:#c0392b;font-weight:bold;">★ 필수 — 만든 시기 · 재료 · 소장처 3가지 모두 입력</span></label>
         <input type="text" id="relicSpec" placeholder="예: 751년(통일신라), 화강암, 경북 경주시 불국사 소장" required>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.25rem;">형식: <b>연도(시대)</b>, <b>재료/기법</b>, <b>소장처</b> — 예) 12세기(고려 중기), 청자에 상감기법, 국립중앙박물관 소장</div>
       </div>
 
       <div class="form-group">
@@ -412,6 +413,13 @@
 
   document.getElementById('curator-form').addEventListener('submit', function(e) {
     e.preventDefault();
+
+    const specVal = document.getElementById('relicSpec').value.trim();
+    if (specVal.length < 15) {
+      alert(`① [유물 기본 정보]를 형식에 맞게 입력해 주세요.\n\n형식: 연도(시대), 재료/기법, 소장처\n예) 12세기(고려 중기), 청자에 상감기법, 국립중앙박물관 소장\n\n현재 입력: "${specVal}" (최소 15자 이상 필요)`);
+      document.getElementById('relicSpec').focus();
+      return;
+    }
 
     const hcLen = document.getElementById('historyContext').value.length;
     const cvLen = document.getElementById('curatorVoice').value.length;
