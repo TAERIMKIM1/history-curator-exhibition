@@ -10,7 +10,14 @@
 // ============================================================
 function fillAllPanels() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getValues();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    SpreadsheetApp.getUi().alert('데이터가 없습니다.');
+    return;
+  }
+
+  // 한 번에 읽기 (A~J열)
+  var rows = sheet.getRange(1, 1, lastRow, 10).getValues();
 
   var DATA = {
     "1788614010173": ["청자 상감운학문 매병","12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장","국립중앙박물관 e뮤지엄 (www.emuseum.go.kr), 우리역사넷 (contents.history.go.kr), 국가유산포털 (www.heritage.go.kr)"],
@@ -35,18 +42,32 @@ function fillAllPanels() {
     "1788614058053": ["분청사기 박지 철화 어문 항아리","15~16세기(조선 전기), 분청사기 박지·철화 기법, 국보 제259호, 국립중앙박물관 소장","국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷"]
   };
 
+  var dataRows = lastRow - 1;
+  var colF = []; // F열: relicName
+  var colG = []; // G열: relicSpec
+  var colJ = []; // J열: source
   var updated = 0;
-  for (var i = 1; i < rows.length; i++) {
+
+  for (var i = 1; i <= dataRows; i++) {
     var rowId = String(rows[i][0]).trim();
     var info = DATA[rowId];
-    if (!info) continue;
-    sheet.getRange(i + 1, 6).setValue(info[0]); // relicName
-    sheet.getRange(i + 1, 7).setValue(info[1]); // relicSpec
-    if (!String(rows[i][9]).trim()) {
-      sheet.getRange(i + 1, 10).setValue(info[2]); // source
+    if (info) {
+      colF.push([info[0]]);
+      colG.push([info[1]]);
+      var existing = String(rows[i][9]).trim();
+      colJ.push([existing ? existing : info[2]]);
+      updated++;
+    } else {
+      colF.push([rows[i][5]]);
+      colG.push([rows[i][6]]);
+      colJ.push([rows[i][9]]);
     }
-    updated++;
   }
+
+  // 셀별 setValue 대신 열 단위 일괄 쓰기 (3번만 호출)
+  sheet.getRange(2, 6, dataRows, 1).setValues(colF);
+  sheet.getRange(2, 7, dataRows, 1).setValues(colG);
+  sheet.getRange(2, 10, dataRows, 1).setValues(colJ);
 
   SpreadsheetApp.getUi().alert('✅ 완료!\n' + updated + '개 패널에 유물명·기본 제원·출처를 채웠습니다.');
 }
