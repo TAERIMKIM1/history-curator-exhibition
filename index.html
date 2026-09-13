@@ -421,8 +421,8 @@
     e.preventDefault();
 
     const specVal = document.getElementById('relicSpec').value.trim();
-    if (specVal.length < 15) {
-      alert(`① [문화유산 기본 정보]를 형식에 맞게 입력해 주세요.\n\n형식: 연도(시대), 재료/기법, 소장처\n예) 12세기(고려 중기), 청자에 상감기법, 국립중앙박물관 소장\n\n현재 입력: "${specVal}" (최소 15자 이상 필요)`);
+    if (specVal.length < 1) {
+      alert(`① [문화유산 기본 정보]를 입력해 주세요.`);
       document.getElementById('relicSpec').focus();
       return;
     }
