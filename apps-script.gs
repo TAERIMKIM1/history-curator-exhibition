@@ -69,7 +69,7 @@ function fillAllPanels() {
   sheet.getRange(2, 7, dataRows, 1).setValues(colG);
   sheet.getRange(2, 10, dataRows, 1).setValues(colJ);
 
-  SpreadsheetApp.getUi().alert('✅ 완료!\n' + updated + '개 패널에 유물명·기본 제원·출처를 채웠습니다.');
+  SpreadsheetApp.getUi().alert('✅ 완료!\n' + updated + '개 패널에 문화유산 명칭·기본 정보·출처를 채웠습니다.');
 }
 
 var TEACHER_PASSWORD = "0070"; // 교사 비밀번호 (원하는 대로 변경)
@@ -191,79 +191,122 @@ function fillMissingInfo() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var rows = sheet.getDataRange().getValues();
 
-  // 유물명 → {relicSpec, source} 매핑 테이블
+  // 유물명 → {spec, src, img1, img2} 매핑 테이블
   var INFO = {
     // ── 고려관 ──
     "청자 상감운학문 매병":
       { spec: "12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장",
-        src:  "국립중앙박물관 e뮤지엄 (www.emuseum.go.kr), 우리역사넷 (contents.history.go.kr), 국가유산포털 (www.heritage.go.kr)" },
+        src:  "국립중앙박물관 e뮤지엄 (www.emuseum.go.kr), 우리역사넷 (contents.history.go.kr), 국가유산포털 (www.heritage.go.kr)",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/4/42/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg",
+        img2: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg" },
     "팔만대장경":
       { spec: "1236~1251년(고려 고종 23~38년), 목판 인쇄본, 81,258판, 국보 제32호·유네스코 세계기록유산(1997), 해인사 장경판전 소장",
-        src:  "해인사 공식 사이트, 우리역사넷 (contents.history.go.kr), 유네스코 세계기록유산 공식 자료" },
+        src:  "해인사 공식 사이트, 우리역사넷 (contents.history.go.kr), 유네스코 세계기록유산 공식 자료",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Tripitaka_Koreana-Haeinsa.jpg",
+        img2: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Korea-Haeinsa-Tripitaka_Koreana-01.jpg" },
     "고려대장경":
       { spec: "1236~1251년(고려 고종 23~38년), 목판 인쇄본, 81,258판, 국보 제32호·유네스코 세계기록유산(1997), 해인사 장경판전 소장",
-        src:  "해인사 공식 사이트, 우리역사넷 (contents.history.go.kr), 유네스코 세계기록유산 공식 자료" },
+        src:  "해인사 공식 사이트, 우리역사넷 (contents.history.go.kr), 유네스코 세계기록유산 공식 자료",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Tripitaka_Koreana-Haeinsa.jpg",
+        img2: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Korea-Haeinsa-Tripitaka_Koreana-01.jpg" },
     "직지심체요절":
       { spec: "1377년(고려 우왕 3년), 금속활자 인쇄본, 세계 최초 금속활자 인쇄본, 유네스코 세계기록유산(2001), 프랑스 국립도서관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 청주고인쇄박물관 (www.jikjiworld.cheongju.go.kr), 우리역사넷" },
+        src:  "국립중앙박물관 e뮤지엄, 청주고인쇄박물관 (www.jikjiworld.cheongju.go.kr), 우리역사넷",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Jikji.jpg",
+        img2: "" },
     "삼국유사":
       { spec: "1281년경(고려 충렬왕, 일연 저술), 목판 인쇄본, 국보 제306호, 연세대학교 박물관 소장(인각사본)",
-        src:  "우리역사넷, 한국사데이터베이스 (db.history.go.kr), 국가유산포털" },
+        src:  "우리역사넷, 한국사데이터베이스 (db.history.go.kr), 국가유산포털",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/8/83/Samguk_Yusa.jpg",
+        img2: "" },
     "청자 투각 칠보문 향로":
       { spec: "12세기(고려 중기), 청자에 투각기법, 높이 15.3cm, 국보 제95호, 국립중앙박물관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/3/31/Korea-Goryeo-Celadon_incense_burner-01.jpg",
+        img2: "" },
     "청동 은입사 포류수금문 정병":
       { spec: "12세기(고려 중기), 청동에 은입사기법, 높이 37.5cm, 국보 제92호, 국립중앙박물관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Korea-Goryeo-Bronze_kundika-01.jpg",
+        img2: "" },
     "고려 수월관음도":
       { spec: "14세기(고려 후기), 비단에 금니·채색, 세로 419.5cm, 국보 제315호, 아모레퍼시픽미술관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/5/5b/Goryeo-Avalokitesvara.jpg",
+        img2: "" },
     "청자 참외형 병":
       { spec: "12세기(고려 중기), 순청자 음각기법, 높이 22.6cm, 국보 제94호, 국립중앙박물관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/1/10/Korea-Goryeo-Celadon_melon_shaped_bottle-01.jpg",
+        img2: "" },
     "고려 나전칠기 경함":
       { spec: "13세기(고려 중기), 나무에 나전·옻칠, 국보 제102호, 국립중앙박물관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/9/91/Korea-Goryeo-Lacquerware_sutra_case-01.jpg",
+        img2: "" },
     "고려 금동 대탑":
       { spec: "10~11세기(고려 전기), 금동 주조·도금, 높이 155cm, 국보 제213호, 국립중앙박물관 소장",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털",
+        img1: "", img2: "" },
     // ── 조선관 ──
     "훈민정음 해례본":
       { spec: "1443년 창제·1446년(세종 28년) 반포, 목판 인쇄본(해례본), 국보 제70호·유네스코 세계기록유산(1997), 간송미술관 소장",
-        src:  "국립한글박물관 (www.hangeul.go.kr), 우리역사넷, 유네스코 세계기록유산 공식 자료" },
+        src:  "국립한글박물관 (www.hangeul.go.kr), 우리역사넷, 유네스코 세계기록유산 공식 자료",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Hunminjeongeum.jpg",
+        img2: "https://upload.wikimedia.org/wikipedia/commons/1/1e/Hunmin_jeongeum.jpg" },
     "훈민정음":
       { spec: "1443년 창제·1446년(세종 28년) 반포, 목판 인쇄본(해례본), 국보 제70호·유네스코 세계기록유산(1997), 간송미술관 소장",
-        src:  "국립한글박물관 (www.hangeul.go.kr), 우리역사넷, 유네스코 세계기록유산 공식 자료" },
+        src:  "국립한글박물관 (www.hangeul.go.kr), 우리역사넷, 유네스코 세계기록유산 공식 자료",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Hunminjeongeum.jpg",
+        img2: "https://upload.wikimedia.org/wikipedia/commons/1/1e/Hunmin_jeongeum.jpg" },
     "측우기":
       { spec: "1441년(세종 23년), 청동 원통형, 높이 30.0cm·지름 15.0cm, 세계 최초 강우량 측정기, 국보 제561호, 국립기상박물관 소장",
-        src:  "우리역사넷, 국가유산포털, 기상청 국립기상박물관" },
+        src:  "우리역사넷, 국가유산포털, 기상청 국립기상박물관",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/4/40/Cheugugi.jpg",
+        img2: "" },
     "앙부일구":
       { spec: "1434년(세종 16년) 제작·현존품은 17세기, 청동 주조, 국보 제845호, 국립고궁박물관 소장",
-        src:  "국립고궁박물관 (www.gogung.go.kr), 우리역사넷, 국가유산포털" },
+        src:  "국립고궁박물관 (www.gogung.go.kr), 우리역사넷, 국가유산포털",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/9/96/Angbuilgu.jpg",
+        img2: "" },
     "자격루":
       { spec: "1434년(세종 16년), 청동·목재, 물시계(자동 시보 장치), 국보 제229호, 국립고궁박물관 소장",
-        src:  "국립고궁박물관, 우리역사넷, 국가유산포털" },
+        src:  "국립고궁박물관, 우리역사넷, 국가유산포털",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/3/30/Jagyeongnu.jpg",
+        img2: "" },
     "조선왕조실록":
       { spec: "1413~1865년(태조~철종), 지본 필사·목판본, 총 1,893권, 국보 제151호·유네스코 세계기록유산(1997), 서울대학교 규장각 소장",
-        src:  "한국사데이터베이스 (db.history.go.kr), 우리역사넷, 유네스코 세계기록유산 자료" },
+        src:  "한국사데이터베이스 (db.history.go.kr), 우리역사넷, 유네스코 세계기록유산 자료",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Joseon_Wangjo_Sillok.jpg",
+        img2: "" },
     "경국대전":
       { spec: "1485년(성종 16년) 완성, 목판 인쇄본, 조선의 기본 법전, 보물 제1521호, 규장각한국학연구원 소장",
-        src:  "한국사데이터베이스, 우리역사넷, 규장각한국학연구원 원문검색" },
+        src:  "한국사데이터베이스, 우리역사넷, 규장각한국학연구원 원문검색",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/4/45/Gyeonggukdaejeon.jpg",
+        img2: "" },
     "동의보감":
       { spec: "1613년(광해군 5년), 목판 인쇄본, 총 25권, 국보 제319호·유네스코 세계기록유산(2009), 국립중앙도서관 소장",
-        src:  "국립중앙도서관, 우리역사넷, 유네스코 세계기록유산 자료" },
+        src:  "국립중앙도서관, 우리역사넷, 유네스코 세계기록유산 자료",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/5/5f/Dongui_Bogam.jpg",
+        img2: "" },
     "혼일강리역대국도지도":
       { spec: "1402년(태종 2년), 채색 필사본, 세로 158cm·가로 168cm, 현존 동양 최고 세계지도 중 하나, 일본 류코쿠대학 소장",
-        src:  "우리역사넷, 한국사데이터베이스, 국립중앙박물관 e뮤지엄" },
+        src:  "우리역사넷, 한국사데이터베이스, 국립중앙박물관 e뮤지엄",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Honil_Gangni_Yeokdae_Gukdo_Ji_Do.jpg",
+        img2: "" },
     "신숙주 초상":
       { spec: "15세기(조선 전기), 비단에 채색, 세로 167cm·가로 109.5cm, 국보 제613호, 국립중앙박물관 기탁",
-        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷" },
+        src:  "국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷",
+        img1: "", img2: "" },
     "칠정산 내편":
       { spec: "1444년(세종 26년), 지본 필사·목판본, 조선 독자 역법서, 보물 제1248호, 서울대학교 규장각 소장",
-        src:  "우리역사넷, 한국사데이터베이스, 규장각한국학연구원" },
+        src:  "우리역사넷, 한국사데이터베이스, 규장각한국학연구원",
+        img1: "", img2: "" },
     "혼천의":
       { spec: "15세기(세종~성종), 청동 주조, 천체 관측 기구, 국보 제230호, 고려대학교 박물관 소장",
-        src:  "국립고궁박물관, 우리역사넷, 국가유산포털" }
+        src:  "국립고궁박물관, 우리역사넷, 국가유산포털",
+        img1: "https://upload.wikimedia.org/wikipedia/commons/7/70/Honcheoneui.jpg",
+        img2: "" }
   };
 
   var updated = 0;
@@ -271,11 +314,13 @@ function fillMissingInfo() {
     var relicName = String(rows[i][5]).trim();
     var relicSpec = String(rows[i][6]).trim();
     var source    = String(rows[i][9]).trim();
+    var img1      = String(rows[i][10]).trim();
+    var img2      = String(rows[i][11]).trim();
 
-    if (!relicName) continue; // 유물명도 없으면 건너뜀
+    if (!relicName) continue;
 
     var info = INFO[relicName];
-    if (!info) continue; // 매핑 테이블에 없으면 건너뜀
+    if (!info) continue;
 
     var needsUpdate = false;
     if (!relicSpec || relicSpec.length < 5) {
@@ -286,10 +331,18 @@ function fillMissingInfo() {
       sheet.getRange(i + 1, 10).setValue(info.src);
       needsUpdate = true;
     }
+    if ((!img1 || img1.length < 5) && info.img1) {
+      sheet.getRange(i + 1, 11).setValue(info.img1);
+      needsUpdate = true;
+    }
+    if ((!img2 || img2.length < 5) && info.img2) {
+      sheet.getRange(i + 1, 12).setValue(info.img2);
+      needsUpdate = true;
+    }
     if (needsUpdate) updated++;
   }
 
   SpreadsheetApp.getUi().alert(
-    '✅ 보완 완료\n' + updated + '개 항목에 유물 기본 정보·출처를 추가했습니다.'
+    '✅ 보완 완료\n' + updated + '개 항목에 문화유산 기본 정보·출처·이미지를 추가했습니다.'
   );
 }

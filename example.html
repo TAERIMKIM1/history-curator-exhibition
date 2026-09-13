@@ -35,7 +35,7 @@
     .card-block { background:var(--accent-faint); border-left:3px solid var(--accent); padding:0.8rem 1rem; font-size:0.85rem; line-height:1.6; margin-bottom:1.6rem; }
     .sec-box { margin-bottom:1.6rem; }
     .sec-tag { font-size:0.95rem; font-weight:bold; color:var(--accent); border-bottom:1.5px solid var(--accent); padding-bottom:0.3rem; margin-bottom:0.6rem; }
-    .sec-body { font-size:0.9rem; line-height:1.8; color:var(--ink-mid); white-space:pre-wrap; }
+    .sec-body { font-size:0.9rem; line-height:1.8; color:var(--ink-mid); white-space:pre-wrap; max-height:8em; overflow-y:auto; padding-right:0.3rem; }
     .quote-box { background:#fff; border:1px solid var(--rule); border-left:4px solid var(--header-bg); padding:1rem; font-size:0.95rem; font-weight:500; line-height:1.6; }
     .source-box { border-top:1px solid var(--rule); padding-top:0.8rem; font-size:0.75rem; color:var(--stone); }
     .sticker-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.6rem; }
@@ -88,30 +88,30 @@
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg"
              alt="청자 상감운학문 매병 전경 (국보 제68호)" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg/400px-Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>청자 상감운학문 매병</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 1 — 청자 상감운학문 매병 전경 (위키미디어 공용 / CC)</div>
       </div>      <!-- 사진 2: 상감 기법 세부 문양 -->
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg"
              alt="청자 상감운학문 매병 세부 문양" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg/400px-Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>상감기법 세부 문양</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 2 — 상감 기법 운학문 세부 (위키미디어 공용 / CC)</div>
       </div>    </div><!-- /panel-gallery -->
 
     <div class="card-block">
-      <strong>[유물 기본 정보]</strong><br>
+      <strong>[문화유산 기본 정보]</strong><br>
       12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장
     </div>
 
     <div class="sec-box">
-      <div class="sec-tag">학예사의 시선 : 시대적 배경</div>
+      <div class="sec-tag">큐레이터의 시선 : 시대적 배경</div>
       <div class="sec-body">고려 중기(12세기)는 문벌 귀족 사회가 절정에 달하던 시기였습니다. 귀족들은 불교 문화를 깊이 신봉하며 정교한 공예품을 즐겼고, 송나라와의 활발한 무역을 통해 도자기 기술을 빠르게 수용·발전시켰습니다.
 
 특히 고려 청자는 송나라 사신 서긍이 『고려도경』(1124)에서 "천하제일의 빛깔"이라 극찬했을 만큼 독창적인 비색(翡色)을 완성했습니다. 상감기법은 바탕 흙에 문양을 새기고 백토나 자토를 채워 넣는 고려인 특유의 창안으로, 중국에서도 볼 수 없는 독보적인 기법이었습니다. 이 매병 위에 새겨진 학과 구름 문양은 신선 사상과 불로장생을 표현하며, 고려 귀족 문화의 정서적 이상을 담고 있습니다.</div>
     </div>
 
     <div class="sec-box">
-      <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+      <div class="sec-tag">큐레이터의 해석 : 역사적 의의</div>
       <div class="quote-box">
         청자 상감운학문 매병은 단순한 그릇이 아니라, 고려인이 외래 기술을 완전히 소화하여 독자적 예술로 승화시킨 문화적 자신감의 결정체입니다. 중국 기술을 넘어 '상감'이라는 새로운 문법을 창안했다는 점에서, 오늘날 K-컬처가 외부 영향을 흡수해 고유의 스타일을 만드는 방식과 닮아 있습니다. 이 매병은 고려가 단순한 '문화 수용국'이 아닌 '문화 창조국'이었음을 증명합니다.
       </div>
@@ -153,31 +153,31 @@
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Hunminjeongeum.jpg"
              alt="훈민정음 해례본 첫 장" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Hunminjeongeum.jpg/400px-Hunminjeongeum.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>훈민정음 해례본 첫 장</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 1 — 훈민정음 해례본 첫 장 (위키미디어 공용 / CC)</div>
       </div>
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Hunmin_jeongeum.jpg"
              alt="훈민정음 예의본 첫 장" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Hunmin_jeongeum.jpg/400px-Hunmin_jeongeum.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>훈민정음 예의본 서문</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 2 — 훈민정음 예의본 서문 (위키미디어 공용 / CC)</div>
       </div>
     </div>
 
     <div class="card-block">
-      <strong>[유물 기본 정보]</strong><br>
+      <strong>[문화유산 기본 정보]</strong><br>
       1443년 창제·1446년(세종 28년, 조선 전기) 반포, 목판 인쇄본(해례본), 국보 제70호·유네스코 세계기록유산(1997), 간송미술관 소장
     </div>
 
     <div class="sec-box">
-      <div class="sec-tag">학예사의 시선 : 시대적 배경</div>
+      <div class="sec-tag">큐레이터의 시선 : 시대적 배경</div>
       <div class="sec-body">조선 전기(15세기) 세종대왕 재위 시기는 유교 정치 이념이 안착되고 집현전을 중심으로 다양한 문물 제도가 정비되던 때였습니다. 그러나 당시 조선 백성 대다수는 한자를 배우지 못해 억울한 일을 당해도 호소할 수 없었고, 법률과 공문서를 이해하기도 어려웠습니다.
 
 세종은 이를 깊이 고민하여 1443년(세종 25년) 직접 새 문자를 창제하고, 1446년 집현전 학자들과 함께 『훈민정음 해례본』을 반포했습니다. 해례본에는 문자 창제의 원리와 사용법이 상세히 설명되어 있어, 세계 문자 역사상 창제자와 창제 원리가 명확히 기록된 유일한 문자로 평가받습니다. 이는 중국의 한자 문화권에 종속되지 않고 조선어에 맞는 독자적 표기 체계를 만들었다는 점에서 획기적인 문화적 사건이었습니다.</div>
     </div>
 
     <div class="sec-box">
-      <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+      <div class="sec-tag">큐레이터의 해석 : 역사적 의의</div>
       <div class="quote-box">
         훈민정음은 단순한 문자 발명이 아니라, "나랏말싸미 듕귁에 달아"로 시작하는 세종의 선언처럼 조선의 언어 주권을 선포한 문화 독립 선언입니다. 중국 문화의 압도적 영향 아래에서도 우리말에 맞는 독자적 체계를 만들어 낸 것은, 당시 동아시아 질서 속에서 매우 혁명적인 발상이었습니다. 유네스코가 글을 깨우치는 데 기여한 사람에게 주는 상을 '세종대왕상'이라 이름 붙인 것은, 한글이 세계적으로 인류 보편 문해 운동의 상징이 되었음을 보여줍니다. 훈민정음은 조선이 중국과 문화적으로 대등한 독자성을 갖추었음을 증명하는 최고의 사료입니다.
       </div>
@@ -200,7 +200,7 @@
       <td>개인 SNS·포털 캡처 사용 금지</td>
     </tr>
     <tr>
-      <td><strong>유물 기본 정보</strong></td>
+      <td><strong>문화유산 기본 정보</strong></td>
       <td><span class="tag-good">우수</span> 시기·재료·크기·지정번호·소장처 포함<br>
         <span style="font-size:0.76rem;color:#555;">예) <em>12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장</em></span></td>
       <td>명칭만 쓰면 감점<br><span class="tag-check">주의</span> "고려 청자"처럼 이름만 적는 것은 0점</td>
@@ -228,13 +228,13 @@
 <!-- ══════════════════════════════════════════ -->
 <!-- 유물 20선 참고표 -->
 <div class="rubric-section" style="margin-top:1.2rem;">
-  <div class="rubric-title">📚 유물 기본 정보 20선 참고표 — 그대로 복사해서 사용하세요</div>
-  <p style="font-size:0.8rem;color:var(--stone);margin-bottom:0.9rem;">★ 아래 정보를 [유물 기본 정보] 칸에 붙여넣고, 추천 출처를 [사료 출처] 칸에 입력하세요.</p>
+  <div class="rubric-title">📚 문화유산 기본 정보 20선 참고표 — 그대로 복사해서 사용하세요</div>
+  <p style="font-size:0.8rem;color:var(--stone);margin-bottom:0.9rem;">★ 아래 정보를 [문화유산 기본 정보] 칸에 붙여넣고, 추천 출처를 [사료 출처] 칸에 입력하세요.</p>
 
   <!-- 고려관 -->
   <div style="font-weight:bold;font-size:0.9rem;color:var(--header-bg);background:var(--accent-faint);padding:0.4rem 0.8rem;border-radius:4px;margin-bottom:0.5rem;">🏛️ 고려관 — 고려의 사회와 문화 (10선)</div>
   <table style="margin-bottom:1.2rem;">
-    <tr><th style="width:18%;">유물명</th><th style="width:42%;">유물 기본 정보 (복사용)</th><th style="width:40%;">추천 출처</th></tr>
+    <tr><th style="width:18%;">문화유산 명칭</th><th style="width:42%;">문화유산 기본 정보 (복사용)</th><th style="width:40%;">추천 출처</th></tr>
     <tr>
       <td><strong>청자 상감운학문 매병</strong></td>
       <td>12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장</td>
@@ -290,7 +290,7 @@
   <!-- 조선관 -->
   <div style="font-weight:bold;font-size:0.9rem;color:var(--header-bg);background:var(--accent-faint);padding:0.4rem 0.8rem;border-radius:4px;margin-bottom:0.5rem;">🏛️ 조선관 — 조선 전기의 유교 문화와 과학 (10선)</div>
   <table>
-    <tr><th style="width:18%;">유물명</th><th style="width:42%;">유물 기본 정보 (복사용)</th><th style="width:40%;">추천 출처</th></tr>
+    <tr><th style="width:18%;">문화유산 명칭</th><th style="width:42%;">문화유산 기본 정보 (복사용)</th><th style="width:40%;">추천 출처</th></tr>
     <tr>
       <td><strong>훈민정음 해례본</strong></td>
       <td>1443년 창제·1446년(세종 28년) 반포, 목판 인쇄본(해례본), 국보 제70호·유네스코 세계기록유산(1997), 간송미술관 소장</td>
@@ -343,7 +343,7 @@
     </tr>
   </table>
 
-  <p style="font-size:0.78rem;color:var(--stone);margin-top:0.9rem;">※ 위 목록 외 유물을 선택해도 됩니다. 단, 유물 기본 정보는 반드시 국가 공인 기관 자료를 기준으로 작성하세요.</p>
+  <p style="font-size:0.78rem;color:var(--stone);margin-top:0.9rem;">※ 위 목록 외 유물을 선택해도 됩니다. 단, 문화유산 기본 정보는 반드시 국가 공인 기관 자료를 기준으로 작성하세요.</p>
 </div>
 
 </body>
