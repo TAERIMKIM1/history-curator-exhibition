@@ -126,6 +126,60 @@
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .panel-table th:nth-child(1), .panel-table td:nth-child(1) { display: none; }
     }
+
+    /* ── 채점기준표 ── */
+    .rubric-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .rubric-table th {
+      background: #1a2a3a; color: var(--accent);
+      padding: 0.6rem 0.8rem; border: 1px solid var(--rule); text-align: center;
+    }
+    .rubric-table td {
+      padding: 0.55rem 0.8rem; border: 1px solid rgba(200,154,64,0.15);
+      vertical-align: middle;
+    }
+    .rubric-table .elem-cell {
+      text-align: center; font-weight: bold; color: var(--accent);
+      font-size: 0.82rem; line-height: 1.4; background: #1e2e40;
+    }
+    .rubric-table .point-cell {
+      text-align: center; font-weight: bold; color: var(--accent2);
+      background: #1e2e40; white-space: nowrap;
+    }
+    .rubric-table .criteria-cell { color: #ccc; line-height: 1.5; }
+    .rubric-table .score-cell { text-align: center; font-weight: bold; color: var(--accent); white-space: nowrap; }
+    .rubric-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    .total-row td { background: #1a2a3a !important; color: var(--accent); font-weight: bold; text-align: center; }
+
+    /* ── 참고표 ── */
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .ref-table th {
+      background: #1a2a3a; color: var(--accent);
+      padding: 0.5rem 0.7rem; border: 1px solid var(--rule);
+      text-align: left; white-space: nowrap;
+    }
+    .ref-table td {
+      padding: 0.5rem 0.7rem; border: 1px solid rgba(200,154,64,0.12);
+      vertical-align: top; line-height: 1.5; color: #ccc;
+    }
+    .ref-table .hall-badge {
+      display: inline-block; padding: 0.1rem 0.45rem; border-radius: 10px;
+      font-size: 0.7rem; font-weight: bold;
+    }
+    .ref-hall-header { background: #1e2e40; }
+    .ref-hall-header td {
+      color: var(--accent); font-weight: bold; font-size: 0.82rem;
+      padding: 0.5rem 0.8rem; border: 1px solid var(--rule);
+    }
+    .relic-name { color: #e8e0d0; font-weight: bold; white-space: nowrap; }
+    .btn-toggle { background: var(--card2); color: var(--muted); border: 1px solid var(--rule); }
+    .btn-toggle:hover { color: var(--text); }
+    .collapsible-body { overflow: hidden; transition: max-height 0.3s; }
+    .resource-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--accent2); color: #fff; text-decoration: none;
+      padding: 0.7rem 1.4rem; border-radius: 6px; font-size: 0.88rem; font-weight: bold;
+    }
+    .resource-link:hover { background: var(--accent); }
   </style>
 </head>
 <body>
@@ -231,6 +285,130 @@
           <tr><td colspan="6" class="empty-msg">로딩 중...</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+
+  <!-- ── 채점기준표 ── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">📊 채점기준표 (총 20점)</div>
+      <button class="btn-sm btn-refresh" onclick="printRubric()">🖨️ 채점표 인쇄</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="rubric-table">
+        <thead>
+          <tr>
+            <th style="width:10%">채점요소</th>
+            <th style="width:6%">배점</th>
+            <th>채점기준</th>
+            <th style="width:6%">점수</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="elem-cell" rowspan="5">①<br>문화유산<br>선정 및<br>기본 정보<br>(5점)</td>
+            <td class="point-cell" rowspan="5">5</td>
+            <td class="criteria-cell">성취기준에 부합하는 문화유산을 선정하고 관련 사료 및 탐구 자료를 풍부하게 제시함.</td>
+            <td class="score-cell">5</td>
+          </tr>
+          <tr><td class="criteria-cell">성취기준에 부합하는 문화유산을 선정하였으나 제시된 탐구 자료가 다소 부족함.</td><td class="score-cell">4</td></tr>
+          <tr><td class="criteria-cell">성취기준과의 연계성이 다소 부족하거나 탐구 자료 제시가 단편적임.</td><td class="score-cell">3</td></tr>
+          <tr><td class="criteria-cell">성취기준과 무관한 문화유산을 선정하였거나 탐구 자료 제시가 매우 빈약함.</td><td class="score-cell">2</td></tr>
+          <tr><td class="criteria-cell">평가에는 참여하였으나 문화유산 선정 및 자료 제시가 전혀 없음.</td><td class="score-cell">1</td></tr>
+
+          <tr>
+            <td class="elem-cell" rowspan="5">②<br>큐레이터의<br>시선<br>시대적 배경<br>(5점)</td>
+            <td class="point-cell" rowspan="5">5</td>
+            <td class="criteria-cell">문화유산의 시대적 배경을 구체적 사실에 근거하여 왜곡 없이 정확하게 설명함.</td>
+            <td class="score-cell">5</td>
+          </tr>
+          <tr><td class="criteria-cell">문화유산의 시대적 배경을 설명하였으나 세부 역사 사실의 제시가 다소 부족함.</td><td class="score-cell">4</td></tr>
+          <tr><td class="criteria-cell">문화유산의 시대적 배경을 단편적인 사실 나열 수준으로 단순하게 서술함.</td><td class="score-cell">3</td></tr>
+          <tr><td class="criteria-cell">배경 설명에 역사적 오류가 다수 포함되어 있거나 내용이 매우 빈약함.</td><td class="score-cell">2</td></tr>
+          <tr><td class="criteria-cell">평가에는 참여하였으나 시대적 배경에 대한 서술이 전혀 없음.</td><td class="score-cell">1</td></tr>
+
+          <tr>
+            <td class="elem-cell" rowspan="5">③<br>큐레이터의<br>해석<br>역사적 의의<br>(5점)</td>
+            <td class="point-cell" rowspan="5">5</td>
+            <td class="criteria-cell">문화유산의 역사적 의의를 타당한 근거를 바탕으로 논리정연하게 설명함.</td>
+            <td class="score-cell">5</td>
+          </tr>
+          <tr><td class="criteria-cell">문화유산의 역사적 의의를 설명하였으나 제시된 근거와 논리가 다소 부족함.</td><td class="score-cell">4</td></tr>
+          <tr><td class="criteria-cell">문화유산의 역사적 의의를 단순하게 언급하거나 서술 내용이 단편적임.</td><td class="score-cell">3</td></tr>
+          <tr><td class="criteria-cell">역사적 의의 서술에 오류가 많거나 타당한 근거가 전혀 없이 매우 빈약함.</td><td class="score-cell">2</td></tr>
+          <tr><td class="criteria-cell">평가에는 참여하였으나 역사적 의의에 대한 서술이 전혀 없음.</td><td class="score-cell">1</td></tr>
+
+          <tr>
+            <td class="elem-cell" rowspan="5">④<br>형식 및<br>완성도<br>(5점)</td>
+            <td class="point-cell" rowspan="5">5</td>
+            <td class="criteria-cell">보고서의 필수 양식(출처·사진 포함)을 빠짐없이 체계적으로 갖추어 완성도 있게 작성함.</td>
+            <td class="score-cell">5</td>
+          </tr>
+          <tr><td class="criteria-cell">보고서의 양식을 대체로 갖추어 작성하였으나 일부 서술이 다소 미흡함.</td><td class="score-cell">4</td></tr>
+          <tr><td class="criteria-cell">보고서의 필수 양식이 일부 누락되었거나 전체적인 작성 분량이 부족함.</td><td class="score-cell">3</td></tr>
+          <tr><td class="criteria-cell">보고서의 양식을 거의 갖추지 못하였거나 글의 완성도가 매우 빈약함.</td><td class="score-cell">2</td></tr>
+          <tr><td class="criteria-cell">평가에는 참여하였으나 보고서 결과물 작성이 전혀 없음.</td><td class="score-cell">1</td></tr>
+
+          <tr class="total-row">
+            <td colspan="2">합계</td>
+            <td>/ 20점</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 문화유산 기본 정보 참고표 ── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">📚 문화유산 기본 정보 20선 참고표</div>
+      <button class="btn-sm btn-toggle" onclick="toggleRef()">접기 ▲</button>
+    </div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.8rem;">★ 아래 정보를 <b style="color:var(--accent)">문화유산 기본 정보</b> 칸에 붙여넣고, 추천 출처를 <b style="color:var(--accent)">사료 출처</b> 칸에 입력하세요.</p>
+    <div id="ref-body" style="overflow-x:auto;">
+      <table class="ref-table">
+        <thead>
+          <tr><th>문화유산 명칭</th><th>문화유산 기본 정보 (복사용)</th><th>추천 출처</th></tr>
+        </thead>
+        <tbody>
+          <tr class="ref-hall-header"><td colspan="3">🏛️ 고려 특별전시관 — 고려의 사회와 문화 (10선)</td></tr>
+          <tr><td class="relic-name">청자 상감운학문 매병</td><td>12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 우리역사넷, 국가유산포털</td></tr>
+          <tr><td class="relic-name">팔만대장경</td><td>1236~1251년(고려 고종 23~38년), 목판 인쇄본, 81,258판, 국보 제32호·유네스코 세계기록유산(1997), 해인사 장경판전 소장</td><td>해인사 공식 사이트, 우리역사넷, 유네스코 세계기록유산 자료</td></tr>
+          <tr><td class="relic-name">직지심체요절</td><td>1377년(고려 우왕 3년), 금속활자 인쇄본, 세계 최초 금속활자 인쇄본, 유네스코 세계기록유산(2001), 프랑스 국립도서관 소장</td><td>국립중앙박물관 e뮤지엄, 청주고인쇄박물관, 우리역사넷</td></tr>
+          <tr><td class="relic-name">삼국유사</td><td>1281년경(고려 충렬왕, 일연 저술), 목판 인쇄본, 국보 제306호, 연세대학교 박물관 소장(인각사본)</td><td>우리역사넷, 한국사데이터베이스 (db.history.go.kr), 국가유산포털</td></tr>
+          <tr><td class="relic-name">청자 투각 칠보문 향로</td><td>12세기(고려 중기), 청자에 투각기법, 높이 15.3cm, 국보 제95호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털</td></tr>
+          <tr><td class="relic-name">청동 은입사 포류수금문 정병</td><td>12세기(고려 중기), 청동에 은입사기법, 높이 37.5cm, 국보 제92호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
+          <tr><td class="relic-name">고려 수월관음도</td><td>14세기(고려 후기), 비단에 금니·채색, 세로 419.5cm, 국보 제315호, 아모레퍼시픽미술관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
+          <tr><td class="relic-name">고려 나전칠기 경함</td><td>13세기(고려 중기), 나무에 나전·옻칠, 국보 제102호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
+          <tr><td class="relic-name">경천사지 십층석탑</td><td>1348년(고려 충목왕 4년), 대리석 조각, 높이 13.5m, 국보 제86호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
+          <tr><td class="relic-name">금동관음보살좌상</td><td>14세기(고려 후기), 금동 주조·도금, 국보 제124호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
+
+          <tr class="ref-hall-header"><td colspan="3">🏛️ 조선 특별전시관 — 조선의 과학과 문화 (10선)</td></tr>
+          <tr><td class="relic-name">훈민정음 해례본</td><td>1443년 창제·1446년(세종 28년) 반포, 목판 인쇄본(해례본), 국보 제70호·유네스코 세계기록유산(1997), 간송미술관 소장</td><td>국립한글박물관 (www.hangeul.go.kr), 우리역사넷, 유네스코 세계기록유산 자료</td></tr>
+          <tr><td class="relic-name">측우기</td><td>1441년(세종 23년), 청동 원통형, 높이 30.0cm·지름 15.0cm, 세계 최초 강우량 측정기, 국보 제561호, 국립기상박물관 소장</td><td>우리역사넷, 국가유산포털, 기상청 국립기상박물관</td></tr>
+          <tr><td class="relic-name">자격루</td><td>1434년(세종 16년), 청동·목재, 물시계(자동 시보 장치), 국보 제229호, 국립고궁박물관 소장</td><td>국립고궁박물관, 우리역사넷, 국가유산포털</td></tr>
+          <tr><td class="relic-name">앙부일구</td><td>1434년(세종 16년) 제작·현존품은 17세기, 청동 주조, 국보 제845호, 국립고궁박물관 소장</td><td>국립고궁박물관 (www.gogung.go.kr), 우리역사넷, 국가유산포털</td></tr>
+          <tr><td class="relic-name">혼천의</td><td>15세기(세종~성종), 청동 주조, 천체 관측 기구, 국보 제230호, 고려대학교 박물관 소장</td><td>국립고궁박물관, 우리역사넷, 국가유산포털</td></tr>
+          <tr><td class="relic-name">조선왕조실록</td><td>1413~1865년(태조~철종), 지본 필사·목판본, 총 1,893권, 국보 제151호·유네스코 세계기록유산(1997), 서울대학교 규장각 소장</td><td>한국사데이터베이스 (db.history.go.kr), 우리역사넷, 유네스코 세계기록유산 자료</td></tr>
+          <tr><td class="relic-name">경복궁 근정전</td><td>1395년(태조 4년) 창건·1867년(고종 4년) 중건, 목조 건물, 국보 제223호, 서울 경복궁 소재</td><td>국립고궁박물관 (www.gogung.go.kr), 국가유산포털, 우리역사넷</td></tr>
+          <tr><td class="relic-name">칠정산 내편</td><td>1444년(세종 26년), 지본 필사·목판본, 조선 독자 역법서, 보물 제1248호, 서울대학교 규장각 소장</td><td>우리역사넷, 한국사데이터베이스, 규장각한국학연구원</td></tr>
+          <tr><td class="relic-name">용비어천가</td><td>1445년 지어 1447년(세종 29년) 간행, 목판 인쇄본, 125장, 보물 제445호, 서울대학교 규장각 소장</td><td>규장각한국학연구원 원문검색, 한국사데이터베이스 (db.history.go.kr), 우리역사넷</td></tr>
+          <tr><td class="relic-name">분청사기 박지 철화 어문 항아리</td><td>15~16세기(조선 전기), 분청사기 박지·철화 기법, 국보 제259호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 수기 작성 양식 ── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">📋 수기 작성 양식</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap;">
+      <a class="resource-link" href="https://claude.ai/code/artifact/68180152-c3d5-4891-bf09-81b8ac09e40a" target="_blank">📋 탐구 보고서 수기 양식 열기 (인쇄용)</a>
+      <span style="font-size:0.78rem; color:var(--muted);">A4 인쇄 — 문화유산 명칭·기본 정보·큐레이터의 시선·해석·출처·사진 부착란 포함</span>
     </div>
   </div>
 
@@ -370,6 +548,91 @@
 
   // 자동 새로고침 (30초)
   setInterval(() => { if (authenticated) loadPanels(); }, 30000);
+
+  // 참고표 접기/펼치기
+  let refOpen = true;
+  function toggleRef() {
+    const body = document.getElementById('ref-body');
+    refOpen = !refOpen;
+    body.style.display = refOpen ? '' : 'none';
+    event.target.textContent = refOpen ? '접기 ▲' : '펼치기 ▼';
+  }
+
+  // 채점표 인쇄 (새 창, 밝은 테마)
+  function printRubric() {
+    const rows = [
+      ['①<br>문화유산<br>선정 및 기본 정보<br>(5점)', [
+        ['5','성취기준에 부합하는 문화유산을 선정하고 관련 사료 및 탐구 자료를 풍부하게 제시함.'],
+        ['4','성취기준에 부합하는 문화유산을 선정하였으나 제시된 탐구 자료가 다소 부족함.'],
+        ['3','성취기준과의 연계성이 다소 부족하거나 탐구 자료 제시가 단편적임.'],
+        ['2','성취기준과 무관한 문화유산을 선정하였거나 탐구 자료 제시가 매우 빈약함.'],
+        ['1','평가에는 참여하였으나 문화유산 선정 및 자료 제시가 전혀 없음.'],
+      ]],
+      ['②<br>큐레이터의 시선<br>시대적 배경 분석<br>(5점)', [
+        ['5','문화유산의 시대적 배경을 구체적 사실에 근거하여 왜곡 없이 정확하게 설명함.'],
+        ['4','문화유산의 시대적 배경을 설명하였으나 세부 역사 사실의 제시가 다소 부족함.'],
+        ['3','문화유산의 시대적 배경을 단편적인 사실 나열 수준으로 단순하게 서술함.'],
+        ['2','배경 설명에 역사적 오류가 다수 포함되어 있거나 내용이 매우 빈약함.'],
+        ['1','평가에는 참여하였으나 시대적 배경에 대한 서술이 전혀 없음.'],
+      ]],
+      ['③<br>큐레이터의 해석<br>역사적 의의 분석<br>(5점)', [
+        ['5','문화유산의 역사적 의의를 타당한 근거를 바탕으로 논리정연하게 설명함.'],
+        ['4','문화유산의 역사적 의의를 설명하였으나 제시된 근거와 논리가 다소 부족함.'],
+        ['3','문화유산의 역사적 의의를 단순하게 언급하거나 서술 내용이 단편적임.'],
+        ['2','역사적 의의 서술에 오류가 많거나 타당한 근거가 전혀 없이 매우 빈약함.'],
+        ['1','평가에는 참여하였으나 역사적 의의에 대한 서술이 전혀 없음.'],
+      ]],
+      ['④<br>형식 및 완성도<br>(5점)', [
+        ['5','보고서의 필수 양식(출처·사진 포함)을 빠짐없이 체계적으로 갖추어 완성도 있게 작성함.'],
+        ['4','보고서의 양식을 대체로 갖추어 작성하였으나 일부 서술이 다소 미흡함.'],
+        ['3','보고서의 필수 양식이 일부 누락되었거나 전체적인 작성 분량이 부족함.'],
+        ['2','보고서의 양식을 거의 갖추지 못하였거나 글의 완성도가 매우 빈약함.'],
+        ['1','평가에는 참여하였으나 보고서 결과물 작성이 전혀 없음.'],
+      ]],
+    ];
+
+    let bodyRows = '';
+    rows.forEach(([elem, criteria]) => {
+      criteria.forEach(([score, desc], i) => {
+        bodyRows += `<tr>
+          ${i===0 ? `<td rowspan="5" class="elem-col">${elem}</td><td rowspan="5" class="max-col">5</td>` : ''}
+          <td class="desc-col">${desc}</td>
+          <td class="score-col">${score}</td>
+          <td class="write-col"></td>
+        </tr>`;
+      });
+    });
+
+    const w = window.open('', '_blank', 'width=900,height=700');
+    w.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+    <title>채점기준표 — 역사 큐레이터 기획전</title>
+    <style>
+      body { font-family: 'Malgun Gothic', sans-serif; font-size: 11pt; margin: 1.5cm; color: #111; }
+      h2 { font-size: 14pt; margin-bottom: 4px; }
+      .sub { font-size: 9pt; color: #555; margin-bottom: 12px; }
+      table { width: 100%; border-collapse: collapse; }
+      th { background: #1C2830; color: #C89A40; padding: 6px 8px; border: 1px solid #aaa; font-size: 10pt; }
+      td { padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle; font-size: 10pt; }
+      .elem-col { text-align: center; font-weight: bold; background: #f0f0f0; line-height: 1.5; }
+      .max-col { text-align: center; background: #f0f0f0; font-weight: bold; }
+      .score-col { text-align: center; font-weight: bold; width: 40px; }
+      .write-col { width: 80px; }
+      .total-row td { background: #f8f8f8; font-weight: bold; text-align: center; }
+      @media print { body { margin: 1cm; } }
+    </style></head><body>
+    <h2>📊 채점기준표 — 역사 큐레이터 기획전 (총 20점)</h2>
+    <div class="sub">1일 학예연구사 문화유산 탐구 보고서 평가</div>
+    <table>
+      <thead><tr><th>채점요소</th><th>배점</th><th>채점기준</th><th>점수</th><th>기재</th></tr></thead>
+      <tbody>
+        ${bodyRows}
+        <tr class="total-row"><td colspan="3">합&nbsp;&nbsp;계</td><td colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ 20점</td></tr>
+      </tbody>
+    </table>
+    <script>window.onload=()=>{window.print();}<\/script>
+    </body></html>`);
+    w.document.close();
+  }
 </script>
 
 </body>
