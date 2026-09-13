@@ -178,7 +178,7 @@
       </div>
 
       <div class="form-group">
-        <label>① 유물 정보 <span>(유물 명칭 및 사료 사진 2장 등록)</span></label>
+        <label>① 문화유산 명칭 <span>(사료 사진 2장 등록)</span></label>
         <input type="text" id="relicName" placeholder="문화유산 명칭 (예: 불국사 3층석탑)" required style="margin-bottom:0.6rem;">
 
         <div class="img-upload-grid">
@@ -212,13 +212,13 @@
       </div>
 
       <div class="form-group">
-        <label>② 학예사의 시선 <span>(시대적 배경 분석)</span></label>
+        <label>② 큐레이터의 시선 <span>(시대적 배경 분석)</span></label>
         <textarea id="historyContext" placeholder="당시 사회 모습, 정치적 상황, 정책적 노력을 구체적 사실에 근거하여 작성하세요." required oninput="updateCharCount('historyContext','hcCount')"></textarea>
         <div id="hcCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0 / 최소 200자</div>
       </div>
 
       <div class="form-group">
-        <label>③ 큐레이터 노트 <span>(역사적 의의 분석)</span></label>
+        <label>③ 큐레이터의 해석 <span>(역사적 의의 분석)</span></label>
         <textarea id="curatorVoice" placeholder="타당한 근거를 들어 이 유물이 갖는 독보적 역사적 가치나 오늘날 주는 의미를 작성하세요." required oninput="updateCharCount('curatorVoice','cvCount')"></textarea>
         <div id="cvCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0 / 최소 200자</div>
       </div>
@@ -268,12 +268,12 @@
       </div>
 
       <div class="sec-box">
-        <div class="sec-tag">학예사의 시선 : 시대적 배경</div>
+        <div class="sec-tag">큐레이터의 시선 : 시대적 배경</div>
         <div class="sec-body" id="view-context"></div>
       </div>
 
       <div class="sec-box">
-        <div class="sec-tag">큐레이터 노트 : 역사적 의의</div>
+        <div class="sec-tag">큐레이터의 해석 : 역사적 의의</div>
         <div class="quote-box" id="view-voice"></div>
       </div>
 
@@ -424,12 +424,12 @@
     const hcLen = document.getElementById('historyContext').value.length;
     const cvLen = document.getElementById('curatorVoice').value.length;
     if (hcLen < 200) {
-      alert(`② 학예사의 시선(시대적 배경)을 최소 200자 이상 작성해 주세요.\n현재: ${hcLen}자`);
+      alert(`② 큐레이터의 시선(시대적 배경)을 최소 200자 이상 작성해 주세요.\n현재: ${hcLen}자`);
       document.getElementById('historyContext').focus();
       return;
     }
     if (cvLen < 200) {
-      alert(`③ 큐레이터 노트(역사적 의의)을 최소 200자 이상 작성해 주세요.\n현재: ${cvLen}자`);
+      alert(`③ 큐레이터의 해석(역사적 의의)을 최소 200자 이상 작성해 주세요.\n현재: ${cvLen}자`);
       document.getElementById('curatorVoice').focus();
       return;
     }
