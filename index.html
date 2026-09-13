@@ -228,7 +228,10 @@
         <input type="text" id="source" placeholder="예: 국립중앙박물관 e뮤지엄, 우리역사넷" required>
       </div>
 
-      <button type="submit" class="btn-submit" id="submit-btn">전시 패널 발행 및 제출하기</button>
+      <div style="display:flex; gap:0.6rem; margin-top:1rem;">
+        <button type="button" onclick="manualSaveDraft()" style="flex:0 0 auto; background:#3A4855; color:#C89A40; border:1px solid #C89A40; border-radius:4px; padding:0.9rem 1.2rem; font-size:0.9rem; font-weight:bold; cursor:pointer; font-family:inherit;" id="save-draft-btn">💾 임시저장</button>
+        <button type="submit" class="btn-submit" id="submit-btn" style="margin-top:0; flex:1;">전시 패널 발행 및 제출하기</button>
+      </div>
     </form>
   </div>
 
@@ -507,6 +510,16 @@
     document.getElementById('panel-section').style.display = 'block';
     window.scrollTo(0, 0);
   });
+
+  // ── 수동 임시저장 ──
+  function manualSaveDraft() {
+    saveDraft();
+    const btn = document.getElementById('save-draft-btn');
+    const orig = btn.innerText;
+    btn.innerText = '✅ 저장됨';
+    btn.style.background = '#1C5C3A';
+    setTimeout(() => { btn.innerText = orig; btn.style.background = '#3A4855'; }, 2000);
+  }
 
   // ── 작성 초기화 ──
   function resetForNextStudent() {
