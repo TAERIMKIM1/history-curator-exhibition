@@ -214,13 +214,13 @@
       <div class="form-group">
         <label>② 큐레이터의 시선 <span>(시대적 배경 분석)</span></label>
         <textarea id="historyContext" placeholder="당시 사회 모습, 정치적 상황, 정책적 노력을 구체적 사실에 근거하여 작성하세요." required oninput="updateCharCount('historyContext','hcCount')"></textarea>
-        <div id="hcCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0 / 최소 200자</div>
+        <div id="hcCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0자</div>
       </div>
 
       <div class="form-group">
         <label>③ 큐레이터의 해석 <span>(역사적 의의 분석)</span></label>
         <textarea id="curatorVoice" placeholder="타당한 근거를 들어 이 유물이 갖는 독보적 역사적 가치나 오늘날 주는 의미를 작성하세요." required oninput="updateCharCount('curatorVoice','cvCount')"></textarea>
-        <div id="cvCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0 / 최소 200자</div>
+        <div id="cvCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0자</div>
       </div>
 
       <div class="form-group">
@@ -305,8 +305,8 @@
   function updateCharCount(textareaId, counterId) {
     const len = document.getElementById(textareaId).value.length;
     const el = document.getElementById(counterId);
-    el.innerText = len + ' / 최소 200자';
-    el.style.color = len >= 200 ? '#2a7a2a' : (len >= 150 ? '#b8860b' : '#888');
+    el.innerText = len + '자';
+    el.style.color = len >= 200 ? '#2a7a2a' : (len >= 100 ? '#b8860b' : '#888');
   }
 
   // URL 파라미터로 반 자동 입력 (예: index.html?class=3-2)
@@ -429,13 +429,13 @@
 
     const hcLen = document.getElementById('historyContext').value.length;
     const cvLen = document.getElementById('curatorVoice').value.length;
-    if (hcLen < 200) {
-      alert(`② 큐레이터의 시선(시대적 배경)을 최소 200자 이상 작성해 주세요.\n현재: ${hcLen}자`);
+    if (hcLen < 1) {
+      alert(`② 큐레이터의 시선(시대적 배경)을 입력해 주세요.`);
       document.getElementById('historyContext').focus();
       return;
     }
-    if (cvLen < 200) {
-      alert(`③ 큐레이터의 해석(역사적 의의)을 최소 200자 이상 작성해 주세요.\n현재: ${cvLen}자`);
+    if (cvLen < 1) {
+      alert(`③ 큐레이터의 해석(역사적 의의)을 입력해 주세요.`);
       document.getElementById('curatorVoice').focus();
       return;
     }
@@ -518,8 +518,8 @@
     isEditMode = false; editId = null; panelId = null; localVote = 0;
     ['imgPreview1','imgPreview2'].forEach(id => { document.getElementById(id).style.display = 'none'; });
     ['uploadStatus1','uploadStatus2'].forEach(id => { document.getElementById(id).innerText = ''; });
-    document.getElementById('hcCount').innerText = '0 / 최소 200자';
-    document.getElementById('cvCount').innerText = '0 / 최소 200자';
+    document.getElementById('hcCount').innerText = '0자';
+    document.getElementById('cvCount').innerText = '0자';
     document.getElementById('submit-btn').innerText = '전시 패널 발행 및 제출하기';
     document.getElementById('panel-section').style.display = 'none';
     document.getElementById('form-section').style.display = 'block';
