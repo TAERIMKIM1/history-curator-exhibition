@@ -108,7 +108,7 @@
   <div id="form-section">
     <div class="header">
       <h1>역사 큐레이터 : 문화유산 기획전</h1>
-      <p>1일 학예연구사 문화유산 탐구 보고서 발행 시스템</p>
+      <p>1일 학예연구사 문화유산 탐구 보고서</p>
     </div>
 
     <!-- 예시 패널 바로가기 배너 -->
@@ -218,7 +218,7 @@
       </div>
 
       <div class="form-group">
-        <label>③ 큐레이터 한 줄 <span>(역사적 의의 분석)</span></label>
+        <label>③ 큐레이터 노트 <span>(역사적 의의 분석)</span></label>
         <textarea id="curatorVoice" placeholder="타당한 근거를 들어 이 유물이 갖는 독보적 역사적 가치나 오늘날 주는 의미를 작성하세요." required oninput="updateCharCount('curatorVoice','cvCount')"></textarea>
         <div id="cvCount" style="font-size:0.78rem;margin-top:0.3rem;color:#888;">0 / 최소 200자</div>
       </div>
@@ -273,7 +273,7 @@
       </div>
 
       <div class="sec-box">
-        <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+        <div class="sec-tag">큐레이터 노트 : 역사적 의의</div>
         <div class="quote-box" id="view-voice"></div>
       </div>
 
@@ -429,7 +429,7 @@
       return;
     }
     if (cvLen < 200) {
-      alert(`③ 큐레이터 한 줄(역사적 의의)을 최소 200자 이상 작성해 주세요.\n현재: ${cvLen}자`);
+      alert(`③ 큐레이터 노트(역사적 의의)을 최소 200자 이상 작성해 주세요.\n현재: ${cvLen}자`);
       document.getElementById('curatorVoice').focus();
       return;
     }

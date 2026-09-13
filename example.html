@@ -35,7 +35,7 @@
     .card-block { background:var(--accent-faint); border-left:3px solid var(--accent); padding:0.8rem 1rem; font-size:0.85rem; line-height:1.6; margin-bottom:1.6rem; }
     .sec-box { margin-bottom:1.6rem; }
     .sec-tag { font-size:0.95rem; font-weight:bold; color:var(--accent); border-bottom:1.5px solid var(--accent); padding-bottom:0.3rem; margin-bottom:0.6rem; }
-    .sec-body { font-size:0.9rem; line-height:1.8; color:var(--ink-mid); white-space:pre-wrap; }
+    .sec-body { font-size:0.9rem; line-height:1.8; color:var(--ink-mid); white-space:pre-wrap; max-height:8em; overflow-y:auto; padding-right:0.3rem; }
     .quote-box { background:#fff; border:1px solid var(--rule); border-left:4px solid var(--header-bg); padding:1rem; font-size:0.95rem; font-weight:500; line-height:1.6; }
     .source-box { border-top:1px solid var(--rule); padding-top:0.8rem; font-size:0.75rem; color:var(--stone); }
     .sticker-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.6rem; }
@@ -88,13 +88,13 @@
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg"
              alt="청자 상감운학문 매병 전경 (국보 제68호)" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg/400px-Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-02.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>청자 상감운학문 매병</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 1 — 청자 상감운학문 매병 전경 (위키미디어 공용 / CC)</div>
       </div>      <!-- 사진 2: 상감 기법 세부 문양 -->
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg"
              alt="청자 상감운학문 매병 세부 문양" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg/400px-Korea-Goryeo_period-Celadon_maebyeong_with_inlaid_cloud_and_crane_design-01.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>상감기법 세부 문양</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 2 — 상감 기법 운학문 세부 (위키미디어 공용 / CC)</div>
       </div>    </div><!-- /panel-gallery -->
 
@@ -111,7 +111,7 @@
     </div>
 
     <div class="sec-box">
-      <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+      <div class="sec-tag">큐레이터 노트 : 역사적 의의</div>
       <div class="quote-box">
         청자 상감운학문 매병은 단순한 그릇이 아니라, 고려인이 외래 기술을 완전히 소화하여 독자적 예술로 승화시킨 문화적 자신감의 결정체입니다. 중국 기술을 넘어 '상감'이라는 새로운 문법을 창안했다는 점에서, 오늘날 K-컬처가 외부 영향을 흡수해 고유의 스타일을 만드는 방식과 닮아 있습니다. 이 매병은 고려가 단순한 '문화 수용국'이 아닌 '문화 창조국'이었음을 증명합니다.
       </div>
@@ -153,13 +153,13 @@
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Hunminjeongeum.jpg"
              alt="훈민정음 해례본 첫 장" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Hunminjeongeum.jpg/400px-Hunminjeongeum.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>훈민정음 해례본 첫 장</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 1 — 훈민정음 해례본 첫 장 (위키미디어 공용 / CC)</div>
       </div>
       <div class="panel-img-wrap">
         <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Hunmin_jeongeum.jpg"
              alt="훈민정음 예의본 첫 장" loading="lazy"
-             onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Hunmin_jeongeum.jpg/400px-Hunmin_jeongeum.jpg'">
+             onerror="this.onerror=null;this.outerHTML='<div style=\'height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#EAE3D2;color:#8A7A68;font-size:0.85rem;text-align:center;gap:0.4rem;\'><span style=\'font-size:2.5rem;\'>📜</span><span>훈민정음 예의본 서문</span><small>위키미디어 공용</small></div>'">
         <div class="panel-img-caption">▲ 사료 사진 2 — 훈민정음 예의본 서문 (위키미디어 공용 / CC)</div>
       </div>
     </div>
@@ -177,7 +177,7 @@
     </div>
 
     <div class="sec-box">
-      <div class="sec-tag">큐레이터 한 줄 : 역사적 의의</div>
+      <div class="sec-tag">큐레이터 노트 : 역사적 의의</div>
       <div class="quote-box">
         훈민정음은 단순한 문자 발명이 아니라, "나랏말싸미 듕귁에 달아"로 시작하는 세종의 선언처럼 조선의 언어 주권을 선포한 문화 독립 선언입니다. 중국 문화의 압도적 영향 아래에서도 우리말에 맞는 독자적 체계를 만들어 낸 것은, 당시 동아시아 질서 속에서 매우 혁명적인 발상이었습니다. 유네스코가 글을 깨우치는 데 기여한 사람에게 주는 상을 '세종대왕상'이라 이름 붙인 것은, 한글이 세계적으로 인류 보편 문해 운동의 상징이 되었음을 보여줍니다. 훈민정음은 조선이 중국과 문화적으로 대등한 독자성을 갖추었음을 증명하는 최고의 사료입니다.
       </div>
