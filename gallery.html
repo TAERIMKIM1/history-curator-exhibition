@@ -113,6 +113,25 @@
     .close-btn { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; border: none; background: none; }
     .modal-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .modal-gallery img { width: 100%; height: 200px; object-fit: contain; background: #faf8f5; border-radius: 4px; border: 1px solid #ddd; }
+  /* ── 인쇄 ── */
+  #print-area { display: none; }
+  @media print {
+    body > *:not(#print-area) { display: none !important; }
+    #print-area { display: block !important; }
+    .print-panel { page-break-after: always; padding: 1.5cm; font-family: 'Malgun Gothic', sans-serif; color: #000; }
+    .print-panel:last-child { page-break-after: auto; }
+    .print-hall { font-size: 10pt; color: #A07828; font-weight: bold; margin-bottom: 4pt; }
+    .print-title { font-size: 20pt; font-weight: bold; margin-bottom: 4pt; }
+    .print-curator { font-size: 10pt; color: #555; margin-bottom: 10pt; border-bottom: 1pt solid #ccc; padding-bottom: 8pt; }
+    .print-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; margin-bottom: 10pt; }
+    .print-imgs img { width: 100%; max-height: 160pt; object-fit: contain; border: 1pt solid #ddd; }
+    .print-img-cap { font-size: 8pt; color: #666; text-align: center; margin-top: 2pt; }
+    .print-spec { background: #F0E4C0; padding: 6pt 8pt; font-size: 9pt; margin-bottom: 10pt; border-left: 3pt solid #A07828; }
+    .print-section-title { font-size: 11pt; font-weight: bold; color: #A07828; border-bottom: 1pt solid #A07828; padding-bottom: 2pt; margin-bottom: 4pt; }
+    .print-text { font-size: 10pt; line-height: 1.7; margin-bottom: 10pt; white-space: pre-wrap; }
+    .print-source { font-size: 8pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
+    .print-class-title { font-size: 16pt; font-weight: bold; text-align: center; padding: 20pt 0 10pt; border-bottom: 2pt solid #1C2830; margin-bottom: 20pt; page-break-after: avoid; }
+  }
   </style>
 </head>
 <body>
@@ -147,7 +166,9 @@
       <option value="">📋 전체 보기</option>
     </select>
     <span id="filter-label" style="font-size: 0.82rem; color: #666;"></span>
+    <button id="btn-print-class" onclick="printClass()" style="display:none; background:#1C2830; color:#C89A40; border:1px solid #A07828; border-radius:4px; padding:0.4rem 0.9rem; font-size:0.83rem; font-weight:bold; cursor:pointer;">🖨️ 이 반 전체 출력</button>
   </div>
+  <div id="print-area"></div>
 
   <div class="expo-container">
     <div class="expo-hall">
@@ -255,6 +276,9 @@
 
   function applyClassFilter() {
     currentFilter = document.getElementById('class-filter').value;
+    document.getElementById('btn-print-class').style.display = 'inline-block';
+    document.getElementById('btn-print-class').textContent =
+      currentFilter ? `🖨️ ${currentFilter}반 전체 출력` : '🖨️ 전체 출력';
     renderGallery();
   }
 
@@ -341,7 +365,47 @@
     });
   }
 
+  let currentModalItem = null;
+
+  function panelHTML(item) {
+    return `<div class="print-panel">
+      <div class="print-hall">${item.hall}</div>
+      <div class="print-title">${item.relicName}</div>
+      <div class="print-curator">전시 기획: ${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터 · 관람객 추천 ${item.votes}표</div>
+      ${(item.imageUrl1 || item.imageUrl2) ? `<div class="print-imgs">
+        ${item.imageUrl1 ? `<div><img src="${item.imageUrl1}" alt="사료1"><div class="print-img-cap">▲ ${item.imgCaption1||'사료 사진 1'}</div></div>` : ''}
+        ${item.imageUrl2 ? `<div><img src="${item.imageUrl2}" alt="사료2"><div class="print-img-cap">▲ ${item.imgCaption2||'사료 사진 2'}</div></div>` : ''}
+      </div>` : ''}
+      <div class="print-spec"><strong>[문화유산 기본 정보]</strong><br>${item.relicSpec}</div>
+      <div class="print-section-title">큐레이터의 시선 (시대적 배경)</div>
+      <div class="print-text">${item.historyContext}</div>
+      <div class="print-section-title">큐레이터의 해석 (역사적 의의)</div>
+      <div class="print-text">${item.curatorVoice}</div>
+      <div class="print-source">사료 출처: ${item.source}</div>
+    </div>`;
+  }
+
+  function printItem(item) {
+    if (!item) return;
+    document.getElementById('print-area').innerHTML = panelHTML(item);
+    window.print();
+  }
+
+  function printClass() {
+    const norm = s => String(s).replace(/\s/g,'');
+    const targets = currentFilter
+      ? items.filter(i => norm(i.gradeClass) === norm(currentFilter))
+      : items;
+    if (!targets.length) { alert('출력할 작품이 없습니다.'); return; }
+    const label = currentFilter ? `${currentFilter}반 전체 작품` : '전체 작품';
+    document.getElementById('print-area').innerHTML =
+      `<div class="print-class-title">역사 큐레이터 기획전 — ${label}</div>` +
+      targets.map(i => panelHTML(i)).join('');
+    window.print();
+  }
+
   function openModal(item) {
+    currentModalItem = item;
     const inner = document.getElementById('modal-inner');
     inner.innerHTML = `
       <div style="font-size:0.8rem; color:#A07828; font-weight:bold;">${item.hall}</div>
@@ -380,7 +444,10 @@
         <strong style="color:#A07828;">큐레이터의 해석 (역사적 의의):</strong>
         <p style="margin-top:0.3rem; font-size:0.92rem; line-height:1.6; background:#fff; padding:0.8rem; border-left:4px solid #1C2830; border-radius:2px;">${item.curatorVoice}</p>
       </div>
-      <div style="font-size:0.75rem; color:#888; border-top:1px solid #D8CABA; padding-top:0.6rem;">사료 출처: ${item.source}</div>`;
+      <div style="font-size:0.75rem; color:#888; border-top:1px solid #D8CABA; padding-top:0.6rem;">사료 출처: ${item.source}</div>
+      <div style="margin-top:1rem; text-align:right;">
+        <button onclick="printItem(currentModalItem)" style="background:#1C2830; color:#C89A40; border:1px solid #A07828; border-radius:4px; padding:0.5rem 1rem; font-size:0.85rem; font-weight:bold; cursor:pointer;">🖨️ 이 작품 출력</button>
+      </div>`;
     document.getElementById('modal').style.display = 'flex';
   }
 
