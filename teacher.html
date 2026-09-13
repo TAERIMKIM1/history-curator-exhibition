@@ -360,47 +360,6 @@
     </div>
   </div>
 
-  <!-- ── 문화유산 기본 정보 참고표 ── -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-title">📚 문화유산 기본 정보 20선 참고표</div>
-      <button class="btn-sm btn-toggle" onclick="toggleRef()">접기 ▲</button>
-    </div>
-    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.8rem;">★ 아래 정보를 <b style="color:var(--accent)">문화유산 기본 정보</b> 칸에 붙여넣고, 추천 출처를 <b style="color:var(--accent)">사료 출처</b> 칸에 입력하세요.</p>
-    <div id="ref-body" style="overflow-x:auto;">
-      <table class="ref-table">
-        <thead>
-          <tr><th>문화유산 명칭</th><th>문화유산 기본 정보 (복사용)</th><th>추천 출처</th></tr>
-        </thead>
-        <tbody>
-          <tr class="ref-hall-header"><td colspan="3">🏛️ 고려 특별전시관 — 고려의 사회와 문화 (10선)</td></tr>
-          <tr><td class="relic-name">청자 상감운학문 매병</td><td>12세기(고려 중기), 청자에 상감기법, 높이 43.9cm, 국보 제68호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 우리역사넷, 국가유산포털</td></tr>
-          <tr><td class="relic-name">팔만대장경</td><td>1236~1251년(고려 고종 23~38년), 목판 인쇄본, 81,258판, 국보 제32호·유네스코 세계기록유산(1997), 해인사 장경판전 소장</td><td>해인사 공식 사이트, 우리역사넷, 유네스코 세계기록유산 자료</td></tr>
-          <tr><td class="relic-name">직지심체요절</td><td>1377년(고려 우왕 3년), 금속활자 인쇄본, 세계 최초 금속활자 인쇄본, 유네스코 세계기록유산(2001), 프랑스 국립도서관 소장</td><td>국립중앙박물관 e뮤지엄, 청주고인쇄박물관, 우리역사넷</td></tr>
-          <tr><td class="relic-name">삼국유사</td><td>1281년경(고려 충렬왕, 일연 저술), 목판 인쇄본, 국보 제306호, 연세대학교 박물관 소장(인각사본)</td><td>우리역사넷, 한국사데이터베이스 (db.history.go.kr), 국가유산포털</td></tr>
-          <tr><td class="relic-name">청자 투각 칠보문 향로</td><td>12세기(고려 중기), 청자에 투각기법, 높이 15.3cm, 국보 제95호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털</td></tr>
-          <tr><td class="relic-name">청동 은입사 포류수금문 정병</td><td>12세기(고려 중기), 청동에 은입사기법, 높이 37.5cm, 국보 제92호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
-          <tr><td class="relic-name">고려 수월관음도</td><td>14세기(고려 후기), 비단에 금니·채색, 세로 419.5cm, 국보 제315호, 아모레퍼시픽미술관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
-          <tr><td class="relic-name">고려 나전칠기 경함</td><td>13세기(고려 중기), 나무에 나전·옻칠, 국보 제102호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
-          <tr><td class="relic-name">경천사지 십층석탑</td><td>1348년(고려 충목왕 4년), 대리석 조각, 높이 13.5m, 국보 제86호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
-          <tr><td class="relic-name">금동관음보살좌상</td><td>14세기(고려 후기), 금동 주조·도금, 국보 제124호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
-
-          <tr class="ref-hall-header"><td colspan="3">🏛️ 조선 특별전시관 — 조선의 과학과 문화 (10선)</td></tr>
-          <tr><td class="relic-name">훈민정음 해례본</td><td>1443년 창제·1446년(세종 28년) 반포, 목판 인쇄본(해례본), 국보 제70호·유네스코 세계기록유산(1997), 간송미술관 소장</td><td>국립한글박물관 (www.hangeul.go.kr), 우리역사넷, 유네스코 세계기록유산 자료</td></tr>
-          <tr><td class="relic-name">측우기</td><td>1441년(세종 23년), 청동 원통형, 높이 30.0cm·지름 15.0cm, 세계 최초 강우량 측정기, 국보 제561호, 국립기상박물관 소장</td><td>우리역사넷, 국가유산포털, 기상청 국립기상박물관</td></tr>
-          <tr><td class="relic-name">자격루</td><td>1434년(세종 16년), 청동·목재, 물시계(자동 시보 장치), 국보 제229호, 국립고궁박물관 소장</td><td>국립고궁박물관, 우리역사넷, 국가유산포털</td></tr>
-          <tr><td class="relic-name">앙부일구</td><td>1434년(세종 16년) 제작·현존품은 17세기, 청동 주조, 국보 제845호, 국립고궁박물관 소장</td><td>국립고궁박물관 (www.gogung.go.kr), 우리역사넷, 국가유산포털</td></tr>
-          <tr><td class="relic-name">혼천의</td><td>15세기(세종~성종), 청동 주조, 천체 관측 기구, 국보 제230호, 고려대학교 박물관 소장</td><td>국립고궁박물관, 우리역사넷, 국가유산포털</td></tr>
-          <tr><td class="relic-name">조선왕조실록</td><td>1413~1865년(태조~철종), 지본 필사·목판본, 총 1,893권, 국보 제151호·유네스코 세계기록유산(1997), 서울대학교 규장각 소장</td><td>한국사데이터베이스 (db.history.go.kr), 우리역사넷, 유네스코 세계기록유산 자료</td></tr>
-          <tr><td class="relic-name">경복궁 근정전</td><td>1395년(태조 4년) 창건·1867년(고종 4년) 중건, 목조 건물, 국보 제223호, 서울 경복궁 소재</td><td>국립고궁박물관 (www.gogung.go.kr), 국가유산포털, 우리역사넷</td></tr>
-          <tr><td class="relic-name">칠정산 내편</td><td>1444년(세종 26년), 지본 필사·목판본, 조선 독자 역법서, 보물 제1248호, 서울대학교 규장각 소장</td><td>우리역사넷, 한국사데이터베이스, 규장각한국학연구원</td></tr>
-          <tr><td class="relic-name">용비어천가</td><td>1445년 지어 1447년(세종 29년) 간행, 목판 인쇄본, 125장, 보물 제445호, 서울대학교 규장각 소장</td><td>규장각한국학연구원 원문검색, 한국사데이터베이스 (db.history.go.kr), 우리역사넷</td></tr>
-          <tr><td class="relic-name">분청사기 박지 철화 어문 항아리</td><td>15~16세기(조선 전기), 분청사기 박지·철화 기법, 국보 제259호, 국립중앙박물관 소장</td><td>국립중앙박물관 e뮤지엄, 국가유산포털, 우리역사넷</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- ── 수기 작성 양식 ── -->
   <div class="section">
     <div class="section-head">
