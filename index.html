@@ -281,6 +281,11 @@
         사료 출처 : <span id="view-source"></span>
       </div>
     </div>
+
+    <div style="padding: 1.2rem 2rem; border-top: 1px solid var(--rule); text-align: center;">
+      <p style="font-size:0.82rem; color:var(--stone); margin-bottom:0.8rem;">제출이 완료되었습니다.</p>
+      <button type="button" onclick="resetForNextStudent()" style="background:#c0392b; color:#fff; border:none; border-radius:4px; padding:0.65rem 1.4rem; font-size:0.88rem; cursor:pointer; font-family:inherit;">🔄 작성 초기화</button>
+    </div>
   </div>
 
 </div>
@@ -288,6 +293,7 @@
 <script>
   const GAS_URL = "https://script.google.com/macros/s/AKfycbweLp9sgFPlQ5rbDBMmKHvuJxp8LjIFOwsKhDySYDZRvBcEEeZtx-LUVStO_WBaVBmOHA/exec";
   const STORAGE_KEY = 'curator_submission';
+  const DRAFT_KEY   = 'curator_draft';
 
   let base64_1 = "";
   let base64_2 = "";
@@ -481,6 +487,7 @@
     // localStorage에 저장 (다음에 수정 가능하도록)
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: panelId, ...formData }));
+      localStorage.removeItem(DRAFT_KEY);
     } catch(err) {}
 
     // 패널 뷰 표시
@@ -500,6 +507,55 @@
     document.getElementById('panel-section').style.display = 'block';
     window.scrollTo(0, 0);
   });
+
+  // ── 작성 초기화 ──
+  function resetForNextStudent() {
+    if (!confirm('작성 내용을 모두 초기화할까요?')) return;
+    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+    document.getElementById('curator-form').reset();
+    document.getElementById('gradeClass').value = '';
+    base64_1 = ''; base64_2 = '';
+    isEditMode = false; editId = null; panelId = null; localVote = 0;
+    ['imgPreview1','imgPreview2'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+    ['uploadStatus1','uploadStatus2'].forEach(id => { document.getElementById(id).innerText = ''; });
+    document.getElementById('hcCount').innerText = '0 / 최소 200자';
+    document.getElementById('cvCount').innerText = '0 / 최소 200자';
+    document.getElementById('submit-btn').innerText = '전시 패널 발행 및 제출하기';
+    document.getElementById('panel-section').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+    document.getElementById('edit-banner').style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+
+  // ── 임시저장 (입력 중 자동) ──
+  const DRAFT_FIELDS = ['hall','stdNum','stdName','relicName','relicSpec','historyContext','curatorVoice','source','imgUrl1','imgUrl2','imgCaption1','imgCaption2'];
+  function saveDraft() {
+    try {
+      const d = {};
+      DRAFT_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) d[id] = el.value; });
+      d.gradeClass = document.getElementById('gradeClass').value;
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+    } catch(e) {}
+  }
+  function loadDraft() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved && saved.id) return; // 제출된 데이터 있으면 draft 복원 안 함
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (!d) return;
+      DRAFT_FIELDS.forEach(id => { const el = document.getElementById(id); if (el && d[id]) el.value = d[id]; });
+      if (d.gradeClass) document.getElementById('gradeClass').value = d.gradeClass;
+      if (d.imgUrl1) previewUrl(1);
+      if (d.imgUrl2) previewUrl(2);
+      updateCharCount('historyContext','hcCount');
+      updateCharCount('curatorVoice','cvCount');
+    } catch(e) {}
+  }
+  DRAFT_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveDraft);
+  });
+  loadDraft();
 
   function giveSticker() {
     localVote++;
