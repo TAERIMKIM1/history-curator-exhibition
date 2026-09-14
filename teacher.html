@@ -60,7 +60,7 @@
     .btn-logout:hover { color: var(--text); }
 
     /* ── 빠른 링크 ── */
-    .quick-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; padding: 1.2rem 1.5rem; }
+    .quick-nav { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; padding: 1.2rem 1.5rem; }
     .quick-card {
       background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
       padding: 1rem 0.8rem; text-align: center; text-decoration: none; color: var(--text);
@@ -230,6 +230,16 @@
       <div class="qc-label">imgbb 이미지 관리</div>
       <div class="qc-sub">imgbb.com</div>
     </a>
+    <a class="quick-card" href="https://claude.ai/code/artifact/68180152-c3d5-4891-bf09-81b8ac09e40a" target="_blank">
+      <div class="qc-icon">📝</div>
+      <div class="qc-label">수기 보고서 양식</div>
+      <div class="qc-sub">인쇄용 A4</div>
+    </a>
+    <a class="quick-card" href="https://claude.ai/code/artifact/f64b912d-b8db-4259-b46a-43ffee0592d5" target="_blank">
+      <div class="qc-icon">📜</div>
+      <div class="qc-label">임진왜란 학습지</div>
+      <div class="qc-sub">보기 채우기형</div>
+    </a>
   </div>
 
   <!-- 통계 -->
@@ -360,14 +370,20 @@
     </div>
   </div>
 
-  <!-- ── 수기 작성 양식 ── -->
+  <!-- ── 학습 자료 링크 ── -->
   <div class="section">
     <div class="section-head">
-      <div class="section-title">📋 수기 작성 양식</div>
+      <div class="section-title">📋 학습 자료</div>
     </div>
-    <div style="display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap;">
-      <a class="resource-link" href="https://claude.ai/code/artifact/68180152-c3d5-4891-bf09-81b8ac09e40a" target="_blank">📋 탐구 보고서 수기 양식 열기 (인쇄용)</a>
-      <span style="font-size:0.78rem; color:var(--muted);">A4 인쇄 — 문화유산 명칭·기본 정보·큐레이터의 시선·해석·출처·사진 부착란 포함</span>
+    <div style="display:flex; flex-direction:column; gap:0.9rem;">
+      <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <a class="resource-link" href="https://claude.ai/code/artifact/68180152-c3d5-4891-bf09-81b8ac09e40a" target="_blank">📝 탐구 보고서 수기 양식 (인쇄용)</a>
+        <span style="font-size:0.78rem; color:var(--muted);">A4 — 명칭·기본 정보·큐레이터의 시선·해석·출처·사진 부착란</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <a class="resource-link" href="https://claude.ai/code/artifact/f64b912d-b8db-4259-b46a-43ffee0592d5" target="_blank">📜 임진왜란 학습지 (인쇄용)</a>
+        <span style="font-size:0.78rem; color:var(--muted);">보기 채우기형 — 흐름도·이순신 해전·의병·전쟁 결과 포함</span>
+      </div>
     </div>
   </div>
 
