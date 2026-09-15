@@ -113,6 +113,13 @@
     .close-btn { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; border: none; background: none; }
     .modal-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .modal-gallery img { width: 100%; height: 200px; object-fit: contain; background: #faf8f5; border-radius: 4px; border: 1px solid #ddd; }
+  /* ── 채점 ── */
+  .score-section { margin-top:1.2rem; border-top:2px solid #A07828; padding-top:1rem; }
+  .score-section label { display:block; font-size:0.8rem; font-weight:bold; color:#1C2830; margin:0.55rem 0 0.2rem; }
+  .score-section select { width:100%; padding:0.4rem; border:1px solid #ccc; border-radius:4px; font-size:0.78rem; color:#1C2830; background:#fff; }
+  .score-tag { position:absolute; bottom:8px; left:8px; background:#1C2830; color:#C89A40; padding:0.15rem 0.45rem; border-radius:10px; font-size:0.7rem; font-weight:bold; border:1px solid #A07828; display:none; }
+  .admin-mode-on .score-tag { display:block; }
+
   /* ── 인쇄 ── */
   #print-area { display: none; }
   @media print {
@@ -316,6 +323,7 @@
           <div class="card-title">${item.relicName}</div>
           <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
         </div>
+        <span class="score-tag">${item.totalScore ? `✏️ ${item.totalScore}점` : '미채점'}</span>
         <button class="card-del-btn" onclick="event.stopPropagation(); deletePanel('${itemId}', '${item.relicName}')">🗑️ 삭제</button>`;
       if (item.hall.includes("고려")) { goryeoGrid.appendChild(card); gCount++; }
       else { joseonGrid.appendChild(card); jCount++; }
@@ -448,6 +456,10 @@
       <div style="margin-top:1rem; text-align:right;">
         <button onclick="printItem(currentModalItem)" style="background:#1C2830; color:#C89A40; border:1px solid #A07828; border-radius:4px; padding:0.5rem 1rem; font-size:0.85rem; font-weight:bold; cursor:pointer;">🖨️ 이 작품 출력</button>
       </div>`;
+    if (isAdminMode) {
+      inner.innerHTML += scoreHTML(item);
+      updateScoreTotal();
+    }
     document.getElementById('modal').style.display = 'flex';
   }
 
@@ -496,6 +508,71 @@
       }
     })
     .catch(() => alert('서버 연결 오류. Apps Script 배포 설정을 확인하세요.'));
+  }
+
+  function scoreHTML(item) {
+    const C = [
+      { id:'score1', label:'① 문화유산 선정 및 기본 정보', opts:[
+        [5,'성취기준 부합, 탐구 자료 풍부'],[4,'성취기준 부합, 자료 다소 부족'],
+        [3,'연계성 부족 또는 자료 단편적'],[2,'성취기준 무관 또는 자료 매우 빈약'],
+        [1,'참여했으나 선정·자료 전혀 없음']]},
+      { id:'score2', label:'② 큐레이터의 시선 (시대적 배경)', opts:[
+        [5,'시대적 배경 구체적 사실 기반, 정확'],[4,'배경 설명, 세부 사실 다소 부족'],
+        [3,'단편적 사실 나열 수준'],[2,'역사적 오류 다수 또는 매우 빈약'],
+        [1,'참여했으나 배경 서술 전혀 없음']]},
+      { id:'score3', label:'③ 큐레이터의 해석 (역사적 의의)', opts:[
+        [5,'타당한 근거, 논리정연하게 설명'],[4,'의의 설명, 근거·논리 다소 부족'],
+        [3,'단순 언급 또는 단편적 서술'],[2,'오류 많거나 근거 전혀 없이 빈약'],
+        [1,'참여했으나 의의 서술 전혀 없음']]},
+      { id:'score4', label:'④ 형식 및 완성도', opts:[
+        [5,'필수 양식(출처·사진) 완비, 완성도 높음'],[4,'양식 대체로 갖춤, 일부 미흡'],
+        [3,'양식 일부 누락 또는 분량 부족'],[2,'양식 거의 미갖춤, 완성도 매우 빈약'],
+        [1,'참여했으나 결과물 전혀 없음']]}
+    ];
+    const existing = [item.score1||0, item.score2||0, item.score3||0, item.score4||0];
+    const initTotal = existing.every(v=>v>0) ? existing.reduce((a,b)=>a+b,0) : '-';
+    let html = `<div class="score-section">
+      <div style="font-weight:bold;font-size:0.95rem;color:#1C2830;margin-bottom:0.4rem;">📝 교사 채점 <span style="font-size:0.75rem;color:#888;font-weight:normal;">(총 20점)</span></div>`;
+    C.forEach((c,idx) => {
+      html += `<div><label>${c.label}</label>
+        <select id="${c.id}" onchange="updateScoreTotal()">
+          <option value="">— 점수 선택 —</option>
+          ${c.opts.map(([v,t])=>`<option value="${v}"${existing[idx]==v?' selected':''}>${v}점 — ${t}</option>`).join('')}
+        </select></div>`;
+    });
+    html += `<div style="text-align:right;margin-top:0.8rem;font-size:0.95rem;font-weight:bold;">
+        합계 : <span id="sc-total">${initTotal}</span> / 20점
+      </div>
+      <button onclick="saveScore('${item.id}')"
+        style="width:100%;margin-top:0.6rem;padding:0.7rem;background:#1C2830;color:#C89A40;
+               border:1px solid #A07828;border-radius:4px;font-size:0.9rem;font-weight:bold;cursor:pointer;">
+        💾 채점 저장
+      </button></div>`;
+    return html;
+  }
+
+  function updateScoreTotal() {
+    const vals = ['score1','score2','score3','score4'].map(id => parseInt(document.getElementById(id)?.value)||0);
+    const el = document.getElementById('sc-total');
+    if (el) el.innerText = vals.every(v=>v>0) ? vals.reduce((a,b)=>a+b,0) : '-';
+  }
+
+  function saveScore(id) {
+    const s1=parseInt(document.getElementById('score1').value)||0;
+    const s2=parseInt(document.getElementById('score2').value)||0;
+    const s3=parseInt(document.getElementById('score3').value)||0;
+    const s4=parseInt(document.getElementById('score4').value)||0;
+    if (!s1||!s2||!s3||!s4) { alert('4개 항목 모두 점수를 선택해 주세요.'); return; }
+    fetch(GAS_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'score', id, password:adminPassword, score1:s1, score2:s2, score3:s3, score4:s4})
+    })
+    .then(r=>r.json())
+    .then(d => {
+      if (d.result==='scored') { alert(`채점 완료! 합계 ${d.total}점`); loadGallery(); }
+      else { alert('저장 실패: '+JSON.stringify(d)); }
+    })
+    .catch(()=>alert('서버 오류. 네트워크를 확인하세요.'));
   }
 
   updateClockDisplay();

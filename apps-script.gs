@@ -107,6 +107,23 @@ function doPost(e) {
       return ok({ result: "not_found" });
     }
 
+    // ── 교사 채점 ──
+    if (data.action === "score") {
+      if (data.password !== TEACHER_PASSWORD) return ok({ result: "unauthorized" });
+      var rows = sheet.getDataRange().getValues();
+      for (var i = 1; i < rows.length; i++) {
+        if (rows[i][0].toString() === data.id.toString()) {
+          sheet.getRange(i + 1, 16).setValue(Number(data.score1) || 0);
+          sheet.getRange(i + 1, 17).setValue(Number(data.score2) || 0);
+          sheet.getRange(i + 1, 18).setValue(Number(data.score3) || 0);
+          sheet.getRange(i + 1, 19).setValue(Number(data.score4) || 0);
+          var total = (Number(data.score1)||0)+(Number(data.score2)||0)+(Number(data.score3)||0)+(Number(data.score4)||0);
+          return ok({ result: "scored", total: total });
+        }
+      }
+      return ok({ result: "not_found" });
+    }
+
     // ── 패널 수정 (학생 본인) ──
     if (data.action === "update") {
       var rows = sheet.getDataRange().getValues();
@@ -184,7 +201,12 @@ function doGet(e) {
       imageUrl2:       rows[i][11],
       votes:           Number(rows[i][12]) || 0,
       imgCaption1:     rows[i][13] || '',
-      imgCaption2:     rows[i][14] || ''
+      imgCaption2:     rows[i][14] || '',
+      score1:          Number(rows[i][15]) || 0,
+      score2:          Number(rows[i][16]) || 0,
+      score3:          Number(rows[i][17]) || 0,
+      score4:          Number(rows[i][18]) || 0,
+      totalScore:      (Number(rows[i][15])||0)+(Number(rows[i][16])||0)+(Number(rows[i][17])||0)+(Number(rows[i][18])||0)
     });
   }
   return ContentService
