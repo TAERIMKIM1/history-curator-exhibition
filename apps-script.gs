@@ -120,6 +120,8 @@ function doPost(e) {
           sheet.getRange(i + 1, 10).setValue(data.source);
           sheet.getRange(i + 1, 11).setValue(data.imageUrl1);
           sheet.getRange(i + 1, 12).setValue(data.imageUrl2);
+          sheet.getRange(i + 1, 14).setValue(data.imgCaption1 || '');
+          sheet.getRange(i + 1, 15).setValue(data.imgCaption2 || '');
           return ok({ result: "updated", id: data.id });
         }
       }
@@ -141,8 +143,13 @@ function doPost(e) {
       data.source,
       data.imageUrl1,
       data.imageUrl2,
-      0
+      0,
+      data.imgCaption1 || '',
+      data.imgCaption2 || ''
     ]);
+    // 반(gradeClass) 셀을 텍스트 형식으로 강제 지정 — Sheets 날짜 자동변환 방지
+    var lastRow = sheet.getLastRow();
+    sheet.getRange(lastRow, 3).setNumberFormat('@');
     return ok({ result: "success", id: id });
 
   } catch(err) {
@@ -155,10 +162,17 @@ function doGet(e) {
   var rows = sheet.getDataRange().getValues();
   var result = [];
   for (var i = 1; i < rows.length; i++) {
+    // Sheets가 "3-4" 같은 반 표기를 날짜로 자동변환한 경우 복원
+    var gc = rows[i][2];
+    if (gc instanceof Date) {
+      gc = (gc.getMonth() + 1) + '-' + gc.getDate();
+    } else {
+      gc = String(gc).trim();
+    }
     result.push({
       id:              rows[i][0],
       hall:            rows[i][1],
-      gradeClass:      rows[i][2],
+      gradeClass:      gc,
       stdNum:          rows[i][3],
       stdName:         rows[i][4],
       relicName:       rows[i][5],
@@ -168,7 +182,9 @@ function doGet(e) {
       source:          rows[i][9],
       imageUrl1:       rows[i][10],
       imageUrl2:       rows[i][11],
-      votes:           Number(rows[i][12]) || 0
+      votes:           Number(rows[i][12]) || 0,
+      imgCaption1:     rows[i][13] || '',
+      imgCaption2:     rows[i][14] || ''
     });
   }
   return ContentService
