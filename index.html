@@ -68,6 +68,12 @@
     .img-upload-box { border: 1px dashed var(--stone); padding: 0.8rem; border-radius: 4px; background: #faf8f5; }
     .btn-submit { width: 100%; background: var(--header-bg); color: var(--accent-light); border: 1px solid var(--accent); padding: 1rem; font-size: 1.05rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
     .btn-submit:hover { background: #2a3c4a; }
+    @media print {
+      #form-section, .panel-footer { display: none !important; }
+      body { background: white; }
+      #panel-section { display: block !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
 
     /* 전시 패널 모드 */
     #panel-section { display: none; }
@@ -285,9 +291,10 @@
       </div>
     </div>
 
-    <div style="padding: 1.2rem 2rem; border-top: 1px solid var(--rule); text-align: center;">
+    <div class="panel-footer" style="padding: 1.2rem 2rem; border-top: 1px solid var(--rule); text-align: center;">
       <p style="font-size:0.82rem; color:var(--stone); margin-bottom:0.8rem;">제출이 완료되었습니다. 내용을 고치려면 수정하기를 누르세요.</p>
       <div style="display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap;">
+        <button type="button" onclick="window.print()" style="background:#1a5276; color:#fff; border:none; border-radius:4px; padding:0.65rem 1.4rem; font-size:0.88rem; cursor:pointer; font-family:inherit;">💾 저장/출력</button>
         <button type="button" onclick="editCurrentPanel()" style="background:#856404; color:#fff; border:none; border-radius:4px; padding:0.65rem 1.4rem; font-size:0.88rem; cursor:pointer; font-family:inherit;">✏️ 수정하기</button>
         <button type="button" onclick="resetForNextStudent()" style="background:#c0392b; color:#fff; border:none; border-radius:4px; padding:0.65rem 1.4rem; font-size:0.88rem; cursor:pointer; font-family:inherit;">🔄 작성 초기화</button>
       </div>
