@@ -478,24 +478,14 @@
       imgCaption2:    document.getElementById('imgCaption2').value.trim() || '사료 사진 2'
     };
 
-    if (isEditMode && editId) {
-      // ── 수정 모드: 기존 행 업데이트 ──
-      panelId = editId;
-      fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'update', id: editId, ...formData })
-      }).catch(() => {});
-    } else {
-      // ── 신규 제출 ──
-      panelId = new Date().getTime();
-      fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: panelId, ...formData })
-      });
-    }
+    // ── 신규 제출 (수정도 새 행으로 추가) ──
+    panelId = new Date().getTime();
+    fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: panelId, ...formData })
+    });
 
     // localStorage에 저장 (다음에 수정 가능하도록)
     try {
