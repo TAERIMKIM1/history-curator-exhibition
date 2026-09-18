@@ -403,31 +403,53 @@
 
   const IMGBB_KEY = '711a5900f9a022bc8b2b3ee344c903ce';
 
+  function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(callback, 'image/jpeg', 0.82);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   function handleImage(e, index) {
     const file = e.target.files[0];
     if (!file) return;
 
     const statusEl = document.getElementById('uploadStatus' + index);
-    statusEl.innerText = '⏳ 업로드 중...';
+    statusEl.innerText = '⏳ 압축 중...';
 
-    const fd = new FormData();
-    fd.append('key', IMGBB_KEY);
-    fd.append('image', file);
+    compressImage(file, function(blob) {
+      statusEl.innerText = '⏳ 업로드 중...';
+      const fd = new FormData();
+      fd.append('key', IMGBB_KEY);
+      fd.append('image', blob, 'photo.jpg');
 
-    fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById('imgUrl' + index).value = data.data.url;
-          previewUrl(index);
-          statusEl.innerText = '✅ 업로드 완료';
-        } else {
-          statusEl.innerText = '❌ 실패 — URL 직접 입력하세요';
-        }
-      })
-      .catch(() => {
-        statusEl.innerText = '❌ 실패 — URL 직접 입력하세요';
-      });
+      fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('imgUrl' + index).value = data.data.url;
+            previewUrl(index);
+            statusEl.innerText = '✅ 업로드 완료';
+          } else {
+            const msg = data.error && data.error.message ? data.error.message : '오류';
+            statusEl.innerText = '❌ 실패(' + msg + ') — URL 직접 입력';
+          }
+        })
+        .catch(() => {
+          statusEl.innerText = '❌ 네트워크 오류 — URL 직접 입력하세요';
+        });
+    });
   }
 
   document.getElementById('curator-form').addEventListener('submit', function(e) {
