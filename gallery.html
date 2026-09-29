@@ -139,9 +139,54 @@
     .print-source { font-size: 8pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
     .print-class-title { font-size: 16pt; font-weight: bold; text-align: center; padding: 20pt 0 10pt; border-bottom: 2pt solid #1C2830; margin-bottom: 20pt; page-break-after: avoid; }
   }
+  /* ── 비밀번호 오버레이 ── */
+  .pw-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(28,40,48,0.97);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .pw-card {
+    background: #F6F1E7; border-radius: 14px;
+    padding: 36px 30px; text-align: center;
+    max-width: 340px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 2px solid #A07828;
+  }
+  .pw-icon { font-size: 2.6rem; margin-bottom: 10px; }
+  .pw-title { font-size: 1.1rem; font-weight: 900; color: #1C2830; margin-bottom: 6px; }
+  .pw-sub { font-size: 0.82rem; color: #6B7280; margin-bottom: 18px; }
+  .pw-input {
+    width: 100%; border: 2px solid #A07828; border-radius: 8px;
+    padding: 10px 14px; font-size: 1.1rem; text-align: center;
+    letter-spacing: 0.2em; outline: none; background: #fff; color: #1C2830;
+    margin-bottom: 12px; font-family: 'Courier New', monospace;
+  }
+  .pw-input:focus { border-color: #1C2830; }
+  .pw-btn {
+    width: 100%; background: #1C2830; color: #C89A40;
+    border: none; border-radius: 8px; padding: 11px;
+    font-size: 0.92rem; font-weight: 700; cursor: pointer;
+    font-family: inherit;
+  }
+  .pw-btn:hover { background: #2d4050; }
+  .pw-err { color: #dc2626; font-size: 0.8rem; margin-top: 8px; display: none; }
   </style>
 </head>
 <body>
+
+  <!-- 비밀번호 오버레이 -->
+  <div class="pw-overlay" id="pwOverlay">
+    <div class="pw-card">
+      <div class="pw-icon">🏛️</div>
+      <div class="pw-title">전시 갤러리 입장</div>
+      <div class="pw-sub">선생님께 받은 비밀번호를 입력하세요</div>
+      <input class="pw-input" id="pwInput" type="password" placeholder="••••" maxlength="10"
+             autocomplete="off" onkeydown="if(event.key==='Enter')checkPw()">
+      <button class="pw-btn" onclick="checkPw()">🔓 입장하기</button>
+      <div class="pw-err" id="pwErr">비밀번호가 틀렸습니다.</div>
+    </div>
+  </div>
 
   <div class="timer-banner">
     <div class="timer-info">
@@ -575,9 +620,42 @@
     .catch(()=>alert('서버 오류. 네트워크를 확인하세요.'));
   }
 
+  // ── 비밀번호 잠금 ──────────────────────────────
+  var GALLERY_PW = '0070';
+  var _unlocked = false;
+
+  function checkPw() {
+    var val = document.getElementById('pwInput').value;
+    if (val === GALLERY_PW) {
+      _unlocked = true;
+      document.getElementById('pwOverlay').style.display = 'none';
+      document.getElementById('pwInput').value = '';
+      try { sessionStorage.setItem('gallery_unlocked', '1'); } catch(e) {}
+      loadGallery();
+      setInterval(loadGallery, 10000);
+    } else {
+      var err = document.getElementById('pwErr');
+      err.style.display = 'block';
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwInput').focus();
+      setTimeout(function() { err.style.display = 'none'; }, 2000);
+    }
+  }
+
+  (function() {
+    try {
+      if (sessionStorage.getItem('gallery_unlocked') === '1') {
+        _unlocked = true;
+        document.getElementById('pwOverlay').style.display = 'none';
+      }
+    } catch(e) {}
+  })();
+
   updateClockDisplay();
-  loadGallery();
-  setInterval(loadGallery, 10000);
+  if (_unlocked) {
+    loadGallery();
+    setInterval(loadGallery, 10000);
+  }
 </script>
 </body>
 </html>
