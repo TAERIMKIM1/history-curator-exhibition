@@ -180,6 +180,22 @@
       padding: 0.7rem 1.4rem; border-radius: 6px; font-size: 0.88rem; font-weight: bold;
     }
     .resource-link:hover { background: var(--accent); }
+
+    /* ── AI 채점 ── */
+    .ai-section { background: #1e2e40; border: 1px solid var(--rule); border-radius: 8px; padding: 1.2rem 1.5rem; margin: 0 1.5rem 1.2rem; }
+    .ai-section-title { font-size: 0.92rem; font-weight: bold; color: var(--accent); margin-bottom: 0.8rem; }
+    .api-key-row { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.6rem; }
+    .api-key-input { flex: 1; min-width: 220px; padding: 0.5rem 0.8rem; border: 1px solid var(--rule); border-radius: 5px; background: var(--bg); color: var(--text); font-size: 0.82rem; font-family: monospace; }
+    .btn-ai { background: #7c3aed; color: #fff; }
+    .btn-ai:hover { background: #6d28d9; }
+    .btn-ai:disabled, .btn-ai-light:disabled { background: #444 !important; color: #888 !important; cursor: not-allowed; }
+    .btn-ai-light { background: #1a5c3a; color: #fff; }
+    .btn-ai-light:hover { background: #16a34a; }
+    .grade-progress { font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem; min-height: 1.2rem; }
+    .grade-progress .gp-hi { color: var(--accent); font-weight: bold; }
+    .score-chip { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 10px; font-size: 0.78rem; font-weight: bold; }
+    .score-none { font-size: 0.75rem; color: var(--muted); }
+    .feedback-cell { font-size: 0.73rem; color: #a0b8cc; max-width: 200px; line-height: 1.4; word-break: break-word; }
   </style>
 </head>
 <body>
@@ -282,6 +298,8 @@
             <th>전시관</th>
             <th>반·번호·이름</th>
             <th>문화유산 명칭</th>
+            <th>점수</th>
+            <th>피드백</th>
             <th>추천</th>
             <th>삭제</th>
           </tr>
@@ -293,6 +311,18 @@
     </div>
   </div>
 
+
+
+  <!-- ── AI 일괄채점 ── -->
+  <div class="ai-section">
+    <div class="ai-section-title">🤖 AI 일괄채점 <span style="font-size:0.75rem;color:var(--muted);font-weight:normal;">(Claude API 사용)</span></div>
+    <div class="api-key-row">
+      <input type="password" class="api-key-input" id="ai-api-key" placeholder="Claude API Key (sk-ant-...)">
+      <button class="btn-sm btn-ai" id="btn-grade-all" onclick="gradeAllWithAI(false)">⚡ 전체 일괄채점</button>
+      <button class="btn-sm btn-ai-light" id="btn-grade-unscored" onclick="gradeAllWithAI(true)">📝 미채점만 채점</button>
+    </div>
+    <div class="grade-progress" id="grade-progress"></div>
+  </div>
 
   <!-- ── 채점기준표 ── -->
   <div class="section">
@@ -462,7 +492,7 @@
 
     const tbody = document.getElementById('panel-tbody');
     if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">해당하는 패널이 없습니다.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">해당하는 패널이 없습니다.</td></tr>';
       return;
     }
 
@@ -597,6 +627,147 @@
     </body></html>`);
     w.document.close();
   }
+  // ── AI 일괄채점 ────────────────────────────────────────────
+  async function gradeAllWithAI(unscoredOnly) {
+    const apiKey = document.getElementById('ai-api-key').value.trim();
+    if (!apiKey) { alert('Claude API Key를 입력하세요 (sk-ant-...).'); return; }
+
+    let panels = [...allPanels];
+    if (unscoredOnly) panels = panels.filter(p => !p.totalScore || p.totalScore === 0);
+    if (panels.length === 0) { alert('채점할 패널이 없습니다.'); return; }
+    if (!confirm(panels.length + '개 패널을 AI로 채점합니다. 계속하시겠습니까?')) return;
+
+    const btnAll = document.getElementById('btn-grade-all');
+    const btnUnscored = document.getElementById('btn-grade-unscored');
+    btnAll.disabled = true; btnUnscored.disabled = true;
+
+    const prog = document.getElementById('grade-progress');
+    let ok = 0, fail = 0;
+
+    for (let i = 0; i < panels.length; i++) {
+      const p = panels[i];
+      prog.innerHTML = '채점 중 <span class="gp-hi">' + (i+1) + '/' + panels.length + '</span>  ' +
+        p.gradeClass + '반 ' + p.stdName + ' · ' + p.relicName;
+      try {
+        const res = await gradeOnePanel(p, apiKey);
+        await submitScoreAI(p.id, res.score1, res.score2, res.score3, res.score4, res.feedback);
+        // update local cache
+        p.score1=res.score1; p.score2=res.score2; p.score3=res.score3; p.score4=res.score4;
+        p.totalScore=res.score1+res.score2+res.score3+res.score4;
+        p.feedback=res.feedback;
+        ok++;
+      } catch(e) {
+        fail++;
+        console.error('채점 실패:', p.stdName, e);
+      }
+      renderTable();
+      if (i < panels.length - 1) await new Promise(r => setTimeout(r, 600));
+    }
+
+    btnAll.disabled = false; btnUnscored.disabled = false;
+    prog.innerHTML = '✅ 완료: 성공 <span class="gp-hi">' + ok + '</span>개 / 실패 <span style="color:#e74c3c">' + fail + '</span>개';
+  }
+
+  async function gradeOnePanel(panel, apiKey) {
+    const is4ban = String(panel.gradeClass).trim() === '4';
+    const hasImg = (panel.imageUrl1 ? '사진1 있음' : '사진1 없음') +
+                   (panel.imageUrl2 ? ', 사진2 있음' : '');
+
+    const prompt = `당신은 중학교 역사 교사를 돕는 채점 보조 AI입니다. 아래 채점기준표에 따라 학생 패널을 채점하고 피드백을 제공하세요.
+
+[채점기준표 — 총 20점]
+① 문화유산 선정 및 기본 정보 (5점)
+5점: 성취기준에 부합하는 문화유산을 선정하고 관련 사료 및 탐구 자료를 풍부하게 제시함.
+4점: 성취기준에 부합하나 탐구 자료가 다소 부족함.
+3점: 성취기준과의 연계성이 다소 부족하거나 자료 제시가 단편적임.
+2점: 성취기준과 무관하거나 자료 제시가 매우 빈약함.
+1점: 참여하였으나 문화유산 선정 및 자료 제시가 전혀 없음.
+
+② 큐레이터의 시선 — 시대적 배경 (5점)
+5점: 시대적 배경을 구체적 사실에 근거하여 왜곡 없이 정확하게 설명함.
+4점: 시대적 배경을 설명하였으나 세부 역사 사실이 다소 부족함.
+3점: 단편적인 사실 나열 수준으로 단순하게 서술함.
+2점: 역사적 오류가 다수 포함되거나 내용이 매우 빈약함.
+1점: 참여하였으나 시대적 배경 서술이 전혀 없음.
+
+③ 큐레이터의 해석 — 역사적 의의 (5점)
+5점: 역사적 의의를 타당한 근거를 바탕으로 논리정연하게 설명함.
+4점: 역사적 의의를 설명하였으나 근거와 논리가 다소 부족함.
+3점: 역사적 의의를 단순하게 언급하거나 서술이 단편적임.
+2점: 의의 서술에 오류가 많거나 근거가 전혀 없음.
+1점: 참여하였으나 역사적 의의 서술이 전혀 없음.
+
+④ 형식 및 완성도 (5점)
+5점: 필수 양식(출처·사진 포함)을 빠짐없이 체계적으로 갖추어 완성도 있게 작성함.
+4점: 양식을 대체로 갖추었으나 일부 서술이 다소 미흡함.
+3점: 필수 양식이 일부 누락되었거나 분량이 부족함.
+2점: 양식을 거의 갖추지 못하거나 완성도가 매우 빈약함.
+1점: 참여하였으나 결과물 작성이 전혀 없음.
+
+[채점 지침]
+- 비교적 후하게 채점하되, 전체에서 만점(20점)이 너무 많지 않게 변별력을 유지하세요.
+- 내용이 충실하면 4~5점, 기본 수준이면 3~4점, 매우 부족하면 2~3점.${is4ban ? '
+- ★ 이 학생은 3학년 4반입니다. 시스템 오류로 사진 캡션이 저장되지 않았으므로, 캡션 누락을 이유로 ④ 형식 및 완성도를 절대 감점하지 마세요.' : ''}
+
+[학생 패널]
+전시관: ${panel.hall}
+반·번호·이름: ${panel.gradeClass}반 ${panel.stdNum}번 ${panel.stdName}
+문화유산 명칭: ${panel.relicName}
+기본 제원: ${panel.relicSpec || '(없음)'}
+시대적 배경: ${panel.historyContext || '(없음)'}
+역사적 의의: ${panel.curatorVoice || '(없음)'}
+참고 출처: ${panel.source || '(없음)'}
+사진1 캡션: ${panel.imgCaption1 || '(없음)'}
+사진2 캡션: ${panel.imgCaption2 || '(없음)'}
+사진 첨부: ${hasImg}
+
+JSON만 출력 (다른 텍스트 없이):
+{"score1":점수,"score2":점수,"score3":점수,"score4":점수,"feedback":"2~3문장 한국어 피드백"}`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 350,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.text();
+      throw new Error('API ' + resp.status + ': ' + err.substring(0, 200));
+    }
+
+    const data = await resp.json();
+    const text = (data.content[0].text || '').trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('JSON 파싱 실패: ' + text.substring(0, 100));
+
+    const res = JSON.parse(match[0]);
+    ['score1','score2','score3','score4'].forEach(k => {
+      res[k] = Math.max(1, Math.min(5, Math.round(Number(res[k]) || 3)));
+    });
+    res.feedback = String(res.feedback || '');
+    return res;
+  }
+
+  async function submitScoreAI(id, s1, s2, s3, s4, feedback) {
+    const resp = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'score', id: String(id), password: TEACHER_PW,
+        score1: s1, score2: s2, score3: s3, score4: s4, feedback: feedback })
+    });
+    const data = await resp.json();
+    if (data.result !== 'scored') throw new Error('저장 실패: ' + JSON.stringify(data));
+  }
+
 </script>
 
 </body>
