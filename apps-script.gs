@@ -72,7 +72,7 @@ function fillAllPanels() {
   SpreadsheetApp.getUi().alert('✅ 완료!\n' + updated + '개 패널에 문화유산 명칭·기본 정보·출처를 채웠습니다.');
 }
 
-var TEACHER_PASSWORD = "0070"; // 교사 비밀번호 (원하는 대로 변경)
+var TEACHER_PASSWORD = "804279"; // 교사 비밀번호 (원하는 대로 변경)
 
 function doPost(e) {
   try {
