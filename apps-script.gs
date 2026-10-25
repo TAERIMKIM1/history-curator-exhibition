@@ -179,7 +179,7 @@ function doPost(e) {
         messages: [{ role: "user", content: aiPrompt }] };
       var aiOptions = { method: "post", contentType: "application/json",
         headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-        payload: JSON.stringify(aiPayload), muteHttpExceptions: true };
+        payload: JSON.stringify(aiPayload), muteHttpExceptions: true, deadline: 25 };
       try {
         var aiResp = UrlFetchApp.fetch("https://api.anthropic.com/v1/messages", aiOptions);
         var aiJson = JSON.parse(aiResp.getContentText());
