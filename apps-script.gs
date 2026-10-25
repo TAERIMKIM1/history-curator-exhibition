@@ -69,7 +69,7 @@ function fillAllPanels() {
   sheet.getRange(2, 7, dataRows, 1).setValues(colG);
   sheet.getRange(2, 10, dataRows, 1).setValues(colJ);
 
-  SpreadsheetApp.getUi().alert('✅ 완료!\n' + updated + '개 패널에 문화유산 명칭·기본 정보·출처를 채웠습니다.');
+  console.log('✅ 완료: ' + updated + '개 패널에 문화유산 명칭·기본 정보·출처를 채웠습니다.');
 }
 
 var TEACHER_PASSWORD = "804279"; // 교사 비밀번호 (원하는 대로 변경)
@@ -433,7 +433,5 @@ function fillMissingInfo() {
     if (needsUpdate) updated++;
   }
 
-  SpreadsheetApp.getUi().alert(
-    '✅ 보완 완료\n' + updated + '개 항목에 문화유산 기본 정보·출처·이미지를 추가했습니다.'
-  );
+  console.log('✅ 보완 완료: ' + updated + '개 항목에 문화유산 기본 정보·출처·이미지를 추가했습니다.');
 }
