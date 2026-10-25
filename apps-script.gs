@@ -73,7 +73,7 @@ function fillAllPanels() {
 }
 
 var TEACHER_PASSWORD_HASH = "4c16016741f6c1ec8ab0afb40d66fb1a86f5a7906a02b8a18391f7c4dcdf0f46";
-var ANTHROPIC_API_KEY_VALUE = ""; // ← Anthropic API 키를 여기에 직접 입력 (sk-ant-api03-...)
+var OPENROUTER_API_KEY_VALUE = ""; // ← OpenRouter API 키 (브라우저에서 입력 권장)
 
 function doPost(e) {
   try {
@@ -150,7 +150,7 @@ function doPost(e) {
     // ── API 키 테스트 ──
     if (data.action === "testKey") {
       if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
-      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+      var apiKey = data.apiKey || OPENROUTER_API_KEY_VALUE;
       if (!apiKey) return ok({ result: "no_api_key" });
       var testPayload = { model: "anthropic/claude-3-haiku", max_tokens: 30,
         messages: [{ role: "user", content: '{"r1":3,"r2":4,"r3":3,"r4":4,"feedback":"테스트"}만 출력' }] };
@@ -168,8 +168,8 @@ function doPost(e) {
     // ── AI 자동채점 ──
     if (data.action === "autoScore") {
       if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
-      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
-      if (!apiKey) return ok({ result: "no_api_key", message: "관리자 배너의 API 키 입력란에 Anthropic API 키를 입력하세요." });
+      var apiKey = data.apiKey || OPENROUTER_API_KEY_VALUE;
+      if (!apiKey) return ok({ result: "no_api_key", message: "관리자 배너의 API 키 입력란에 OpenRouter API 키를 입력하세요." });
       var allRows = sheet.getDataRange().getValues();
       var pRow = null;
       for (var i = 1; i < allRows.length; i++) {
