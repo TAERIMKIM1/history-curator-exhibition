@@ -206,8 +206,15 @@
 
   <!-- 관리자 모드 배너 -->
   <div class="admin-bar" id="admin-bar">
-    <span>🔐 교사 관리자 모드 활성화 중 — 카드 우하단 [삭제] 버튼으로 패널을 삭제할 수 있습니다</span>
-    <button class="btn-admin-exit" onclick="exitAdminMode()">✕ 모드 종료</button>
+    <span>🔐 교사 관리자 모드 — 카드 우하단 [삭제] 버튼으로 패널을 삭제할 수 있습니다</span>
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+      <button onclick="bulkAutoScore()"
+        style="background:#0f4c75;color:#e8f4fd;border:1px solid #1B6CA8;padding:0.35rem 0.8rem;
+               border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
+        🤖 AI 일괄채점
+      </button>
+      <button class="btn-admin-exit" onclick="exitAdminMode()">✕ 모드 종료</button>
+    </div>
   </div>
 
   <!-- 반 선택 필터 -->
@@ -660,6 +667,77 @@
       if (btn) { btn.disabled = false; btn.innerText = '🤖 AI 자동채점'; }
       alert('서버 오류: ' + err);
     });
+  }
+
+  async function bulkAutoScore() {
+    const norm = s => String(s).replace(/\s/g,'');
+    const targets = currentFilter
+      ? items.filter(i => norm(i.gradeClass) === norm(currentFilter))
+      : items;
+    if (!targets.length) { alert('채점할 작품이 없습니다.'); return; }
+    const unscored = targets.filter(i => !(i.totalScore > 0));
+    const msg = currentFilter
+      ? `[${currentFilter}반] 전체 ${targets.length}개 중 미채점 ${unscored.length}개를 AI로 자동채점하고 저장합니다.\n계속하시겠습니까?`
+      : `전체 ${targets.length}개 중 미채점 ${unscored.length}개를 AI로 자동채점하고 저장합니다.\n계속하시겠습니까?`;
+    if (!unscored.length) { alert('미채점 패널이 없습니다.'); return; }
+    if (!confirm(msg)) return;
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999;';
+    overlay.innerHTML = `<div style="background:#fff;padding:1.8rem;border-radius:10px;max-width:420px;width:90%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.4);">
+      <div style="font-size:1.05rem;font-weight:bold;margin-bottom:1rem;color:#0f4c75;">🤖 AI 일괄채점 진행 중...</div>
+      <div style="background:#eee;border-radius:4px;height:10px;margin-bottom:0.7rem;overflow:hidden;">
+        <div id="bulk-bar" style="background:#0f4c75;height:10px;width:0%;transition:width 0.4s;"></div>
+      </div>
+      <div id="bulk-stat" style="font-size:0.88rem;color:#555;margin-bottom:0.5rem;">0 / ${unscored.length}</div>
+      <div id="bulk-log" style="font-size:0.77rem;color:#666;max-height:140px;overflow-y:auto;text-align:left;border:1px solid #eee;padding:0.4rem;border-radius:4px;"></div>
+    </div>`;
+    document.body.appendChild(overlay);
+
+    const logEl = document.getElementById('bulk-log');
+    let done = 0, success = 0, failed = 0;
+
+    for (const item of unscored) {
+      try {
+        const r1 = await fetch(GAS_URL, {
+          method:'POST', headers:{'Content-Type':'text/plain'},
+          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPassword})
+        });
+        const d1 = await r1.json();
+        if (d1.result !== 'auto_scored') {
+          logEl.innerHTML += `<div style="color:#c00;">✗ ${item.gradeClass} ${item.stdName} — ${d1.result||'오류'}</div>`;
+          failed++; done++;
+          document.getElementById('bulk-stat').innerText = `${done}/${unscored.length} (✓${success} ✗${failed})`;
+          document.getElementById('bulk-bar').style.width = (done/unscored.length*100)+'%';
+          continue;
+        }
+        const r2 = await fetch(GAS_URL, {
+          method:'POST', headers:{'Content-Type':'text/plain'},
+          body: JSON.stringify({action:'score', id:item.id, password:adminPassword,
+            score1:d1.score1, score2:d1.score2, score3:d1.score3, score4:d1.score4})
+        });
+        const d2 = await r2.json();
+        const total = d1.score1+d1.score2+d1.score3+d1.score4;
+        if (d2.result === 'scored') {
+          logEl.innerHTML += `<div style="color:#0a5;">✓ ${item.gradeClass} ${item.stdName} — ${total}점</div>`;
+          success++;
+        } else {
+          logEl.innerHTML += `<div style="color:#c00;">✗ ${item.gradeClass} ${item.stdName} 저장 실패</div>`;
+          failed++;
+        }
+      } catch(e) {
+        logEl.innerHTML += `<div style="color:#c00;">✗ ${item.stdName} — 연결 오류</div>`;
+        failed++;
+      }
+      done++;
+      logEl.scrollTop = logEl.scrollHeight;
+      document.getElementById('bulk-stat').innerText = `${done}/${unscored.length} (✓${success} ✗${failed})`;
+      document.getElementById('bulk-bar').style.width = (done/unscored.length*100)+'%';
+      await new Promise(res => setTimeout(res, 400));
+    }
+
+    logEl.innerHTML += `<div style="margin-top:0.4rem;font-weight:bold;color:#0f4c75;">완료! 채점 ${success}건 / 오류 ${failed}건</div>`;
+    setTimeout(() => { document.body.removeChild(overlay); loadGallery(); }, 3000);
   }
 
   // ── 비밀번호 잠금 ──────────────────────────────
