@@ -588,8 +588,14 @@
     html += `<div style="text-align:right;margin-top:0.8rem;font-size:0.95rem;font-weight:bold;">
         합계 : <span id="sc-total">${initTotal}</span> / 20점
       </div>
+      <button onclick="autoScorePanel('${item.id}')" id="ai-score-btn"
+        style="width:100%;margin-top:0.5rem;padding:0.7rem;background:#0f4c75;color:#e8f4fd;
+               border:1px solid #1B6CA8;border-radius:4px;font-size:0.9rem;font-weight:bold;cursor:pointer;">
+        🤖 AI 자동채점
+      </button>
+      <div id="ai-score-result" style="display:none;margin-top:0.6rem;padding:0.7rem;background:#e8f4fd;border-radius:4px;border-left:3px solid #1B6CA8;font-size:0.82rem;line-height:1.6;"></div>
       <button onclick="saveScore('${item.id}')"
-        style="width:100%;margin-top:0.6rem;padding:0.7rem;background:#1C2830;color:#C89A40;
+        style="width:100%;margin-top:0.5rem;padding:0.7rem;background:#1C2830;color:#C89A40;
                border:1px solid #A07828;border-radius:4px;font-size:0.9rem;font-weight:bold;cursor:pointer;">
         💾 채점 저장
       </button></div>`;
@@ -620,13 +626,55 @@
     .catch(()=>alert('서버 오류. 네트워크를 확인하세요.'));
   }
 
+  function autoScorePanel(id) {
+    const btn = document.getElementById('ai-score-btn');
+    const resultDiv = document.getElementById('ai-score-result');
+    if (btn) { btn.disabled = true; btn.innerText = '⏳ AI 채점 중...'; }
+    if (resultDiv) resultDiv.style.display = 'none';
+    fetch(GAS_URL, {
+      method: 'POST', headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'autoScore', id, password:adminPassword})
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (btn) { btn.disabled = false; btn.innerText = '🤖 AI 자동채점'; }
+      if (d.result === 'no_api_key') {
+        alert('⚠️ Anthropic API 키가 설정되지 않았습니다.\nApps Script 에디터 → 프로젝트 설정 → 스크립트 속성에\nANTHROPIC_API_KEY를 추가하세요.');
+        return;
+      }
+      if (d.result !== 'auto_scored') { alert('AI 채점 실패: ' + JSON.stringify(d)); return; }
+      ['score1','score2','score3','score4'].forEach((sid,i) => {
+        const el = document.getElementById(sid);
+        if (el) { el.value = d['score'+(i+1)]; }
+      });
+      updateScoreTotal();
+      if (resultDiv) {
+        const labels = ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
+        resultDiv.innerHTML = '<strong style="color:#0f4c75;">🤖 AI 채점 근거</strong><br>' +
+          labels.map((lb,i) => `<span style="color:#555;">${lb} ${d['score'+(i+1)]}점:</span> ${d['reason'+(i+1)]}`).join('<br>') +
+          '<br><span style="font-size:0.78rem;color:#888;">※ 점수를 확인 후 [💾 채점 저장]을 눌러주세요.</span>';
+        resultDiv.style.display = 'block';
+      }
+    })
+    .catch(err => {
+      if (btn) { btn.disabled = false; btn.innerText = '🤖 AI 자동채점'; }
+      alert('서버 오류: ' + err);
+    });
+  }
+
   // ── 비밀번호 잠금 ──────────────────────────────
-  var GALLERY_PW = '804279';
+  var GALLERY_PW_HASH = '4c16016741f6c1ec8ab0afb40d66fb1a86f5a7906a02b8a18391f7c4dcdf0f46';
   var _unlocked = false;
 
-  function checkPw() {
+  async function sha256hex(str) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  }
+
+  async function checkPw() {
     var val = document.getElementById('pwInput').value;
-    if (val === GALLERY_PW) {
+    var hash = await sha256hex(val);
+    if (hash === GALLERY_PW_HASH) {
       _unlocked = true;
       document.getElementById('pwOverlay').style.display = 'none';
       document.getElementById('pwInput').value = '';

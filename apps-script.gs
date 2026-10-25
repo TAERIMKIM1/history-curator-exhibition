@@ -146,6 +146,56 @@ function doPost(e) {
       return ok({ result: "not_found" });
     }
 
+    // ── AI 자동채점 ──
+    if (data.action === "autoScore") {
+      if (data.password !== TEACHER_PASSWORD) return ok({ result: "unauthorized" });
+      var apiKey = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+      if (!apiKey) return ok({ result: "no_api_key", message: "Apps Script 스크립트 속성에 ANTHROPIC_API_KEY를 추가하세요." });
+      var allRows = sheet.getDataRange().getValues();
+      var pRow = null;
+      for (var i = 1; i < allRows.length; i++) {
+        if (allRows[i][0].toString() === data.id.toString()) { pRow = allRows[i]; break; }
+      }
+      if (!pRow) return ok({ result: "not_found" });
+      var hall = pRow[1]||'', gradeClass2 = pRow[2]||'', stdName2 = pRow[4]||'';
+      var relicName2 = pRow[5]||'', relicSpec2 = pRow[6]||'';
+      var histCtx = pRow[7]||'', curVoice = pRow[8]||'', src2 = pRow[9]||'';
+      var img1 = pRow[10]||'', img2 = pRow[11]||'';
+      var aiPrompt = '당신은 중학교 역사 교사입니다. 학생이 제출한 역사 큐레이터 기획전 패널을 채점해 주세요.\n\n'
+        + '[학생 패널]\n전시관: ' + hall + '\n학급: ' + gradeClass2 + ' / 이름: ' + stdName2
+        + '\n문화유산명: ' + relicName2 + '\n기본 제원: ' + relicSpec2
+        + '\n큐레이터의 시선(시대적 배경): ' + histCtx
+        + '\n큐레이터의 해석(역사적 의의): ' + curVoice
+        + '\n사료 출처: ' + src2
+        + '\n사진 첨부: ' + (img1 ? '사진1 있음' : '없음') + (img2 ? ', 사진2 있음' : '')
+        + '\n\n[채점 기준] 각 항목 1~5점\n'
+        + '① 문화유산 선정 및 기본 정보: 5=성취기준 부합·자료 풍부, 4=부합·자료 다소 부족, 3=연계성 부족, 2=무관·매우 빈약, 1=전혀 없음\n'
+        + '② 시대적 배경: 5=구체적 사실 기반·정확, 4=배경 설명·세부 부족, 3=단편적 나열, 2=오류 다수·빈약, 1=서술 없음\n'
+        + '③ 역사적 의의: 5=근거 있고 논리정연, 4=의의 설명·근거 부족, 3=단순 언급, 2=오류·근거 없음, 1=서술 없음\n'
+        + '④ 형식 및 완성도: 5=출처·사진 완비·완성도 높음, 4=대체로 갖춤·일부 미흡, 3=일부 누락, 2=거의 미갖춤, 1=결과물 없음\n\n'
+        + '다음 JSON 형식으로만 답변하세요 (다른 텍스트 없이):\n'
+        + '{"score1":숫자,"score2":숫자,"score3":숫자,"score4":숫자,"reason1":"근거","reason2":"근거","reason3":"근거","reason4":"근거"}';
+      var aiPayload = { model: "claude-haiku-5-5", max_tokens: 600,
+        messages: [{ role: "user", content: aiPrompt }] };
+      var aiOptions = { method: "post", contentType: "application/json",
+        headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+        payload: JSON.stringify(aiPayload), muteHttpExceptions: true };
+      try {
+        var aiResp = UrlFetchApp.fetch("https://api.anthropic.com/v1/messages", aiOptions);
+        var aiJson = JSON.parse(aiResp.getContentText());
+        if (aiJson.error) return ok({ result: "api_error", message: aiJson.error.message });
+        var aiText = (aiJson.content && aiJson.content[0]) ? aiJson.content[0].text : '';
+        var m = aiText.match(/\{[\s\S]*\}/);
+        if (!m) return ok({ result: "parse_error", raw: aiText });
+        var sc = JSON.parse(m[0]);
+        return ok({ result: "auto_scored",
+          score1: parseInt(sc.score1)||1, score2: parseInt(sc.score2)||1,
+          score3: parseInt(sc.score3)||1, score4: parseInt(sc.score4)||1,
+          reason1: sc.reason1||'', reason2: sc.reason2||'',
+          reason3: sc.reason3||'', reason4: sc.reason4||'' });
+      } catch(aiErr) { return ok({ result: "error", message: aiErr.toString() }); }
+    }
+
     // ── 신규 패널 등록 ──
     var id = new Date().getTime();
     sheet.appendRow([
