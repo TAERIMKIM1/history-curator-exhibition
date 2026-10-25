@@ -526,9 +526,11 @@
   let adminPassword = '';
   let isAdminMode = false;
 
-  function enterAdminMode() {
-    const pw = prompt('교사 관리자 비밀번호를 입력하세요:');
+  async function enterAdminMode() {
+    const pw = prompt('교사 관리자 비밀번호를 입력하세요:\n(AI 채점용 Anthropic API 키는 이 다음 배너에서 입력)');
     if (!pw) return;
+    const hash = await sha256hex(pw);
+    if (hash !== GALLERY_PW_HASH) { alert('비밀번호가 틀렸습니다.'); return; }
     adminPassword = pw;
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
