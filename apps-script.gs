@@ -175,7 +175,7 @@ function doPost(e) {
         + '④ 형식 및 완성도: 5=출처·사진 완비·완성도 높음, 4=대체로 갖춤·일부 미흡, 3=일부 누락, 2=거의 미갖춤, 1=결과물 없음\n\n'
         + '다음 JSON 형식으로만 답변하세요 (다른 텍스트 없이):\n'
         + '{"score1":숫자,"score2":숫자,"score3":숫자,"score4":숫자,"reason1":"근거","reason2":"근거","reason3":"근거","reason4":"근거"}';
-      var aiPayload = { model: "claude-haiku-5-5", max_tokens: 600,
+      var aiPayload = { model: "claude-haiku-4-5", max_tokens: 600,
         messages: [{ role: "user", content: aiPrompt }] };
       var aiOptions = { method: "post", contentType: "application/json",
         headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },

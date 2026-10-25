@@ -649,7 +649,7 @@
         alert('⚠️ Anthropic API 키가 설정되지 않았습니다.\nApps Script 에디터 → 프로젝트 설정 → 스크립트 속성에\nANTHROPIC_API_KEY를 추가하세요.');
         return;
       }
-      if (d.result !== 'auto_scored') { alert('AI 채점 실패: ' + JSON.stringify(d)); return; }
+      if (d.result !== 'auto_scored') { alert('AI 채점 실패: ' + (d.message || JSON.stringify(d))); return; }
       ['score1','score2','score3','score4'].forEach((sid,i) => {
         const el = document.getElementById(sid);
         if (el) { el.value = d['score'+(i+1)]; }
@@ -705,7 +705,7 @@
         });
         const d1 = await r1.json();
         if (d1.result !== 'auto_scored') {
-          logEl.innerHTML += `<div style="color:#c00;">✗ ${item.gradeClass} ${item.stdName} — ${d1.result||'오류'}</div>`;
+          logEl.innerHTML += `<div style="color:#c00;">✗ ${item.gradeClass} ${item.stdName} — ${d1.result||'오류'}${d1.message ? ': '+d1.message : ''}</div>`;
           failed++; done++;
           document.getElementById('bulk-stat').innerText = `${done}/${unscored.length} (✓${success} ✗${failed})`;
           document.getElementById('bulk-bar').style.width = (done/unscored.length*100)+'%';
