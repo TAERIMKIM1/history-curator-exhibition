@@ -147,6 +147,24 @@ function doPost(e) {
       return ok({ result: "not_found" });
     }
 
+    // ── API 키 테스트 ──
+    if (data.action === "testKey") {
+      if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
+      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE;
+      if (!apiKey) return ok({ result: "no_api_key" });
+      var testPayload = { model: "claude-haiku-4-5", max_tokens: 30,
+        messages: [{ role: "user", content: '{"r1":3,"r2":4,"r3":3,"r4":4,"feedback":"테스트"}만 출력' }] };
+      var testOptions = { method: "post", contentType: "application/json",
+        headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+        payload: JSON.stringify(testPayload), muteHttpExceptions: true, deadline: 20 };
+      try {
+        var testResp = UrlFetchApp.fetch("https://api.anthropic.com/v1/messages", testOptions);
+        var testJson = JSON.parse(testResp.getContentText());
+        if (testJson.error) return ok({ result: "api_error", message: testJson.error.message });
+        return ok({ result: "ok", response: (testJson.content && testJson.content[0]) ? testJson.content[0].text : '' });
+      } catch(testErr) { return ok({ result: "error", message: testErr.toString() }); }
+    }
+
     // ── AI 자동채점 ──
     if (data.action === "autoScore") {
       if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });

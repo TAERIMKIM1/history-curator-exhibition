@@ -209,8 +209,14 @@
     <span>🔐 교사 관리자 모드 — 카드 우하단 [삭제] 버튼으로 패널을 삭제할 수 있습니다</span>
     <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;flex-wrap:wrap;">
       <input type="text" id="anthropic-api-key" placeholder="🔑 Anthropic API 키 (sk-ant-api03-...)" autocomplete="off"
+        oninput="saveApiKey()"
         style="padding:0.3rem 0.6rem;border:1px solid #1B6CA8;border-radius:4px;font-size:0.78rem;
                background:#f0f8ff;color:#0f4c75;width:280px;" />
+      <button id="btn-test-key" onclick="testApiKey()"
+        style="background:#1B6CA8;color:#e8f4fd;border:1px solid #1B6CA8;padding:0.35rem 0.8rem;
+               border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
+        🔑 키 테스트
+      </button>
       <button onclick="bulkAutoScore()"
         style="background:#0f4c75;color:#e8f4fd;border:1px solid #1B6CA8;padding:0.35rem 0.8rem;
                border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
@@ -527,11 +533,40 @@
   let adminPasswordHash = '';
   let isAdminMode = false;
 
+  function saveApiKey() {
+    try { localStorage.setItem('gallery_api_key', document.getElementById('anthropic-api-key').value); } catch(e) {}
+  }
+
   function enterAdminMode() {
     if (!adminPasswordHash) { alert('먼저 갤러리 비밀번호로 입장해주세요.'); return; }
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
     document.querySelector('.expo-container').classList.add('admin-mode-on');
+    try {
+      var saved = localStorage.getItem('gallery_api_key');
+      if (saved) document.getElementById('anthropic-api-key').value = saved;
+    } catch(e) {}
+  }
+
+  async function testApiKey() {
+    const apiKey = document.getElementById('anthropic-api-key').value.trim();
+    if (!apiKey) { alert('API 키를 입력하세요.'); return; }
+    const btn = document.getElementById('btn-test-key');
+    btn.disabled = true; btn.innerText = '⏳ 테스트 중...'; btn.style.background = '#666';
+    try {
+      const r = await fetch(GAS_URL, {
+        method: 'POST', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'testKey', password: adminPasswordHash, apiKey })
+      });
+      const d = await r.json();
+      if (d.result === 'ok') {
+        btn.innerText = '✅ 연결 성공'; btn.style.background = '#28a745';
+        saveApiKey();
+      } else {
+        btn.innerText = '❌ ' + (d.message || d.result); btn.style.background = '#dc3545';
+      }
+    } catch(e) { btn.innerText = '❌ 네트워크 오류'; btn.style.background = '#dc3545'; }
+    setTimeout(() => { btn.disabled = false; btn.innerText = '🔑 키 테스트'; btn.style.background = '#1B6CA8'; }, 4000);
   }
 
   function exitAdminMode() {
