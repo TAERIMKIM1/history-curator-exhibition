@@ -227,7 +227,27 @@
                border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
         🔄 재채점
       </button>
+      <button onclick="openCriteriaEditor()"
+        style="background:#2d6a4f;color:#d8f3dc;border:1px solid #52b788;padding:0.35rem 0.8rem;
+               border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
+        📋 채점 기준
+      </button>
       <button class="btn-admin-exit" onclick="exitAdminMode()">✕ 모드 종료</button>
+    </div>
+  </div>
+
+  <!-- 채점 기준 편집 모달 -->
+  <div id="criteria-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:1.6rem;border-radius:10px;max-width:560px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,0.4);">
+      <div style="font-size:1rem;font-weight:bold;color:#2d6a4f;margin-bottom:0.8rem;">📋 채점 기준 편집</div>
+      <div style="font-size:0.78rem;color:#666;margin-bottom:0.6rem;">여기서 수정한 기준이 AI 채점에 바로 적용됩니다. (GAS 재배포 불필요)</div>
+      <textarea id="criteria-text"
+        style="width:100%;height:220px;font-size:0.78rem;font-family:monospace;padding:0.7rem;border:1px solid #ccc;border-radius:6px;resize:vertical;box-sizing:border-box;line-height:1.6;"></textarea>
+      <div style="display:flex;gap:0.5rem;margin-top:0.8rem;justify-content:flex-end;">
+        <button onclick="resetCriteria()" style="padding:0.4rem 0.9rem;background:#eee;border:1px solid #ccc;border-radius:4px;font-size:0.8rem;cursor:pointer;">↩ 기본값으로</button>
+        <button onclick="saveCriteria()" style="padding:0.4rem 0.9rem;background:#2d6a4f;color:#fff;border:none;border-radius:4px;font-size:0.8rem;font-weight:bold;cursor:pointer;">💾 저장</button>
+        <button onclick="closeCriteriaEditor()" style="padding:0.4rem 0.9rem;background:#888;color:#fff;border:none;border-radius:4px;font-size:0.8rem;cursor:pointer;">✕ 닫기</button>
+      </div>
     </div>
   </div>
 
@@ -683,7 +703,7 @@
     if (resultDiv) resultDiv.style.display = 'none';
     fetch(GAS_URL, {
       method: 'POST', headers: {'Content-Type':'text/plain'},
-      body: JSON.stringify({action:'autoScore', id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim()})
+      body: JSON.stringify({action:'autoScore', id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim(), customCriteria: getScoringCriteria()})
     })
     .then(r => r.json())
     .then(d => {
@@ -744,7 +764,7 @@
       try {
         const r1 = await fetch(GAS_URL, {
           method:'POST', headers:{'Content-Type':'text/plain'},
-          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim()})
+          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim(), customCriteria: getScoringCriteria()})
         });
         const d1 = await r1.json();
         if (d1.result !== 'auto_scored') {
@@ -811,7 +831,7 @@
       try {
         const r1 = await fetch(GAS_URL, {
           method:'POST', headers:{'Content-Type':'text/plain'},
-          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim()})
+          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim(), customCriteria: getScoringCriteria()})
         });
         const d1 = await r1.json();
         if (d1.result !== 'auto_scored') {
@@ -853,6 +873,31 @@
   // ── 비밀번호 잠금 ──────────────────────────────
   var GALLERY_PW_HASH = '4c16016741f6c1ec8ab0afb40d66fb1a86f5a7906a02b8a18391f7c4dcdf0f46';
   var _unlocked = false;
+
+  var DEFAULT_CRITERIA = '[채점 기준] 각 항목 1~5점\n'
+    + '① 문화유산 선정 및 기본 정보: 5=성취기준 부합·자료 풍부, 4=부합·자료 다소 부족, 3=연계성 부족, 2=무관·매우 빈약, 1=전혀 없음 또는 무의미한 입력\n'
+    + '② 시대적 배경: 5=구체적 사실 기반·정확, 4=배경 설명·세부 부족, 3=단편적 나열, 2=오류 다수·빈약, 1=서술 없음 또는 무의미한 입력\n'
+    + '③ 역사적 의의: 5=근거 있고 논리정연, 4=의의 설명·근거 부족, 3=단순 언급, 2=오류·근거 없음, 1=서술 없음 또는 무의미한 입력\n'
+    + '④ 형식 및 완성도: 5=출처·사진 완비·완성도 높음, 4=대체로 갖춤·일부 미흡, 3=일부 누락, 2=거의 미갖춤, 1=결과물 없음';
+
+  function getScoringCriteria() {
+    try { return localStorage.getItem('scoring_criteria') || DEFAULT_CRITERIA; } catch(e) { return DEFAULT_CRITERIA; }
+  }
+  function openCriteriaEditor() {
+    document.getElementById('criteria-text').value = getScoringCriteria();
+    document.getElementById('criteria-modal').style.display = 'flex';
+  }
+  function closeCriteriaEditor() {
+    document.getElementById('criteria-modal').style.display = 'none';
+  }
+  function saveCriteria() {
+    try { localStorage.setItem('scoring_criteria', document.getElementById('criteria-text').value); } catch(e) {}
+    closeCriteriaEditor();
+    alert('✅ 채점 기준이 저장됐습니다. 다음 채점부터 적용됩니다.');
+  }
+  function resetCriteria() {
+    document.getElementById('criteria-text').value = DEFAULT_CRITERIA;
+  }
 
   async function sha256hex(str) {
     var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
