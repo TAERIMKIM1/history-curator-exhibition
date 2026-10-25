@@ -150,8 +150,8 @@ function doPost(e) {
     // ── AI 자동채점 ──
     if (data.action === "autoScore") {
       if (data.password !== TEACHER_PASSWORD) return ok({ result: "unauthorized" });
-      var apiKey = ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
-      if (!apiKey) return ok({ result: "no_api_key", message: "apps-script.gs 상단의 ANTHROPIC_API_KEY_VALUE에 API 키를 입력하세요." });
+      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+      if (!apiKey) return ok({ result: "no_api_key", message: "관리자 배너의 API 키 입력란에 Anthropic API 키를 입력하세요." });
       var allRows = sheet.getDataRange().getValues();
       var pRow = null;
       for (var i = 1; i < allRows.length; i++) {
