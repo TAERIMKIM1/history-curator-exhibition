@@ -526,12 +526,8 @@
   let adminPassword = '';
   let isAdminMode = false;
 
-  async function enterAdminMode() {
-    const pw = prompt('교사 관리자 비밀번호를 입력하세요:\n(AI 채점용 Anthropic API 키는 이 다음 배너에서 입력)');
-    if (!pw) return;
-    const hash = await sha256hex(pw);
-    if (hash !== GALLERY_PW_HASH) { alert('비밀번호가 틀렸습니다.'); return; }
-    adminPassword = pw;
+  function enterAdminMode() {
+    if (!adminPassword) { alert('먼저 갤러리 비밀번호로 입장해주세요.'); return; }
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
     document.querySelector('.expo-container').classList.add('admin-mode-on');
@@ -759,6 +755,7 @@
     var hash = await sha256hex(val);
     if (hash === GALLERY_PW_HASH) {
       _unlocked = true;
+      adminPassword = val;
       document.getElementById('pwOverlay').style.display = 'none';
       document.getElementById('pwInput').value = '';
       try { sessionStorage.setItem('gallery_unlocked', '1'); } catch(e) {}
