@@ -220,14 +220,13 @@ function doPost(e) {
           + '3=필수 양식이 일부 누락되었거나 전체적인 작성 분량이 부족함\n'
           + '2=양식을 거의 갖추지 못하였거나 글의 완성도가 매우 빈약함\n'
           + '1=참여하였으나 결과물 작성이 전혀 없음'))
-        + '\n\n다음 JSON 형식으로만 답변하세요 (다른 텍스트 없이):\n'
-        + '{"score1":숫자,"score2":숫자,"score3":숫자,"score4":숫자,"reason1":"근거","reason2":"근거","reason3":"근거","reason4":"근거"}';
-      var aiPayload = { model: "anthropic/claude-haiku-4-5", max_tokens: 600,
-        response_format: { type: "json_object" },
+        + '\n\n반드시 아래 JSON 형식만 출력하세요. 설명이나 다른 텍스트는 절대 포함하지 마세요:\n'
+        + '{"score1":3,"score2":4,"score3":3,"score4":4,"reason1":"근거 한 문장","reason2":"근거 한 문장","reason3":"근거 한 문장","reason4":"근거 한 문장"}';
+      var aiPayload = { model: "anthropic/claude-haiku-4-5", max_tokens: 1000,
         messages: [{ role: "user", content: aiPrompt }] };
       var aiOptions = { method: "post", contentType: "application/json",
         headers: { "Authorization": "Bearer " + apiKey },
-        payload: JSON.stringify(aiPayload), muteHttpExceptions: true, deadline: 25 };
+        payload: JSON.stringify(aiPayload), muteHttpExceptions: true, deadline: 45 };
       try {
         var aiResp = UrlFetchApp.fetch("https://openrouter.ai/api/v1/chat/completions", aiOptions);
         var aiJson = JSON.parse(aiResp.getContentText());
