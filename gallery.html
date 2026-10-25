@@ -736,7 +736,7 @@
       logEl.scrollTop = logEl.scrollHeight;
       document.getElementById('bulk-stat').innerText = `${done}/${unscored.length} (✓${success} ✗${failed})`;
       document.getElementById('bulk-bar').style.width = (done/unscored.length*100)+'%';
-      await new Promise(res => setTimeout(res, 400));
+      await new Promise(res => setTimeout(res, 100));
     }
 
     logEl.innerHTML += `<div style="margin-top:0.4rem;font-weight:bold;color:#0f4c75;">완료! 채점 ${success}건 / 오류 ${failed}건</div>`;
