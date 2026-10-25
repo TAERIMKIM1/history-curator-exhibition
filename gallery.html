@@ -524,10 +524,11 @@
 
   /* ── 관리자 모드 ── */
   let adminPassword = '';
+  let adminPasswordHash = '';
   let isAdminMode = false;
 
   function enterAdminMode() {
-    if (!adminPassword) { alert('먼저 갤러리 비밀번호로 입장해주세요.'); return; }
+    if (!adminPasswordHash) { alert('먼저 갤러리 비밀번호로 입장해주세요.'); return; }
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
     document.querySelector('.expo-container').classList.add('admin-mode-on');
@@ -536,6 +537,7 @@
   function exitAdminMode() {
     isAdminMode = false;
     adminPassword = '';
+    adminPasswordHash = '';
     document.getElementById('admin-bar').classList.remove('active');
     document.querySelector('.expo-container').classList.remove('admin-mode-on');
   }
@@ -546,7 +548,7 @@
     fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'delete', id: id, password: adminPassword })
+      body: JSON.stringify({ action: 'delete', id: id, password: adminPasswordHash })
     })
     .then(res => res.json())
     .then(data => {
@@ -624,7 +626,7 @@
     if (!s1||!s2||!s3||!s4) { alert('4개 항목 모두 점수를 선택해 주세요.'); return; }
     fetch(GAS_URL, {
       method:'POST', headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({action:'score', id, password:adminPassword, score1:s1, score2:s2, score3:s3, score4:s4})
+      body: JSON.stringify({action:'score', id, password:adminPasswordHash, score1:s1, score2:s2, score3:s3, score4:s4})
     })
     .then(r=>r.json())
     .then(d => {
@@ -641,7 +643,7 @@
     if (resultDiv) resultDiv.style.display = 'none';
     fetch(GAS_URL, {
       method: 'POST', headers: {'Content-Type':'text/plain'},
-      body: JSON.stringify({action:'autoScore', id, password:adminPassword, apiKey: document.getElementById('anthropic-api-key').value.trim()})
+      body: JSON.stringify({action:'autoScore', id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim()})
     })
     .then(r => r.json())
     .then(d => {
@@ -702,7 +704,7 @@
       try {
         const r1 = await fetch(GAS_URL, {
           method:'POST', headers:{'Content-Type':'text/plain'},
-          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPassword, apiKey: document.getElementById('anthropic-api-key').value.trim()})
+          body: JSON.stringify({action:'autoScore', id:item.id, password:adminPasswordHash, apiKey: document.getElementById('anthropic-api-key').value.trim()})
         });
         const d1 = await r1.json();
         if (d1.result !== 'auto_scored') {
@@ -714,7 +716,7 @@
         }
         const r2 = await fetch(GAS_URL, {
           method:'POST', headers:{'Content-Type':'text/plain'},
-          body: JSON.stringify({action:'score', id:item.id, password:adminPassword,
+          body: JSON.stringify({action:'score', id:item.id, password:adminPasswordHash,
             score1:d1.score1, score2:d1.score2, score3:d1.score3, score4:d1.score4})
         });
         const d2 = await r2.json();
@@ -756,6 +758,7 @@
     if (hash === GALLERY_PW_HASH) {
       _unlocked = true;
       adminPassword = val;
+      adminPasswordHash = hash;
       document.getElementById('pwOverlay').style.display = 'none';
       document.getElementById('pwInput').value = '';
       try { sessionStorage.setItem('gallery_unlocked', '1'); } catch(e) {}

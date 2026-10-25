@@ -72,7 +72,7 @@ function fillAllPanels() {
   console.log('✅ 완료: ' + updated + '개 패널에 문화유산 명칭·기본 정보·출처를 채웠습니다.');
 }
 
-var TEACHER_PASSWORD = "804279"; // 교사 비밀번호 (원하는 대로 변경)
+var TEACHER_PASSWORD_HASH = "4c16016741f6c1ec8ab0afb40d66fb1a86f5a7906a02b8a18391f7c4dcdf0f46";
 var ANTHROPIC_API_KEY_VALUE = ""; // ← Anthropic API 키를 여기에 직접 입력 (sk-ant-api03-...)
 
 function doPost(e) {
@@ -95,7 +95,7 @@ function doPost(e) {
 
     // ── 패널 삭제 (교사 전용) ──
     if (data.action === "delete") {
-      if (data.password !== TEACHER_PASSWORD) {
+      if (data.password !== TEACHER_PASSWORD_HASH) {
         return ok({ result: "unauthorized" });
       }
       var rows = sheet.getDataRange().getValues();
@@ -110,7 +110,7 @@ function doPost(e) {
 
     // ── 교사 채점 ──
     if (data.action === "score") {
-      if (data.password !== TEACHER_PASSWORD) return ok({ result: "unauthorized" });
+      if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
       var rows = sheet.getDataRange().getValues();
       for (var i = 1; i < rows.length; i++) {
         if (rows[i][0].toString() === data.id.toString()) {
@@ -149,7 +149,7 @@ function doPost(e) {
 
     // ── AI 자동채점 ──
     if (data.action === "autoScore") {
-      if (data.password !== TEACHER_PASSWORD) return ok({ result: "unauthorized" });
+      if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
       var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE;
       if (!apiKey) return ok({ result: "no_api_key", message: "관리자 배너의 API 키 입력란에 Anthropic API 키를 입력하세요." });
       var allRows = sheet.getDataRange().getValues();
