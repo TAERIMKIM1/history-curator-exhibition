@@ -195,6 +195,7 @@ function doPost(e) {
         + '다음 JSON 형식으로만 답변하세요 (다른 텍스트 없이):\n'
         + '{"score1":숫자,"score2":숫자,"score3":숫자,"score4":숫자,"reason1":"근거","reason2":"근거","reason3":"근거","reason4":"근거"}';
       var aiPayload = { model: "anthropic/claude-haiku-4-5", max_tokens: 600,
+        response_format: { type: "json_object" },
         messages: [{ role: "user", content: aiPrompt }] };
       var aiOptions = { method: "post", contentType: "application/json",
         headers: { "Authorization": "Bearer " + apiKey },
