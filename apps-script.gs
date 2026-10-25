@@ -73,6 +73,7 @@ function fillAllPanels() {
 }
 
 var TEACHER_PASSWORD = "804279"; // 교사 비밀번호 (원하는 대로 변경)
+var ANTHROPIC_API_KEY_VALUE = ""; // ← Anthropic API 키를 여기에 직접 입력 (sk-ant-api03-...)
 
 function doPost(e) {
   try {
@@ -149,8 +150,8 @@ function doPost(e) {
     // ── AI 자동채점 ──
     if (data.action === "autoScore") {
       if (data.password !== TEACHER_PASSWORD) return ok({ result: "unauthorized" });
-      var apiKey = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
-      if (!apiKey) return ok({ result: "no_api_key", message: "Apps Script 스크립트 속성에 ANTHROPIC_API_KEY를 추가하세요." });
+      var apiKey = ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+      if (!apiKey) return ok({ result: "no_api_key", message: "apps-script.gs 상단의 ANTHROPIC_API_KEY_VALUE에 API 키를 입력하세요." });
       var allRows = sheet.getDataRange().getValues();
       var pRow = null;
       for (var i = 1; i < allRows.length; i++) {
