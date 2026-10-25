@@ -150,7 +150,7 @@ function doPost(e) {
     // ── API 키 테스트 ──
     if (data.action === "testKey") {
       if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
-      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE;
+      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
       if (!apiKey) return ok({ result: "no_api_key" });
       var testPayload = { model: "claude-haiku-4-5", max_tokens: 30,
         messages: [{ role: "user", content: '{"r1":3,"r2":4,"r3":3,"r4":4,"feedback":"테스트"}만 출력' }] };
@@ -168,7 +168,7 @@ function doPost(e) {
     // ── AI 자동채점 ──
     if (data.action === "autoScore") {
       if (data.password !== TEACHER_PASSWORD_HASH) return ok({ result: "unauthorized" });
-      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE;
+      var apiKey = data.apiKey || ANTHROPIC_API_KEY_VALUE || PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
       if (!apiKey) return ok({ result: "no_api_key", message: "관리자 배너의 API 키 입력란에 Anthropic API 키를 입력하세요." });
       var allRows = sheet.getDataRange().getValues();
       var pRow = null;
