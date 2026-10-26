@@ -251,7 +251,7 @@
     </div>
   </div>
 
-  <!-- 반 선택 필터 -->
+  <!-- 반 선택 필터 + 정렬 -->
   <div style="margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
     <label for="class-filter" style="font-weight: bold; font-size: 0.88rem; color: #1C2830;">🏫 전시 반 선택 :</label>
     <select id="class-filter" onchange="applyClassFilter()"
@@ -260,10 +260,17 @@
     </select>
     <span id="filter-label" style="font-size: 0.82rem; color: #666;"></span>
     <button id="btn-print-class" onclick="printClass()" style="display:none; background:#1C2830; color:#C89A40; border:1px solid #A07828; border-radius:4px; padding:0.4rem 0.9rem; font-size:0.83rem; font-weight:bold; cursor:pointer;">🖨️ 이 반 전체 출력</button>
+    <span style="color:#bbb;font-size:1rem;">│</span>
+    <span style="font-weight:bold;font-size:0.88rem;color:#1C2830;">📊 정렬 :</span>
+    <button id="sort-btn-votes" onclick="setSortMode('votes')"
+      style="background:#1C2830;color:#C89A40;border:1px solid #A07828;border-radius:4px;padding:0.35rem 0.75rem;font-size:0.83rem;font-weight:bold;cursor:pointer;">⭐ 추천순</button>
+    <button id="sort-btn-number" onclick="setSortMode('number')"
+      style="background:#F6F1E7;color:#1C2830;border:2px solid #ccc;border-radius:4px;padding:0.35rem 0.75rem;font-size:0.83rem;font-weight:bold;cursor:pointer;">🔢 번호순</button>
   </div>
   <div id="print-area"></div>
 
-  <div class="expo-container">
+  <!-- 추천순: 전시관별 2열 -->
+  <div class="expo-container" id="view-votes">
     <div class="expo-hall">
       <div class="hall-title">
         <span>고려 특별전시관</span>
@@ -277,6 +284,17 @@
         <span class="hall-badge" id="joseon-count">0점 전시 준비 중</span>
       </div>
       <div class="grid" id="joseon-grid"></div>
+    </div>
+  </div>
+
+  <!-- 번호순: 전체 단일 목록 -->
+  <div id="view-number" style="display:none;">
+    <div class="expo-hall">
+      <div class="hall-title">
+        <span>📋 전체 번호순 목록</span>
+        <span class="hall-badge" id="number-count">0점 전시 준비 중</span>
+      </div>
+      <div class="grid" id="number-grid"></div>
     </div>
   </div>
 
@@ -343,6 +361,7 @@
 
   let items = [];
   let currentFilter = urlClass;
+  let currentSort = 'votes';
 
   function loadGallery() {
     if (!GAS_URL || GAS_URL === "GAS_URL_PLACEHOLDER") return;
@@ -375,48 +394,89 @@
     renderGallery();
   }
 
-  function renderGallery() {
-    const goryeoGrid = document.getElementById('goryeo-grid');
-    const joseonGrid = document.getElementById('joseon-grid');
-    goryeoGrid.innerHTML = '';
-    joseonGrid.innerHTML = '';
-    let gCount = 0, jCount = 0;
-    items.sort((a, b) => b.votes - a.votes);
+  function setSortMode(mode) {
+    currentSort = mode;
+    const vBtn = document.getElementById('sort-btn-votes');
+    const nBtn = document.getElementById('sort-btn-number');
+    if (mode === 'number') {
+      vBtn.style.background = '#F6F1E7'; vBtn.style.color = '#1C2830'; vBtn.style.border = '2px solid #ccc';
+      nBtn.style.background = '#1C2830'; nBtn.style.color = '#C89A40'; nBtn.style.border = '1px solid #A07828';
+    } else {
+      vBtn.style.background = '#1C2830'; vBtn.style.color = '#C89A40'; vBtn.style.border = '1px solid #A07828';
+      nBtn.style.background = '#F6F1E7'; nBtn.style.color = '#1C2830'; nBtn.style.border = '2px solid #ccc';
+    }
+    renderGallery();
+  }
 
+  function makeCard(item) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openModal(item);
+    const itemId = item.id;
+    card.innerHTML = `
+      <span class="vote-tag">🏷️ ${item.votes}표</span>
+      <div class="card-thumb">
+        ${item.imageUrl1
+          ? `<img src="${item.imageUrl1}" alt="대표 사료" style="width:100%;height:135px;object-fit:cover;" onerror="this.parentElement.innerHTML='<span class=card-thumb-ph>📜</span>'">`
+          : `<span class="card-thumb-ph">📜</span>`}
+      </div>
+      <div class="card-body">
+        <div class="card-title">${item.relicName}</div>
+        <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
+      </div>
+      <span class="score-tag">${item.totalScore ? `✏️ ${item.totalScore}점` : '미채점'}</span>
+      <button class="card-del-btn" onclick="event.stopPropagation(); deletePanel('${itemId}', '${item.relicName}')">🗑️ 삭제</button>`;
+    return card;
+  }
+
+  function renderGallery() {
     // 반 필터 적용
     const norm = s => String(s).replace(/\s/g,'');
-    const visible = currentFilter
-      ? items.filter(item => norm(item.gradeClass) === norm(currentFilter))
-      : items;
-
-    // 필터 안내 텍스트
     const lbl = document.getElementById('filter-label');
     lbl.textContent = currentFilter ? `→ ${currentFilter}반 작품만 표시 중` : '';
 
-    visible.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.onclick = () => openModal(item);
-      const itemId = item.id;
-      card.innerHTML = `
-        <span class="vote-tag">🏷️ ${item.votes}표</span>
-        <div class="card-thumb">
-          ${item.imageUrl1
-            ? `<img src="${item.imageUrl1}" alt="대표 사료" style="width:100%;height:135px;object-fit:cover;" onerror="this.parentElement.innerHTML='<span class=card-thumb-ph>📜</span>'">`
-            : `<span class="card-thumb-ph">📜</span>`}
-        </div>
-        <div class="card-body">
-          <div class="card-title">${item.relicName}</div>
-          <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
-        </div>
-        <span class="score-tag">${item.totalScore ? `✏️ ${item.totalScore}점` : '미채점'}</span>
-        <button class="card-del-btn" onclick="event.stopPropagation(); deletePanel('${itemId}', '${item.relicName}')">🗑️ 삭제</button>`;
-      if (item.hall.includes("고려")) { goryeoGrid.appendChild(card); gCount++; }
-      else { joseonGrid.appendChild(card); jCount++; }
-    });
+    if (currentSort === 'number') {
+      // 번호순: 전시관 구분 없이 단일 목록
+      document.getElementById('view-votes').style.display = 'none';
+      document.getElementById('view-number').style.display = 'block';
 
-    document.getElementById('goryeo-count').innerText = `${gCount}점 전시 중`;
-    document.getElementById('joseon-count').innerText = `${jCount}점 전시 중`;
+      const sorted = [...items].sort((a, b) => {
+        const ca = String(a.gradeClass), cb = String(b.gradeClass);
+        if (ca !== cb) return ca.localeCompare(cb, 'ko');
+        return parseInt(a.stdNum) - parseInt(b.stdNum);
+      });
+      const visible = currentFilter
+        ? sorted.filter(item => norm(item.gradeClass) === norm(currentFilter))
+        : sorted;
+
+      const grid = document.getElementById('number-grid');
+      grid.innerHTML = '';
+      visible.forEach(item => grid.appendChild(makeCard(item)));
+      document.getElementById('number-count').innerText = `${visible.length}점 전시 중`;
+    } else {
+      // 추천순: 고려/조선 전시관 분리
+      document.getElementById('view-votes').style.display = '';
+      document.getElementById('view-number').style.display = 'none';
+
+      const sorted = [...items].sort((a, b) => b.votes - a.votes);
+      const visible = currentFilter
+        ? sorted.filter(item => norm(item.gradeClass) === norm(currentFilter))
+        : sorted;
+
+      const goryeoGrid = document.getElementById('goryeo-grid');
+      const joseonGrid = document.getElementById('joseon-grid');
+      goryeoGrid.innerHTML = '';
+      joseonGrid.innerHTML = '';
+      let gCount = 0, jCount = 0;
+
+      visible.forEach(item => {
+        if (item.hall.includes("고려")) { goryeoGrid.appendChild(makeCard(item)); gCount++; }
+        else { joseonGrid.appendChild(makeCard(item)); jCount++; }
+      });
+
+      document.getElementById('goryeo-count').innerText = `${gCount}점 전시 중`;
+      document.getElementById('joseon-count').innerText = `${jCount}점 전시 중`;
+    }
   }
 
   const VOTED_KEY = 'curator_voted_panels';
