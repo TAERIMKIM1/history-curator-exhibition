@@ -56,7 +56,6 @@
     }
     .timer-controls button:hover { background: var(--accent-light); }
 
-    /* 관리자 모드 */
     .admin-bar {
       display: none;
       background: #8B0000;
@@ -113,14 +112,12 @@
     .close-btn { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; border: none; background: none; }
     .modal-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .modal-gallery img { width: 100%; height: 200px; object-fit: contain; background: #faf8f5; border-radius: 4px; border: 1px solid #ddd; }
-  /* ── 채점 ── */
   .score-section { margin-top:1.2rem; border-top:2px solid #A07828; padding-top:1rem; }
   .score-section label { display:block; font-size:0.8rem; font-weight:bold; color:#1C2830; margin:0.55rem 0 0.2rem; }
   .score-section select { width:100%; padding:0.4rem; border:1px solid #ccc; border-radius:4px; font-size:0.78rem; color:#1C2830; background:#fff; }
   .score-tag { position:absolute; bottom:8px; left:8px; background:#1C2830; color:#C89A40; padding:0.15rem 0.45rem; border-radius:10px; font-size:0.7rem; font-weight:bold; border:1px solid #A07828; display:none; }
   .admin-mode-on .score-tag { display:block; }
 
-  /* ── 인쇄 ── */
   #print-area { display: none; }
   @media print {
     body > *:not(#print-area) { display: none !important; }
@@ -139,7 +136,6 @@
     .print-source { font-size: 8pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
     .print-class-title { font-size: 16pt; font-weight: bold; text-align: center; padding: 20pt 0 10pt; border-bottom: 2pt solid #1C2830; margin-bottom: 20pt; page-break-after: avoid; }
   }
-  /* ── 비밀번호 오버레이 ── */
   .pw-overlay {
     position: fixed; inset: 0; z-index: 9999;
     background: rgba(28,40,48,0.97);
@@ -175,7 +171,6 @@
 </head>
 <body>
 
-  <!-- 비밀번호 오버레이 -->
   <div class="pw-overlay" id="pwOverlay">
     <div class="pw-card">
       <div class="pw-icon">🏛️</div>
@@ -204,7 +199,6 @@
     </div>
   </div>
 
-  <!-- 관리자 모드 배너 -->
   <div class="admin-bar" id="admin-bar">
     <span>🔐 교사 관리자 모드 — 카드 우하단 [삭제] 버튼으로 패널을 삭제할 수 있습니다</span>
     <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;flex-wrap:wrap;">
@@ -236,7 +230,6 @@
     </div>
   </div>
 
-  <!-- 채점 기준 편집 모달 -->
   <div id="criteria-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;padding:1.6rem;border-radius:10px;max-width:560px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,0.4);">
       <div style="font-size:1rem;font-weight:bold;color:#2d6a4f;margin-bottom:0.8rem;">📋 채점 기준 편집</div>
@@ -251,7 +244,6 @@
     </div>
   </div>
 
-  <!-- 반 선택 필터 + 정렬 -->
   <div style="margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
     <label for="class-filter" style="font-weight: bold; font-size: 0.88rem; color: #1C2830;">🏫 전시 반 선택 :</label>
     <select id="class-filter" onchange="applyClassFilter()"
@@ -306,7 +298,6 @@
   </div>
 
 <script>
-  // ★ 여기에 Apps Script 웹앱 URL을 입력하세요
   const GAS_URL = "https://script.google.com/macros/s/AKfycbweLp9sgFPlQ5rbDBMmKHvuJxp8LjIFOwsKhDySYDZRvBcEEeZtx-LUVStO_WBaVBmOHA/exec";
 
   const DEFAULT_SECONDS = 24 * 60;
@@ -355,7 +346,6 @@
     document.getElementById('timer-status').innerText = '1일 학예연구사 패널 기획 마감까지 남은 시간';
   }
 
-  // URL 파라미터에서 반 정보 읽기 (예: gallery.html?class=3-2)
   const urlParams = new URLSearchParams(window.location.search);
   const urlClass = urlParams.get('class') || '';
 
@@ -371,11 +361,9 @@
       .catch(err => console.error(err));
   }
 
-  // 데이터에서 반 목록 자동 추출해 드롭다운 생성
   function buildClassDropdown() {
     const sel = document.getElementById('class-filter');
     const classes = [...new Set(items.map(i => String(i.gradeClass).trim()))].sort();
-    // 기존 옵션(전체 보기) 유지하고 반 목록 추가
     sel.innerHTML = '<option value="">📋 전체 보기</option>';
     classes.forEach(cls => {
       const opt = document.createElement('option');
@@ -430,13 +418,11 @@
   }
 
   function renderGallery() {
-    // 반 필터 적용
     const norm = s => String(s).replace(/\s/g,'');
     const lbl = document.getElementById('filter-label');
     lbl.textContent = currentFilter ? `→ ${currentFilter}반 작품만 표시 중` : '';
 
     if (currentSort === 'number') {
-      // 번호순: 전시관 구분 없이 단일 목록
       document.getElementById('view-votes').style.display = 'none';
       document.getElementById('view-number').style.display = 'block';
 
@@ -454,7 +440,6 @@
       visible.forEach(item => grid.appendChild(makeCard(item)));
       document.getElementById('number-count').innerText = `${visible.length}점 전시 중`;
     } else {
-      // 추천순: 고려/조선 전시관 분리
       document.getElementById('view-votes').style.display = '';
       document.getElementById('view-number').style.display = 'none';
 
@@ -497,7 +482,7 @@
 
   function voteForItem(id) {
     if (hasVoted(id)) return;
-    saveVoted(id); // 즉시 저장 — fetch 전에 막아야 중복 방지됨
+    saveVoted(id);
     const btn = document.getElementById('vote-btn-' + id);
     if (btn) { btn.disabled = true; btn.innerText = '⏳ 투표 중...'; }
     fetch(GAS_URL, {
@@ -613,7 +598,6 @@
     if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
   }
 
-  /* ── 관리자 모드 ── */
   let adminPassword = '';
   let adminPasswordHash = '';
   let isAdminMode = false;
@@ -626,7 +610,8 @@
     if (!adminPasswordHash) { alert('먼저 갤러리 비밀번호로 입장해주세요.'); return; }
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
-    document.querySelector('.expo-container').classList.add('admin-mode-on');
+    document.getElementById('view-votes').classList.add('admin-mode-on');
+    document.getElementById('view-number').classList.add('admin-mode-on');
     try {
       var saved = localStorage.getItem('gallery_api_key');
       if (saved) document.getElementById('anthropic-api-key').value = saved;
@@ -659,7 +644,8 @@
     adminPassword = '';
     adminPasswordHash = '';
     document.getElementById('admin-bar').classList.remove('active');
-    document.querySelector('.expo-container').classList.remove('admin-mode-on');
+    document.getElementById('view-votes').classList.remove('admin-mode-on');
+    document.getElementById('view-number').classList.remove('admin-mode-on');
   }
 
   function deletePanel(id, name) {
@@ -930,7 +916,6 @@
     setTimeout(() => { document.body.removeChild(overlay); loadGallery(); }, 3000);
   }
 
-  // ── 비밀번호 잠금 ──────────────────────────────
   var GALLERY_PW_HASH = '4c16016741f6c1ec8ab0afb40d66fb1a86f5a7906a02b8a18391f7c4dcdf0f46';
   var _unlocked = false;
 
