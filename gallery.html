@@ -279,15 +279,9 @@
     </div>
   </div>
 
-  <!-- 번호순: 전체 단일 목록 -->
+  <!-- 번호순: 학급별 섹션 -->
   <div id="view-number" style="display:none;">
-    <div class="expo-hall">
-      <div class="hall-title">
-        <span>📋 전체 번호순 목록</span>
-        <span class="hall-badge" id="number-count">0점 전시 준비 중</span>
-      </div>
-      <div class="grid" id="number-grid"></div>
-    </div>
+    <div id="number-container"></div>
   </div>
 
   <div id="modal" class="modal" onclick="closeModal(event)">
@@ -426,8 +420,9 @@
       document.getElementById('view-votes').style.display = 'none';
       document.getElementById('view-number').style.display = 'block';
 
+      // 반+번호 순 정렬
       const sorted = [...items].sort((a, b) => {
-        const ca = String(a.gradeClass), cb = String(b.gradeClass);
+        const ca = String(a.gradeClass).trim(), cb = String(b.gradeClass).trim();
         if (ca !== cb) return ca.localeCompare(cb, 'ko');
         return parseInt(a.stdNum) - parseInt(b.stdNum);
       });
@@ -435,10 +430,36 @@
         ? sorted.filter(item => norm(item.gradeClass) === norm(currentFilter))
         : sorted;
 
-      const grid = document.getElementById('number-grid');
-      grid.innerHTML = '';
-      visible.forEach(item => grid.appendChild(makeCard(item)));
-      document.getElementById('number-count').innerText = `${visible.length}점 전시 중`;
+      // 학급별로 그룹핑
+      const byClass = {};
+      visible.forEach(item => {
+        const cls = String(item.gradeClass).trim();
+        if (!byClass[cls]) byClass[cls] = [];
+        byClass[cls].push(item);
+      });
+
+      const container = document.getElementById('number-container');
+      container.innerHTML = '';
+      const adminOn = isAdminMode;
+
+      Object.keys(byClass).sort((a,b) => a.localeCompare(b,'ko')).forEach(cls => {
+        const hall = document.createElement('div');
+        hall.className = 'expo-hall' + (adminOn ? ' admin-mode-on' : '');
+        hall.style.marginBottom = '1.5rem';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'hall-title';
+        titleDiv.innerHTML = `<span>📚 ${cls}반</span><span class="hall-badge">${byClass[cls].length}점 전시 중</span>`;
+
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        byClass[cls].forEach(item => grid.appendChild(makeCard(item)));
+
+        hall.appendChild(titleDiv);
+        hall.appendChild(grid);
+        container.appendChild(hall);
+      });
+
     } else {
       document.getElementById('view-votes').style.display = '';
       document.getElementById('view-number').style.display = 'none';
@@ -611,7 +632,8 @@
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
     document.getElementById('view-votes').classList.add('admin-mode-on');
-    document.getElementById('view-number').classList.add('admin-mode-on');
+    // 번호순 뷰는 renderGallery 시 동적 생성되므로 재렌더링으로 반영
+    renderGallery();
     try {
       var saved = localStorage.getItem('gallery_api_key');
       if (saved) document.getElementById('anthropic-api-key').value = saved;
@@ -645,7 +667,7 @@
     adminPasswordHash = '';
     document.getElementById('admin-bar').classList.remove('active');
     document.getElementById('view-votes').classList.remove('admin-mode-on');
-    document.getElementById('view-number').classList.remove('admin-mode-on');
+    renderGallery();
   }
 
   function deletePanel(id, name) {
