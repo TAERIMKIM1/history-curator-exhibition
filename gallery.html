@@ -117,6 +117,14 @@
   .score-section select { width:100%; padding:0.4rem; border:1px solid #ccc; border-radius:4px; font-size:0.78rem; color:#1C2830; background:#fff; }
   .score-tag { position:absolute; bottom:8px; left:8px; background:#1C2830; color:#C89A40; padding:0.15rem 0.45rem; border-radius:10px; font-size:0.7rem; font-weight:bold; border:1px solid #A07828; display:none; }
   .admin-mode-on .score-tag { display:block; }
+  .feedback-indicator { position:absolute; top:8px; left:8px; padding:0.15rem 0.45rem; border-radius:10px; font-size:0.7rem; font-weight:bold; display:none; }
+  .feedback-indicator.ai { background:#7B2D8B; color:#f0e6f6; border:1px solid #a855f7; }
+  .feedback-indicator.error { background:#8B0000; color:#ffe6e6; border:1px solid #dc2626; }
+  .feedback-indicator.general { background:#555; color:#eee; border:1px solid #888; }
+  .admin-mode-on .feedback-indicator { display:block; }
+  .feedback-section { margin-top:1rem; border-top:2px solid #1C2830; padding-top:0.8rem; }
+  .fb-tag-btn { background:#f0f0f0; color:#333; border:1px solid #ccc; padding:0.3rem 0.6rem; border-radius:14px; font-size:0.78rem; cursor:pointer; transition:background 0.15s; }
+  .fb-tag-btn:hover { background:#e0e0e0; }
 
   #print-area { display: none; }
   @media print {
@@ -408,6 +416,14 @@
         <div class="card-curator">${item.gradeClass} ${item.stdNum}번 ${item.stdName} 큐레이터</div>
       </div>
       <span class="score-tag">${item.totalScore ? `✏️ ${item.totalScore}점` : '미채점'}</span>
+      ${item.feedback ? (() => {
+        const fb = item.feedback;
+        const isAI = fb.includes('AI 생성') || fb.includes('AI생성') || fb.includes('AI 의심');
+        const isErr = fb.includes('역사적 오류') || fb.includes('역사 오류') || fb.includes('역사적 왜곡');
+        const cls = isAI ? 'ai' : isErr ? 'error' : 'general';
+        const lbl = isAI ? '🤖 AI 의심' : isErr ? '⚠️ 역사 오류' : '💬 피드백';
+        return `<span class="feedback-indicator ${cls}">${lbl}</span>`;
+      })() : ''}
       <button class="card-del-btn" onclick="event.stopPropagation(); deletePanel('${itemId}', '${item.relicName}')">🗑️ 삭제</button>`;
     return card;
   }
@@ -749,7 +765,23 @@
         style="width:100%;margin-top:0.5rem;padding:0.7rem;background:#1C2830;color:#C89A40;
                border:1px solid #A07828;border-radius:4px;font-size:0.9rem;font-weight:bold;cursor:pointer;">
         💾 채점 저장
-      </button></div>`;
+      </button></div>
+    <div class="feedback-section">
+      <div style="font-weight:bold;font-size:0.95rem;color:#1C2830;margin-bottom:0.5rem;">💬 교사 피드백 <span style="font-size:0.75rem;color:#888;font-weight:normal;">(학생에게 전달되지 않음 — 교사 기록용)</span></div>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <button class="fb-tag-btn" onclick="addFeedbackTag('[🤖 AI 생성 의심]')">🤖 AI 생성 의심</button>
+        <button class="fb-tag-btn" onclick="addFeedbackTag('[⚠️ 역사적 오류]')">⚠️ 역사적 오류</button>
+        <button class="fb-tag-btn" onclick="addFeedbackTag('[📝 보완 필요]')">📝 보완 필요</button>
+        <button class="fb-tag-btn" onclick="addFeedbackTag('[✅ 우수 작품]')" style="background:#e6f4ea;border-color:#4caf50;color:#1a5c2a;">✅ 우수 작품</button>
+        <button class="fb-tag-btn" onclick="document.getElementById('feedback-text').value=''" style="background:#fff0f0;border-color:#ccc;color:#888;">✕ 초기화</button>
+      </div>
+      <textarea id="feedback-text" placeholder="피드백을 입력하세요. 예) AI 생성 의심 — 문장 구조가 AI 특유의 패턴임. / 역사적 오류 — 고려청자 제작 시기 혼동." style="width:100%;height:90px;padding:0.55rem 0.7rem;border:1px solid #ccc;border-radius:6px;font-size:0.82rem;line-height:1.6;resize:vertical;font-family:inherit;box-sizing:border-box;">${item.feedback||''}</textarea>
+      <button onclick="saveFeedback('${item.id}')"
+        style="width:100%;margin-top:0.5rem;padding:0.65rem;background:#4a2020;color:#ffcccc;
+               border:1px solid #8B0000;border-radius:4px;font-size:0.9rem;font-weight:bold;cursor:pointer;">
+        💬 피드백 저장
+      </button>
+    </div>`;
     return html;
   }
 
@@ -997,6 +1029,32 @@
   }
   function resetCriteria() {
     document.getElementById('criteria-text').value = DEFAULT_CRITERIA;
+  }
+
+  function addFeedbackTag(tag) {
+    const ta = document.getElementById('feedback-text');
+    if (!ta) return;
+    const sep = ta.value && !ta.value.endsWith(' ') ? ' ' : '';
+    ta.value += sep + tag + ' ';
+    ta.focus();
+  }
+
+  function saveFeedback(id) {
+    const fb = document.getElementById('feedback-text').value.trim();
+    fetch(GAS_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'feedback', id, password:adminPasswordHash, feedback:fb})
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.result === 'ok' || d.result === 'feedback_saved') {
+        alert(fb ? '💬 피드백이 저장됐습니다.' : '피드백이 삭제됐습니다.');
+        loadGallery();
+      } else {
+        alert('저장 실패: ' + JSON.stringify(d));
+      }
+    })
+    .catch(() => alert('서버 오류. 네트워크를 확인하세요.'));
   }
 
   async function sha256hex(str) {
