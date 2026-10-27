@@ -634,8 +634,15 @@
     try { localStorage.setItem('gallery_api_key', document.getElementById('anthropic-api-key').value); } catch(e) {}
   }
 
-  function enterAdminMode() {
-    if (!adminPasswordHash) { alert('먼저 갤러리 비밀번호로 입장해주세요.'); return; }
+  async function enterAdminMode() {
+    if (!adminPasswordHash) {
+      const val = prompt('관리자 비밀번호를 입력하세요:');
+      if (!val) return;
+      const hash = await sha256hex(val);
+      if (hash !== GALLERY_PW_HASH) { alert('비밀번호가 틀렸습니다.'); return; }
+      adminPassword = val;
+      adminPasswordHash = hash;
+    }
     isAdminMode = true;
     document.getElementById('admin-bar').classList.add('active');
     document.getElementById('view-votes').classList.add('admin-mode-on');
