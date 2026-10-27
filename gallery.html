@@ -135,6 +135,7 @@
     .print-text { font-size: 10pt; line-height: 1.7; margin-bottom: 10pt; white-space: pre-wrap; }
     .print-source { font-size: 8pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
     .print-class-title { font-size: 16pt; font-weight: bold; text-align: center; padding: 20pt 0 10pt; border-bottom: 2pt solid #1C2830; margin-bottom: 20pt; page-break-after: avoid; }
+    .print-score { background: #e8f4fd; padding: 4pt 8pt; font-size: 9pt; margin-bottom: 8pt; border-left: 3pt solid #1B6CA8; font-weight: bold; color: #0f4c75; }
   }
   .pw-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -202,7 +203,7 @@
   <div class="admin-bar" id="admin-bar">
     <span>🔐 교사 관리자 모드 — 카드 우하단 [삭제] 버튼으로 패널을 삭제할 수 있습니다</span>
     <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;flex-wrap:wrap;">
-      <input type="text" id="anthropic-api-key" placeholder="🔑 Anthropic API 키 (sk-ant-api03-...)" autocomplete="off"
+      <input type="text" id="anthropic-api-key" placeholder="🔑 Anthropic API 키 (sk-ant-api03-)" autocomplete="off"
         oninput="saveApiKey()"
         style="padding:0.3rem 0.6rem;border:1px solid #1B6CA8;border-radius:4px;font-size:0.78rem;
                background:#f0f8ff;color:#0f4c75;width:280px;" />
@@ -539,6 +540,7 @@
       <div class="print-text">${item.historyContext}</div>
       <div class="print-section-title">큐레이터의 해석 (역사적 의의)</div>
       <div class="print-text">${item.curatorVoice}</div>
+      ${item.totalScore ? `<div class="print-score">✏️ 채점: 총 ${item.totalScore}점/20점 &nbsp;(①${item.score1||'?'}점 ②${item.score2||'?'}점 ③${item.score3||'?'}점 ④${item.score4||'?'}점)</div>` : ''}
       <div class="print-source">사료 출처: ${item.source}</div>
     </div>`;
   }
@@ -556,9 +558,16 @@
       : items;
     if (!targets.length) { alert('출력할 작품이 없습니다.'); return; }
     const label = currentFilter ? `${currentFilter}반 전체 작품` : '전체 작품';
+    const sorted = currentSort === 'number'
+      ? [...targets].sort((a, b) => {
+          const ca = String(a.gradeClass).trim(), cb = String(b.gradeClass).trim();
+          if (ca !== cb) return ca.localeCompare(cb, 'ko');
+          return parseInt(a.stdNum) - parseInt(b.stdNum);
+        })
+      : targets;
     document.getElementById('print-area').innerHTML =
       `<div class="print-class-title">역사 큐레이터 기획전 — ${label}</div>` +
-      targets.map(i => panelHTML(i)).join('');
+      sorted.map(i => panelHTML(i)).join('');
     window.print();
   }
 
