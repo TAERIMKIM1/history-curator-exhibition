@@ -831,12 +831,17 @@
         if (el) { el.value = d['score'+(i+1)]; }
       });
       updateScoreTotal();
+      const labels = ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
       if (resultDiv) {
-        const labels = ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
         resultDiv.innerHTML = '<strong style="color:#0f4c75;">🤖 AI 채점 근거</strong><br>' +
           labels.map((lb,i) => `<span style="color:#555;">${lb} ${d['score'+(i+1)]}점:</span> ${d['reason'+(i+1)]}`).join('<br>') +
           '<br><span style="font-size:0.78rem;color:#888;">※ 점수를 확인 후 [💾 채점 저장]을 눌러주세요.</span>';
         resultDiv.style.display = 'block';
+      }
+      const fbTa = document.getElementById('feedback-text');
+      if (fbTa) {
+        fbTa.value = '[🤖 AI 채점 근거]\n' +
+          labels.map((lb,i) => `${lb} ${d['score'+(i+1)]}점: ${d['reason'+(i+1)]}`).join('\n');
       }
     })
     .catch(err => {
