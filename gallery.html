@@ -144,6 +144,7 @@
     .print-source { font-size: 8pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
     .print-class-title { font-size: 16pt; font-weight: bold; text-align: center; padding: 20pt 0 10pt; border-bottom: 2pt solid #1C2830; margin-bottom: 20pt; page-break-after: avoid; }
     .print-score { background: #e8f4fd; padding: 4pt 8pt; font-size: 9pt; margin-bottom: 8pt; border-left: 3pt solid #1B6CA8; font-weight: bold; color: #0f4c75; }
+    .print-feedback { background: #f3e8ff; padding: 4pt 8pt; font-size: 8.5pt; margin-bottom: 8pt; border-left: 3pt solid #7B2D8B; color: #3d0070; white-space: pre-wrap; line-height: 1.5; }
   }
   .pw-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -562,6 +563,7 @@
       <div class="print-section-title">큐레이터의 해석 (역사적 의의)</div>
       <div class="print-text">${item.curatorVoice}</div>
       ${item.totalScore ? `<div class="print-score">✏️ 채점: 총 ${item.totalScore}점/20점 &nbsp;(①${item.score1||'?'}점 ②${item.score2||'?'}점 ③${item.score3||'?'}점 ④${item.score4||'?'}점)</div>` : ''}
+      ${item.feedback && isAdminMode ? `<div class="print-feedback">💬 교사 피드백\n${item.feedback}</div>` : ''}
       <div class="print-source">사료 출처: ${item.source}</div>
     </div>`;
   }
