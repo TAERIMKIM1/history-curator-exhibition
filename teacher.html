@@ -64,7 +64,7 @@
     .quick-card {
       background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
       padding: 1rem 0.8rem; text-align: center; text-decoration: none; color: var(--text);
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s; cursor: pointer;
     }
     .quick-card:hover { background: var(--card2); border-color: var(--accent2); }
     .quick-card .qc-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
@@ -196,6 +196,28 @@
     .score-chip { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 10px; font-size: 0.78rem; font-weight: bold; }
     .score-none { font-size: 0.75rem; color: var(--muted); }
     .feedback-cell { font-size: 0.73rem; color: #a0b8cc; max-width: 200px; line-height: 1.4; word-break: break-word; }
+
+    /* ── 성적 일람표 인쇄 ── */
+    #print-area { display: none; }
+    @media print {
+      body > *:not(#print-area) { display: none !important; }
+      #print-area { display: block !important; }
+      .grade-print-section { page-break-after: always; padding: 1cm 1.2cm; font-family: 'Malgun Gothic', sans-serif; }
+      .grade-print-section:last-child { page-break-after: auto; }
+      .grade-print-header { text-align: center; border-bottom: 2pt solid #1C2830; padding-bottom: 6pt; margin-bottom: 8pt; }
+      .grade-print-header h2 { font-size: 16pt; font-weight: bold; margin-bottom: 3pt; }
+      .grade-print-header p { font-size: 9pt; color: #333; }
+      .grade-print-teacher { text-align: right; font-size: 9pt; margin-bottom: 4pt; }
+      .grade-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+      .grade-table th, .grade-table td { border: 0.5pt solid #333; padding: 3pt 4pt; text-align: center; vertical-align: middle; }
+      .grade-table thead th { background: #1C2830; color: #fff; font-weight: bold; }
+      .grade-table thead th.sub { background: #2d4050; font-weight: normal; font-size: 7.5pt; }
+      .grade-table td.name { text-align: left; padding-left: 5pt; }
+      .grade-table td.total { font-weight: bold; background: #f0f4f8; }
+      .grade-table tfoot td { background: #f5f5f0; font-weight: bold; font-size: 8pt; }
+      .grade-print-note { margin-top: 8pt; font-size: 8pt; color: #333; background: #fffbe6; padding: 5pt 8pt; border-left: 3pt solid #A07828; line-height: 1.7; }
+      .grade-print-note strong { color: #7b3f00; }
+    }
   </style>
 </head>
 <body>
@@ -250,6 +272,11 @@
       <div class="qc-icon">📝</div>
       <div class="qc-label">수기 보고서 양식</div>
       <div class="qc-sub">인쇄용 A4</div>
+    </a>
+    <a class="quick-card" href="javascript:void(0)" onclick="printGradeTable()">
+      <div class="qc-icon">📊</div>
+      <div class="qc-label">성적 일람표</div>
+      <div class="qc-sub">반별 전체 출력</div>
     </a>
   </div>
 
@@ -311,7 +338,23 @@
     </div>
   </div>
 
-
+  <!-- ── 수행평가 성적 일람표 ── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">📊 수행평가 성적 일람표 (문화유산 탐구)</div>
+      <div class="filter-bar">
+        <select id="grade-filter-class">
+          <option value="">전체 반 출력</option>
+        </select>
+        <button class="btn-sm btn-refresh" onclick="printGradeTable()">🖨️ 성적 일람표 인쇄</button>
+      </div>
+    </div>
+    <p style="font-size:0.82rem; color:var(--muted); line-height:1.8;">
+      ※ <strong style="color:var(--accent);">수행평가 구성 (60%)</strong>: 판결문 쓰기 20점(20%) + 문화유산 탐구 20점(20%) + 역사 용어 사전 20점(20%) = 합계 60점<br>
+      ※ <strong style="color:var(--accent);">기말고사 반영 (40%)</strong>: 기말고사 받은 점수 × 40% = 기말고사 반영 점수 (최대 40점)<br>
+      ※ <strong style="color:var(--accent);">학기말 최종 성적</strong> = 수행평가 합계(최대 60점) + 기말고사 반영 점수(최대 40점) = 100점 만점
+    </p>
+  </div>
 
   <!-- ── AI 일괄채점 ── -->
   <div class="ai-section">
@@ -406,6 +449,8 @@
     </div>
   </div>
 
+  <div id="print-area"></div>
+
 </div><!-- /dashboard -->
 
 <script>
@@ -463,15 +508,28 @@
   }
 
   function buildClassFilter() {
+    const classes = [...new Set(allPanels.map(p => String(p.gradeClass).trim()))].sort();
+
+    // 패널 관리 필터
     const sel = document.getElementById('filter-class');
     const current = sel.value;
-    const classes = [...new Set(allPanels.map(p => String(p.gradeClass).trim()))].sort();
     sel.innerHTML = '<option value="">전체 반</option>';
     classes.forEach(c => {
       const opt = document.createElement('option');
       opt.value = c; opt.textContent = c + '반';
       if (c === current) opt.selected = true;
       sel.appendChild(opt);
+    });
+
+    // 성적 일람표 필터
+    const gsel = document.getElementById('grade-filter-class');
+    const gcurrent = gsel.value;
+    gsel.innerHTML = '<option value="">전체 반 출력</option>';
+    classes.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c + '반만 출력';
+      if (c === gcurrent) opt.selected = true;
+      gsel.appendChild(opt);
     });
   }
 
@@ -520,7 +578,6 @@
 
   function deletePanel(id, name) {
     if (!confirm(`"${name}" 패널을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
-    // text/plain = CORS preflight 없음, GAS는 body를 문자열로 읽어 JSON 파싱
     fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
@@ -538,6 +595,103 @@
       }
     })
     .catch(e => alert('서버 오류. 잠시 후 다시 시도해 주세요.\n(' + e + ')'));
+  }
+
+  function printGradeTable() {
+    const filterCls = document.getElementById('grade-filter-class').value;
+    const norm = s => String(s).replace(/\s/g,'');
+    const targets = filterCls
+      ? allPanels.filter(i => norm(i.gradeClass) === norm(filterCls))
+      : allPanels;
+    if (!targets.length) { alert('출력할 학생 데이터가 없습니다.\n먼저 [🔄 새로고침]을 눌러주세요.'); return; }
+
+    const sorted = [...targets].sort((a, b) => {
+      const ca = String(a.gradeClass).trim(), cb = String(b.gradeClass).trim();
+      if (ca !== cb) return ca.localeCompare(cb, 'ko');
+      return parseInt(a.stdNum) - parseInt(b.stdNum);
+    });
+
+    const today = new Date().toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
+
+    const byClass = {};
+    sorted.forEach(item => {
+      const cls = String(item.gradeClass).trim();
+      if (!byClass[cls]) byClass[cls] = [];
+      byClass[cls].push(item);
+    });
+
+    let html = '';
+    Object.keys(byClass).sort((a,b) => a.localeCompare(b,'ko')).forEach(cls => {
+      const students = byClass[cls];
+      const scored = students.filter(s => s.totalScore > 0);
+      const totalSum = scored.reduce((a,b) => a + (parseInt(b.totalScore)||0), 0);
+      const avg = scored.length ? (totalSum / scored.length).toFixed(1) : '-';
+
+      const rows = students.map(s => {
+        const ok = s.totalScore > 0;
+        return `<tr>
+          <td>${s.stdNum}</td>
+          <td class="name">${s.stdName}</td>
+          <td>${ok ? (s.score1||'-') : '-'}</td>
+          <td>${ok ? (s.score2||'-') : '-'}</td>
+          <td>${ok ? (s.score3||'-') : '-'}</td>
+          <td>${ok ? (s.score4||'-') : '-'}</td>
+          <td class="total">${ok ? s.totalScore : '-'}</td>
+          <td class="name" style="font-size:7.5pt;">${s.relicName||''}</td>
+        </tr>`;
+      }).join('');
+
+      html += `<div class="grade-print-section">
+        <div class="grade-print-header">
+          <h2>수행평가 강의실별 일람표</h2>
+          <p>2026학년도 2학기 주간 &nbsp;|&nbsp; 3학년 ${cls} &nbsp;|&nbsp; 교과목: 역사</p>
+        </div>
+        <div class="grade-print-teacher">교과담당교사 (김태림) 인 &nbsp;&nbsp;&nbsp; ${today}</div>
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:6%;">번호</th>
+              <th rowspan="2" style="width:14%;">성명</th>
+              <th colspan="4">문화유산 탐구 (만점 20점, 20%)</th>
+              <th rowspan="2" style="width:7%;">총점</th>
+              <th rowspan="2" style="width:22%;">문화유산명</th>
+            </tr>
+            <tr>
+              <th class="sub" style="width:8%;">①문화유산<br>선정 (5점)</th>
+              <th class="sub" style="width:8%;">②시대적<br>배경 (5점)</th>
+              <th class="sub" style="width:8%;">③역사적<br>의의 (5점)</th>
+              <th class="sub" style="width:8%;">④형식<br>완성도 (5점)</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">응시생수</td>
+              <td colspan="4">${students.length}명 (채점 완료 ${scored.length}명)</td>
+              <td colspan="2"></td>
+            </tr>
+            <tr>
+              <td colspan="2">총점 합계</td>
+              <td colspan="4">${totalSum}점</td>
+              <td colspan="2"></td>
+            </tr>
+            <tr>
+              <td colspan="2">평균</td>
+              <td colspan="4">${avg}점</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="grade-print-note">
+          <strong>※ 수행평가 구성 (총 60%)</strong>: 판결문 쓰기 20점(20%) + 문화유산 탐구 20점(20%) + 역사 용어 사전 20점(20%) = 합계 60점(60%)<br>
+          <strong>※ 기말고사 반영 방법 (40%)</strong>: 기말고사에서 받은 점수 × 40% = 기말고사 반영 점수 (최대 40점)<br>
+          <strong>※ 학기말 최종 성적</strong> = 수행평가 합계 (최대 60점) + 기말고사 반영 점수 (최대 40점) = 100점 만점
+        </div>
+      </div>`;
+    });
+
+    document.getElementById('print-area').innerHTML = html;
+    window.print();
   }
 
   // 자동 새로고침 (30초)
@@ -651,7 +805,6 @@
       try {
         const res = await gradeOnePanel(p, apiKey);
         await submitScoreAI(p.id, res.score1, res.score2, res.score3, res.score4, res.feedback);
-        // update local cache
         p.score1=res.score1; p.score2=res.score2; p.score3=res.score3; p.score4=res.score4;
         p.totalScore=res.score1+res.score2+res.score3+res.score4;
         p.feedback=res.feedback;
@@ -673,56 +826,7 @@
     const hasImg = (panel.imageUrl1 ? '사진1 있음' : '사진1 없음') +
                    (panel.imageUrl2 ? ', 사진2 있음' : '');
 
-    const prompt = `당신은 중학교 역사 교사를 돕는 채점 보조 AI입니다. 아래 채점기준표에 따라 학생 패널을 채점하고 피드백을 제공하세요.
-
-[채점기준표 — 총 20점]
-① 문화유산 선정 및 기본 정보 (5점)
-5점: 성취기준에 부합하는 문화유산을 선정하고 관련 사료 및 탐구 자료를 풍부하게 제시함.
-4점: 성취기준에 부합하나 탐구 자료가 다소 부족함.
-3점: 성취기준과의 연계성이 다소 부족하거나 자료 제시가 단편적임.
-2점: 성취기준과 무관하거나 자료 제시가 매우 빈약함.
-1점: 참여하였으나 문화유산 선정 및 자료 제시가 전혀 없음.
-
-② 큐레이터의 시선 — 시대적 배경 (5점)
-5점: 시대적 배경을 구체적 사실에 근거하여 왜곡 없이 정확하게 설명함.
-4점: 시대적 배경을 설명하였으나 세부 역사 사실이 다소 부족함.
-3점: 단편적인 사실 나열 수준으로 단순하게 서술함.
-2점: 역사적 오류가 다수 포함되거나 내용이 매우 빈약함.
-1점: 참여하였으나 시대적 배경 서술이 전혀 없음.
-
-③ 큐레이터의 해석 — 역사적 의의 (5점)
-5점: 역사적 의의를 타당한 근거를 바탕으로 논리정연하게 설명함.
-4점: 역사적 의의를 설명하였으나 근거와 논리가 다소 부족함.
-3점: 역사적 의의를 단순하게 언급하거나 서술이 단편적임.
-2점: 의의 서술에 오류가 많거나 근거가 전혀 없음.
-1점: 참여하였으나 역사적 의의 서술이 전혀 없음.
-
-④ 형식 및 완성도 (5점)
-5점: 필수 양식(출처·사진 포함)을 빠짐없이 체계적으로 갖추어 완성도 있게 작성함.
-4점: 양식을 대체로 갖추었으나 일부 서술이 다소 미흡함.
-3점: 필수 양식이 일부 누락되었거나 분량이 부족함.
-2점: 양식을 거의 갖추지 못하거나 완성도가 매우 빈약함.
-1점: 참여하였으나 결과물 작성이 전혀 없음.
-
-[채점 지침]
-- 비교적 후하게 채점하되, 전체에서 만점(20점)이 너무 많지 않게 변별력을 유지하세요.
-- 내용이 충실하면 4~5점, 기본 수준이면 3~4점, 매우 부족하면 2~3점.${is4ban ? '
-- ★ 이 학생은 3학년 4반입니다. 시스템 오류로 사진 캡션이 저장되지 않았으므로, 캡션 누락을 이유로 ④ 형식 및 완성도를 절대 감점하지 마세요.' : ''}
-
-[학생 패널]
-전시관: ${panel.hall}
-반·번호·이름: ${panel.gradeClass}반 ${panel.stdNum}번 ${panel.stdName}
-문화유산 명칭: ${panel.relicName}
-기본 제원: ${panel.relicSpec || '(없음)'}
-시대적 배경: ${panel.historyContext || '(없음)'}
-역사적 의의: ${panel.curatorVoice || '(없음)'}
-참고 출처: ${panel.source || '(없음)'}
-사진1 캡션: ${panel.imgCaption1 || '(없음)'}
-사진2 캡션: ${panel.imgCaption2 || '(없음)'}
-사진 첨부: ${hasImg}
-
-JSON만 출력 (다른 텍스트 없이):
-{"score1":점수,"score2":점수,"score3":점수,"score4":점수,"feedback":"2~3문장 한국어 피드백"}`;
+    const prompt = `당신은 중학교 역사 교사를 돕는 채점 보조 AI입니다. 아래 채점기준표에 따라 학생 패널을 채점하고 피드백을 제공하세요.\n\n[채점기준표 — 총 20점]\n① 문화유산 선정 및 기본 정보 (5점)\n5점: 성취기준에 부합하는 문화유산을 선정하고 관련 사료 및 탐구 자료를 풍부하게 제시함.\n4점: 성취기준에 부합하나 탐구 자료가 다소 부족함.\n3점: 성취기준과의 연계성이 다소 부족하거나 자료 제시가 단편적임.\n2점: 성취기준과 무관하거나 자료 제시가 매우 빈약함.\n1점: 참여하였으나 문화유산 선정 및 자료 제시가 전혀 없음.\n\n② 큐레이터의 시선 — 시대적 배경 (5점)\n5점: 시대적 배경을 구체적 사실에 근거하여 왜곡 없이 정확하게 설명함.\n4점: 시대적 배경을 설명하였으나 세부 역사 사실이 다소 부족함.\n3점: 단편적인 사실 나열 수준으로 단순하게 서술함.\n2점: 역사적 오류가 다수 포함되거나 내용이 매우 빈약함.\n1점: 참여하였으나 시대적 배경 서술이 전혀 없음.\n\n③ 큐레이터의 해석 — 역사적 의의 (5점)\n5점: 역사적 의의를 타당한 근거를 바탕으로 논리정연하게 설명함.\n4점: 역사적 의의를 설명하였으나 근거와 논리가 다소 부족함.\n3점: 역사적 의의를 단순하게 언급하거나 서술이 단편적임.\n2점: 의의 서술에 오류가 많거나 근거가 전혀 없음.\n1점: 참여하였으나 역사적 의의 서술이 전혀 없음.\n\n④ 형식 및 완성도 (5점)\n5점: 필수 양식(출처·사진 포함)을 빠짐없이 체계적으로 갖추어 완성도 있게 작성함.\n4점: 양식을 대체로 갖추었으나 일부 서술이 다소 미흡함.\n3점: 필수 양식이 일부 누락되었거나 분량이 부족함.\n2점: 양식을 거의 갖추지 못하거나 완성도가 매우 빈약함.\n1점: 참여하였으나 결과물 작성이 전혀 없음.\n\n[채점 지침]\n- 비교적 후하게 채점하되, 전체에서 만점(20점)이 너무 많지 않게 변별력을 유지하세요.\n- 내용이 충실하면 4~5점, 기본 수준이면 3~4점, 매우 부족하면 2~3점.${is4ban ? `\n- ★ 이 학생은 3학년 4반입니다. 시스템 오류로 사진 캡션이 저장되지 않았으므로, 캡션 누락을 이유로 ④ 형식 및 완성도를 절대 감점하지 마세요.` : ''}\n\n[학생 패널]\n전시관: ${panel.hall}\n반·번호·이름: ${panel.gradeClass}반 ${panel.stdNum}번 ${panel.stdName}\n문화유산 명칭: ${panel.relicName}\n기본 제원: ${panel.relicSpec || '(없음)'}\n시대적 배경: ${panel.historyContext || '(없음)'}\n역사적 의의: ${panel.curatorVoice || '(없음)'}\n참고 출처: ${panel.source || '(없음)'}\n사진1 캡션: ${panel.imgCaption1 || '(없음)'}\n사진2 캡션: ${panel.imgCaption2 || '(없음)'}\n사진 첨부: ${hasImg}\n\nJSON만 출력 (다른 텍스트 없이):\n{"score1":점수,"score2":점수,"score3":점수,"score4":점수,"feedback":"2~3문장 한국어 피드백"}`;
 
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
