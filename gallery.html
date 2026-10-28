@@ -840,15 +840,18 @@
       updateScoreTotal();
       const labels = ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
       if (resultDiv) {
-        resultDiv.innerHTML = '<strong style="color:#0f4c75;">🤖 AI 채점 근거</strong><br>' +
-          labels.map((lb,i) => `<span style="color:#555;">${lb} ${d['score'+(i+1)]}점:</span> ${d['reason'+(i+1)]}`).join('<br>') +
+        const _scrs2=[d.score1,d.score2,d.score3,d.score4];
+        const _ded2=labels.map((lb,i)=>_scrs2[i]<5?`<span style="color:#c00;">${lb} <b>-${5-_scrs2[i]}점</b>:</span> ${d['reason'+(i+1)]}`:null).filter(Boolean);
+        resultDiv.innerHTML = '<strong style="color:#0f4c75;">🤖 AI 채점 결과</strong><br>' +
+          (_ded2.length ? _ded2.join('<br>') : '✅ 전 항목 만점') +
           '<br><span style="font-size:0.78rem;color:#888;">※ 점수를 확인 후 [💾 채점 저장]을 눌러주세요.</span>';
         resultDiv.style.display = 'block';
       }
       const fbTa = document.getElementById('feedback-text');
       if (fbTa) {
-        fbTa.value = '[🤖 AI 채점 근거]\n' +
-          labels.map((lb,i) => `${lb} ${d['score'+(i+1)]}점: ${d['reason'+(i+1)]}`).join('\n');
+        const _scrs=[d.score1,d.score2,d.score3,d.score4];
+        const _ded=labels.map((lb,i)=>_scrs[i]<5?`${lb} (-${5-_scrs[i]}점): ${d['reason'+(i+1)]}`:null).filter(Boolean);
+        fbTa.value=_ded.length?'[감점 사유]\n'+_ded.join('\n'):'전 항목 만점';
       }
     })
     .catch(err => {
@@ -907,9 +910,10 @@
         const d2 = await r2.json();
         const total = d1.score1+d1.score2+d1.score3+d1.score4;
         if (d2.result === 'scored') {
-          const fbText = '[🤖 AI 채점 근거]\n' +
-            ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도']
-            .map((lb,i) => `${lb} ${d1['score'+(i+1)]}점: ${d1['reason'+(i+1)]}`).join('\n');
+          const _sc=[d1.score1,d1.score2,d1.score3,d1.score4];
+          const _lb=['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
+          const _ded=_lb.map((lb,i)=>_sc[i]<5?`${lb} (-${5-_sc[i]}점): ${d1['reason'+(i+1)]}`:null).filter(Boolean);
+          const fbText=_ded.length?'[감점 사유]\n'+_ded.join('\n'):'전 항목 만점';
           await fetch(GAS_URL, {
             method:'POST', headers:{'Content-Type':'text/plain'},
             body: JSON.stringify({action:'feedback', id:item.id, password:adminPasswordHash, feedback:fbText})
@@ -981,9 +985,10 @@
         const d2 = await r2.json();
         const total = d1.score1+d1.score2+d1.score3+d1.score4;
         if (d2.result === 'scored') {
-          const fbText = '[🤖 AI 채점 근거]\n' +
-            ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도']
-            .map((lb,i) => `${lb} ${d1['score'+(i+1)]}점: ${d1['reason'+(i+1)]}`).join('\n');
+          const _sc=[d1.score1,d1.score2,d1.score3,d1.score4];
+          const _lb=['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
+          const _ded=_lb.map((lb,i)=>_sc[i]<5?`${lb} (-${5-_sc[i]}점): ${d1['reason'+(i+1)]}`:null).filter(Boolean);
+          const fbText=_ded.length?'[감점 사유]\n'+_ded.join('\n'):'전 항목 만점';
           await fetch(GAS_URL, {
             method:'POST', headers:{'Content-Type':'text/plain'},
             body: JSON.stringify({action:'feedback', id:item.id, password:adminPasswordHash, feedback:fbText})
@@ -1044,9 +1049,10 @@
           logEl.innerHTML += `<div style="color:#c00;">✗ ${item.gradeClass} ${item.stdName} — ${d.result||'오류'}${d.message ? ': '+d.message : ''}</div>`;
           failed++;
         } else {
-          const fbText = '[🤖 AI 채점 근거]\n' +
-            ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도']
-            .map((lb,i) => `${lb} ${d['score'+(i+1)]}점: ${d['reason'+(i+1)]}`).join('\n');
+          const _sc=[d.score1,d.score2,d.score3,d.score4];
+          const _lb=['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도'];
+          const _ded=_lb.map((lb,i)=>_sc[i]<5?`${lb} (-${5-_sc[i]}점): ${d['reason'+(i+1)]}`:null).filter(Boolean);
+          const fbText=_ded.length?'[감점 사유]\n'+_ded.join('\n'):'전 항목 만점';
           await fetch(GAS_URL, {
             method:'POST', headers:{'Content-Type':'text/plain'},
             body: JSON.stringify({action:'feedback', id:item.id, password:adminPasswordHash, feedback:fbText})
@@ -1096,7 +1102,10 @@
     + '4=양식을 대체로 갖추었으나 일부 서술이 다소 미흡하거나 사진이 1장임\n'
     + '3=필수 양식이 일부 누락되었거나 전체적인 작성 분량이 부족함\n'
     + '2=양식을 거의 갖추지 못하였거나 글의 완성도가 매우 빈약함\n'
-    + '1=참여하였으나 결과물 작성이 전혀 없음';
+    + '1=참여하였으나 결과물 작성이 전혀 없음\n\n'
+    + '[채점 이유 작성 원칙] 각 항목의 이유(reason)는 반드시 한 문장 이내로 간결하게 작성하세요. '
+    + '감점된 경우에만 구체적 원인(역사적 오류, AI 생성 의심, 단편적 사실 나열, 중언부언, 출처·사진 누락 등)을 명시하세요. '
+    + '만점(5점)인 경우 이유는 "우수"로만 표기하세요.';
 
   function getScoringCriteria() {
     try { return localStorage.getItem('scoring_criteria') || DEFAULT_CRITERIA; } catch(e) { return DEFAULT_CRITERIA; }
