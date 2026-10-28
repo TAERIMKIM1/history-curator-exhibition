@@ -900,6 +900,13 @@
         const d2 = await r2.json();
         const total = d1.score1+d1.score2+d1.score3+d1.score4;
         if (d2.result === 'scored') {
+          const fbText = '[🤖 AI 채점 근거]\n' +
+            ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도']
+            .map((lb,i) => `${lb} ${d1['score'+(i+1)]}점: ${d1['reason'+(i+1)]}`).join('\n');
+          await fetch(GAS_URL, {
+            method:'POST', headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({action:'feedback', id:item.id, password:adminPasswordHash, feedback:fbText})
+          });
           logEl.innerHTML += `<div style="color:#0a5;">✓ ${item.gradeClass} ${item.stdName} — ${total}점</div>`;
           success++;
         } else {
@@ -967,6 +974,13 @@
         const d2 = await r2.json();
         const total = d1.score1+d1.score2+d1.score3+d1.score4;
         if (d2.result === 'scored') {
+          const fbText = '[🤖 AI 채점 근거]\n' +
+            ['① 문화유산 선정','② 시대적 배경','③ 역사적 의의','④ 형식 완성도']
+            .map((lb,i) => `${lb} ${d1['score'+(i+1)]}점: ${d1['reason'+(i+1)]}`).join('\n');
+          await fetch(GAS_URL, {
+            method:'POST', headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({action:'feedback', id:item.id, password:adminPasswordHash, feedback:fbText})
+          });
           logEl.innerHTML += `<div style="color:#0a5;">✓ ${item.gradeClass} ${item.stdName} — ${total}점</div>`;
           success++;
         } else {
