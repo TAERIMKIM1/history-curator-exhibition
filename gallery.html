@@ -145,6 +145,21 @@
     .print-class-title { font-size: 16pt; font-weight: bold; text-align: center; padding: 20pt 0 10pt; border-bottom: 2pt solid #1C2830; margin-bottom: 20pt; page-break-after: avoid; }
     .print-score { background: #e8f4fd; padding: 4pt 8pt; font-size: 9pt; margin-bottom: 8pt; border-left: 3pt solid #1B6CA8; font-weight: bold; color: #0f4c75; }
     .print-feedback { background: #f3e8ff; padding: 4pt 8pt; font-size: 8.5pt; margin-bottom: 8pt; border-left: 3pt solid #7B2D8B; color: #3d0070; white-space: pre-wrap; line-height: 1.5; }
+    .grade-print-section { page-break-after: always; padding: 1cm 1.2cm; font-family: 'Malgun Gothic', sans-serif; }
+    .grade-print-section:last-child { page-break-after: auto; }
+    .grade-print-header { text-align: center; border-bottom: 2pt solid #1C2830; padding-bottom: 6pt; margin-bottom: 8pt; }
+    .grade-print-header h2 { font-size: 16pt; font-weight: bold; margin-bottom: 3pt; }
+    .grade-print-header p { font-size: 9pt; color: #333; }
+    .grade-print-teacher { text-align: right; font-size: 9pt; margin-bottom: 4pt; }
+    .grade-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+    .grade-table th, .grade-table td { border: 0.5pt solid #333; padding: 3pt 4pt; text-align: center; vertical-align: middle; }
+    .grade-table thead th { background: #1C2830; color: #fff; font-weight: bold; }
+    .grade-table thead th.sub { background: #2d4050; font-weight: normal; font-size: 7.5pt; }
+    .grade-table td.name { text-align: left; padding-left: 5pt; }
+    .grade-table td.total { font-weight: bold; background: #f0f4f8; }
+    .grade-table tfoot td { background: #f5f5f0; font-weight: bold; font-size: 8pt; }
+    .grade-print-note { margin-top: 8pt; font-size: 8pt; color: #333; background: #fffbe6; padding: 5pt 8pt; border-left: 3pt solid #A07828; line-height: 1.7; }
+    .grade-print-note strong { color: #7b3f00; }
   }
   .pw-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -240,6 +255,11 @@
         style="background:#2d6a4f;color:#d8f3dc;border:1px solid #52b788;padding:0.35rem 0.8rem;
                border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
         📋 채점 기준
+      </button>
+      <button onclick="printGradeTable()"
+        style="background:#7b3f00;color:#ffe8cc;border:1px solid #c96a00;padding:0.35rem 0.8rem;
+               border-radius:4px;font-weight:bold;font-size:0.8rem;cursor:pointer;">
+        📊 성적 일람표
       </button>
       <button class="btn-admin-exit" onclick="exitAdminMode()">✕ 모드 종료</button>
     </div>
@@ -1073,6 +1093,102 @@
 
     logEl.innerHTML += `<div style="margin-top:0.4rem;font-weight:bold;color:#1a5276;">완료! 피드백 ${success}건 생성 / 오류 ${failed}건</div>`;
     setTimeout(() => { document.body.removeChild(overlay); loadGallery(); }, 3000);
+  }
+
+  function printGradeTable() {
+    const norm = s => String(s).replace(/\s/g,'');
+    const targets = currentFilter
+      ? items.filter(i => norm(i.gradeClass) === norm(currentFilter))
+      : items;
+    if (!targets.length) { alert('출력할 학생 데이터가 없습니다.'); return; }
+
+    const sorted = [...targets].sort((a, b) => {
+      const ca = String(a.gradeClass).trim(), cb = String(b.gradeClass).trim();
+      if (ca !== cb) return ca.localeCompare(cb, 'ko');
+      return parseInt(a.stdNum) - parseInt(b.stdNum);
+    });
+
+    const today = new Date().toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
+
+    const byClass = {};
+    sorted.forEach(item => {
+      const cls = String(item.gradeClass).trim();
+      if (!byClass[cls]) byClass[cls] = [];
+      byClass[cls].push(item);
+    });
+
+    let html = '';
+    Object.keys(byClass).sort((a,b) => a.localeCompare(b,'ko')).forEach(cls => {
+      const students = byClass[cls];
+      const scored = students.filter(s => s.totalScore > 0);
+      const totalSum = scored.reduce((a,b) => a + (parseInt(b.totalScore)||0), 0);
+      const avg = scored.length ? (totalSum / scored.length).toFixed(1) : '-';
+
+      const rows = students.map(s => {
+        const ok = s.totalScore > 0;
+        return `<tr>
+          <td>${s.stdNum}</td>
+          <td class="name">${s.stdName}</td>
+          <td>${ok ? (s.score1||'-') : '-'}</td>
+          <td>${ok ? (s.score2||'-') : '-'}</td>
+          <td>${ok ? (s.score3||'-') : '-'}</td>
+          <td>${ok ? (s.score4||'-') : '-'}</td>
+          <td class="total">${ok ? s.totalScore : '-'}</td>
+          <td class="name" style="font-size:7.5pt;">${s.relicName||''}</td>
+        </tr>`;
+      }).join('');
+
+      html += `<div class="grade-print-section">
+        <div class="grade-print-header">
+          <h2>수행평가 강의실별 일람표</h2>
+          <p>2026학년도 2학기 주간 &nbsp;|&nbsp; 3학년 ${cls} &nbsp;|&nbsp; 교과목: 역사</p>
+        </div>
+        <div class="grade-print-teacher">교과담당교사 (김태림) 인 &nbsp;&nbsp;&nbsp; ${today}</div>
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:6%;">번호</th>
+              <th rowspan="2" style="width:14%;">성명</th>
+              <th colspan="4">문화유산 탐구 (만점 20점, 20%)</th>
+              <th rowspan="2" style="width:7%;">총점</th>
+              <th rowspan="2" style="width:22%;">문화유산명</th>
+            </tr>
+            <tr>
+              <th class="sub" style="width:8%;">①문화유산<br>선정 (5점)</th>
+              <th class="sub" style="width:8%;">②시대적<br>배경 (5점)</th>
+              <th class="sub" style="width:8%;">③역사적<br>의의 (5점)</th>
+              <th class="sub" style="width:8%;">④형식<br>완성도 (5점)</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">응시생수</td>
+              <td colspan="4">${students.length}명 (채점 완료 ${scored.length}명)</td>
+              <td colspan="2"></td>
+            </tr>
+            <tr>
+              <td colspan="2">총점 합계</td>
+              <td colspan="4">${totalSum}점</td>
+              <td colspan="2"></td>
+            </tr>
+            <tr>
+              <td colspan="2">평균</td>
+              <td colspan="4">${avg}점</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="grade-print-note">
+          <strong>※ 수행평가 구성 (총 60%)</strong>: 판결문 쓰기 20점(20%) + 문화유산 탐구 20점(20%) + 역사 용어 사전 20점(20%) = 합계 60점(60%)<br>
+          <strong>※ 기말고사 반영 방법 (40%)</strong>: 기말고사에서 받은 점수 × 40% = 기말고사 반영 점수 (최대 40점)<br>
+          <strong>※ 학기말 최종 성적</strong> = 수행평가 합계 (최대 60점) + 기말고사 반영 점수 (최대 40점) = 100점 만점
+        </div>
+      </div>`;
+    });
+
+    document.getElementById('print-area').innerHTML = html;
+    window.print();
   }
 
   var GALLERY_PW_HASH = '4c16016741f6c1ec8ab0afb40d66fb1a86f5a7906a02b8a18391f7c4dcdf0f46';
